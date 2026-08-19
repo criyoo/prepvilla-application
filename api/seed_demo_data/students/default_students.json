@@ -1,0 +1,36 @@
+{
+    "yemisi": {
+        "sign_up": {
+            "full_name": "Yemisi Adeleke",
+            "email": "criyo.career+yemisi@gmail.com",
+            "password": "ifG0dbi4mi"
+        },
+        "profile": {
+            "basic_information": {
+                "state": "Lagos",
+                "city": "Ikeja",
+                "address": "23 Adeniyi Jone",
+                "mobile_number": "+2348081726354",
+                "date_of_birth": "21/08/2007",
+                "profile_photo": "prepvilla/apps/api/seed_demo_data/students/photo/ojukwu.webp"
+            }
+        }
+    },
+    "Ojukwu": {
+        "sign_up": {
+            "full_name": "Ojukwu Chukwudi",
+            "email": "criyo.career+ojukwu@gmail.com",
+            "password": "ifG0dbi4mi"
+        },
+        "profile": {
+            "basic_information": {
+                "state": "Lagos",
+                "city": "Egbeda",
+                "address": "23 Okunola Road, off idimu Road",
+                "mobile_number": "+2348054637281",
+                "date_of_birth": "14/11/2008",
+                "profile_photo": "prepvilla/apps/api/seed_demo_data/students/photo/ojukwu.webp"
+            }
+        }
+    }
+}

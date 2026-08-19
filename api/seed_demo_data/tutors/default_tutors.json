@@ -1,0 +1,137 @@
+{
+    "nicholas": {
+        "sign_up": {
+            "full_name": "Nicholas Adegoke",
+            "email": "criyo.career+nicholas@gmail.com",
+            "password": "ifG0dbi4mi"
+        },
+        "verification": {
+            "mobile_number": "+2348027861765",
+            "date_of_birth": "13/03/1993",
+            "residence": {
+                "state": "Lagos",
+                "city": "Ikeja",
+                "address": "23 Adeniyi Jone",
+                "qualification": "Bsc, Msc",
+                "nin_number": 98726175265,
+                "profile_photo": "seed_demo_data/tutors/photo/nicholas.webp",
+                "id_document": "seed_demo_data/tutors/id/nicholas.jpeg",
+                "qualification_document": "seed_demo_data/tutors/qualification/nicholas.jpeg"
+            }
+        },
+        "profile": {
+            "basic_information": {
+                "state_of_origin": "Oyo"
+            },
+            "tutor_profile": {
+                "headline": "Experienced mathematics & physics teacher with 10 years of experience",
+                "hourly_rate": 5000,
+                "about": "Nicholas is a professional, and highly respected as a mathematics teacher, who go out of his way to ensures his student get the best and pass their exams with flyfin colours",
+                "subjects": [
+                    "mathematics",
+                    "physics"
+                ],
+                "languages": [
+                    "english",
+                    "spanish"
+                ],
+                "gender": "male",
+                "first_lesson_free": true,
+                "teaching_methods": {
+                    "face_to_face": true,
+                    "webcam": true
+                }
+            }
+        }
+    },
+    "cynthia": {
+        "sign_up": {
+            "full_name": "Cynthia Adams",
+            "email": "criyo.career+cynthia@gmail.com",
+            "password": "ifG0dbi4mi"
+        },
+        "verification": {
+            "mobile_number": "+2349011161432",
+            "date_of_birth": "21/07/1998",
+            "residence": {
+                "state": "Oyo",
+                "city": "Ibadan",
+                "address": "14 Iwo Road",
+                "qualification": "MEng",
+                "nin_number": 91791275243,
+                "profile_photo": "seed_demo_data/tutors/photo/cynthia.webp",
+                "id_document": "seed_demo_data/tutors/id/cynthia.jpeg",
+                "qualification_document": "seed_demo_data/tutors/qualification/cynthia.jpeg"
+            }
+        },
+        "profile": {
+            "basic_information": {
+                "state_of_origin": "Enugu"
+            },
+            "tutor_profile": {
+                "headline": "Experienced English & Biology teacher with 7 years of experience",
+                "hourly_rate": 5000,
+                "about": "Cynthia is a passionate teacher, with love for teaching children and helping them pass their state and federal examinations",
+                "subjects": [
+                    "english",
+                    "biology"
+                ],
+                "languages": [
+                    "english",
+                    "igbo"
+                ],
+                "gender": "female",
+                "first_lesson_free": true,
+                "teaching_methods": {
+                    "face_to_face": true,
+                    "webcam": true
+                }
+            }
+        }
+    },
+    "efeturi": {
+        "sign_up": {
+            "full_name": "Efeturi Ovie",
+            "email": "criyo.career+efeturi@gmail.com",
+            "password": "ifG0dbi4mi"
+        },
+        "verification": {
+            "mobile_number": "+2348022261512",
+            "date_of_birth": "31/12/1995",
+            "residence": {
+                "state": "Delta",
+                "city": "Asaba",
+                "address": "14 Odumagba Avenue",
+                "qualification": "MEng",
+                "nin_number": 76891276253,
+                "profile_photo": "seed_demo_data/tutors/photo/efeturi.webp",
+                "id_document": "seed_demo_data/tutors/id/efeturi.jpeg",
+                "qualification_document": "seed_demo_data/tutors/qualification/efeturi.jpeg"
+            }
+        },
+        "profile": {
+            "basic_information": {
+                "state_of_origin": "Delta"
+            },
+            "tutor_profile": {
+                "headline": "Experienced Music & Art teacher with 7 years of experience",
+                "hourly_rate": 5000,
+                "about": "Efeturi is a passionate teacher, with love for teaching children and heloing them pass their state and federal examinations",
+                "subjects": [
+                    "music",
+                    "art"
+                ],
+                "languages": [
+                    "english",
+                    "french"
+                ],
+                "gender": "female",
+                "first_lesson_free": true,
+                "teaching_methods": {
+                    "face_to_face": true,
+                    "webcam": true
+                }
+            }
+        }
+    }
+}
