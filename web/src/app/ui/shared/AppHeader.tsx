@@ -56,107 +56,103 @@ export function AppHeader({ hideMenu = false, hideActions = false, overlay = fal
   }
 
   return (
-    <header
-      className={clsx(
-        "relative sticky top-0 z-30 border-b backdrop-blur",
-        overlay
-          ? "border-white/12 bg-background/36 shadow-[0_18px_40px_rgba(15,23,40,0.18)] supports-[backdrop-filter]:bg-background/18"
-          : "border-[rgba(23,32,51,0.1)] bg-background/80 shadow-[0_18px_40px_rgba(15,23,40,0.08)] supports-[backdrop-filter]:bg-background/68",
-      )}
-    >
-      {showBackButton ? (
-        <button
-          type="button"
-          onClick={handleBack}
-          className="menu-back-button absolute left-1 top-1/2 inline-flex h-16 w-16 -translate-y-1/2 flex-col items-center justify-center rounded-full text-primary-deep focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2 focus:ring-offset-background md:left-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="mt-1 text-[11px] font-semibold leading-none">Back</span>
-        </button>
-      ) : null}
-      <div className="mx-auto flex min-h-[var(--app-header-height)] w-full max-w-[1480px] items-center justify-between gap-4 px-4 py-3 md:px-4">
-        <div className="flex items-center gap-3">
-          <div className={clsx(showBackButton ? "w-16 md:w-20" : "w-0")} aria-hidden="true" />
-          <Link
-            href="/"
-            className={clsx(
-              "flex items-center",
-              overlay && !showBackButton && "ml-6 md:ml-10",
-            )}
-          >
-            <div
-              className={clsx(
-                "text-[20px] font-extrabold leading-[24px] tracking-tight md:text-[24px] md:leading-[28px]",
-                overlay ? "text-[color:var(--palette-paper)]" : "text-primary-deep",
-              )}
-            >
-              PrepVilla
-            </div>
-          </Link>
-        </div>
-
-        {!hideActions ? (
-          <div className="flex items-center gap-1.5">
-            {!hideMenu ? (
-              <Link href="/about" onMouseEnter={() => prefetchRoute("/about")} onFocus={() => prefetchRoute("/about")}>
-                <Button variant={aboutActive ? "menuActive" : "menu"} className={menuButtonClassName}>
-                  <Info className={menuIconClassName} />
-                  <span>About</span>
-                </Button>
-              </Link>
-            ) : null}
-
-            {!hideMenu ? (
-              <Link className="hidden lg:block" href="/how-it-works" onMouseEnter={() => prefetchRoute("/how-it-works")} onFocus={() => prefetchRoute("/how-it-works")}>
-                <Button variant={howItWorksActive ? "menuActive" : "menu"} className={menuButtonClassName}>
-                  <BookOpenCheck className={menuIconClassName} />
-                  <span className="hidden md:inline">How it works</span>
-                  <span className="md:hidden">How</span>
-                </Button>
-              </Link>
-            ) : null}
-
-            {!hideMenu ? (
-              <Link href="/search" onMouseEnter={() => prefetchRoute("/search")} onFocus={() => prefetchRoute("/search")}>
-                <Button variant={searchActive ? "menuActive" : "menu"} className={menuButtonClassName}>
-                  <Search className={menuIconClassName} />
-                  <span className="hidden sm:inline">Find a tutor</span>
-                  <span className="sm:hidden">Find</span>
-                </Button>
-              </Link>
-            ) : null}
-
-            {role ? (
-              <>
-                <Link href={dashboardHref} onMouseEnter={() => prefetchRoute(dashboardHref)} onFocus={() => prefetchRoute(dashboardHref)}>
-                  <Button variant={dashboardActive ? "menuActive" : "menu"} className={menuButtonClassName}>
-                    <UserRound className={menuIconClassName} />
-                    <span className="hidden sm:inline">{dashboardLabel}</span>
-                    <span className="sm:hidden">Dash</span>
-                  </Button>
-                </Link>
-                <Button variant="menu" onClick={clear} className={menuButtonClassName}>
-                  <LogOut className={menuIconClassName} />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/signup/tutor" onMouseEnter={() => prefetchRoute("/signup/tutor")} onFocus={() => prefetchRoute("/signup/tutor")}>
-                  <Button variant={signupActive ? "menuActive" : "menu"} className={menuButtonClassName}>
-                    Become a tutor
-                  </Button>
-                </Link>
-                <Link href="/login" onMouseEnter={() => prefetchRoute("/login")} onFocus={() => prefetchRoute("/login")}>
-                  <Button variant={loginActive ? "menuActive" : "menu"} className={menuButtonClassName}>
-                    Login
-                  </Button>
-                </Link>
-              </>
-            )}
+    <>
+      <header
+        className={clsx(
+          "relative sticky top-0 z-10 bg-transparent",
+          overlay
+            ? "shadow-[0_10px_10px_-34px_rgba(15,23,40,0.18)]"
+            : "shadow-[0_10px_10px_-34px_rgba(15,23,40,0.18)]",
+        )}
+      >
+        <div className="mx-auto flex min-h-[var(--app-header-height)] w-full max-w-[1480px] items-center justify-between gap-4 px-4 py-3 md:px-4">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center">
+              <div
+                className="brand-logo text-[20px] font-extrabold leading-[24px] tracking-tight md:text-[24px] md:leading-[28px]"
+              >
+                PrepVilla
+              </div>
+            </Link>
           </div>
-        ) : null}
-      </div>
-    </header>
+
+          {!hideActions ? (
+            <div className="flex items-center gap-1.5">
+              {!hideMenu ? (
+                <Link href="/about" onMouseEnter={() => prefetchRoute("/about")} onFocus={() => prefetchRoute("/about")}>
+                  <Button variant={aboutActive ? "menuActive" : "menu"} className={menuButtonClassName}>
+                    <Info className={menuIconClassName} />
+                    <span>About</span>
+                  </Button>
+                </Link>
+              ) : null}
+
+              {!hideMenu ? (
+                <Link className="hidden lg:block" href="/how-it-works" onMouseEnter={() => prefetchRoute("/how-it-works")} onFocus={() => prefetchRoute("/how-it-works")}>
+                  <Button variant={howItWorksActive ? "menuActive" : "menu"} className={menuButtonClassName}>
+                    <BookOpenCheck className={menuIconClassName} />
+                    <span className="hidden md:inline">How it works</span>
+                    <span className="md:hidden">How</span>
+                  </Button>
+                </Link>
+              ) : null}
+
+              {!hideMenu ? (
+                <Link href="/search" onMouseEnter={() => prefetchRoute("/search")} onFocus={() => prefetchRoute("/search")}>
+                  <Button variant={searchActive ? "menuActive" : "menu"} className={menuButtonClassName}>
+                    <Search className={menuIconClassName} />
+                    <span className="hidden sm:inline">Find a tutor</span>
+                    <span className="sm:hidden">Find</span>
+                  </Button>
+                </Link>
+              ) : null}
+
+              {role ? (
+                <>
+                  <Link href={dashboardHref} onMouseEnter={() => prefetchRoute(dashboardHref)} onFocus={() => prefetchRoute(dashboardHref)}>
+                    <Button variant={dashboardActive ? "menuActive" : "menu"} className={menuButtonClassName}>
+                      <UserRound className={menuIconClassName} />
+                      <span className="hidden sm:inline">{dashboardLabel}</span>
+                      <span className="sm:hidden">Dash</span>
+                    </Button>
+                  </Link>
+                  <Button variant="menu" onClick={clear} className={menuButtonClassName}>
+                    <LogOut className={menuIconClassName} />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/signup/tutor" onMouseEnter={() => prefetchRoute("/signup/tutor")} onFocus={() => prefetchRoute("/signup/tutor")}>
+                    <Button variant={signupActive ? "menuActive" : "menu"} className={menuButtonClassName}>
+                      Become a tutor
+                    </Button>
+                  </Link>
+                  <Link href="/login" onMouseEnter={() => prefetchRoute("/login")} onFocus={() => prefetchRoute("/login")}>
+                    <Button variant={loginActive ? "menuActive" : "menu"} className={menuButtonClassName}>
+                      Login
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </header>
+      {showBackButton ? (
+        <div className="pointer-events-none absolute left-0 top-[var(--app-header-height)] z-20 w-full">
+          <div className="mx-auto w-full max-w-[1480px] px-4 pt-3">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="menu-back-button pointer-events-auto inline-flex h-10 items-center gap-2 rounded-xl border border-black/10 bg-white/90 px-3.5 text-[13px] font-semibold text-primary-deep shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-[rgba(139,97,120,0.36)] hover:bg-[var(--secondary-color-soft)] focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2 focus:ring-offset-background"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back</span>
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

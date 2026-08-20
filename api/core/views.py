@@ -3979,9 +3979,9 @@ def student_verification(request):
 def admin_student_verifications(request):
     if request.method == "GET":
         status_filter = request.GET.get("status", "pending")
-        verifications = StudentVerificationRequest.objects.filter(
-            status=status_filter if status_filter != "all" else None
-        ).select_related("user").order_by("-submitted_at")
+        verifications = StudentVerificationRequest.objects.select_related("user").order_by("-submitted_at")
+        if status_filter != "all":
+            verifications = verifications.filter(status=status_filter)
         
         data = [{
             "id": str(v.id),
@@ -3991,6 +3991,14 @@ def admin_student_verifications(request):
             "profilePhotoUrl": v.profile_photo_url,
             "dateOfBirth": v.date_of_birth.isoformat() if v.date_of_birth else None,
             "mobileNumber": v.mobile_number,
+            "ninNumber": v.nin_number,
+            "bvnNumber": v.bvn_number,
+            "countryOfBirth": v.country_of_birth,
+            "nationality": v.nationality,
+            "stateOfOrigin": v.state_of_origin,
+            "lgaOfOrigin": v.lga_of_origin,
+            "qualification": v.qualification,
+            "documentUrls": _load_string_list(v.document_urls),
             "city": v.city,
             "state": v.state,
             "address": v.address,

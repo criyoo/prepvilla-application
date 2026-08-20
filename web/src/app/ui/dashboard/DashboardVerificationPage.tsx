@@ -1,7 +1,6 @@
 "use client";
 
-import { clsx } from "clsx";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
@@ -90,16 +89,6 @@ function splitFullName(value?: string | null) {
 
 function composeFullName(firstName: string, middleName: string, lastName: string) {
   return [firstName, middleName, lastName].map((value) => value.trim()).filter(Boolean).join(" ");
-}
-
-function selectFieldClass(hasValue: boolean, backgroundClass = "bg-surface") {
-  return clsx(
-    "w-full rounded-xl border border-black/12 px-3 text-[14px] leading-[22px] shadow-sm focus:outline-none focus:ring-4 focus:ring-black/8 focus:border-black",
-    "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500 disabled:opacity-100",
-    backgroundClass,
-    hasValue ? "text-foreground" : "text-slate-400",
-    backgroundClass === "bg-surface" ? "h-11 py-2" : "h-10",
-  );
 }
 
 export default function DashboardVerificationPage({ accountRole = "tutor" }: { accountRole?: "student" | "tutor" }) {
@@ -226,7 +215,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
     return body.url;
   }
 
-  async function load() {
+  const load = useCallback(async () => {
     setError(null);
     setNotification(null);
     const [resMe, resVer] = await Promise.all([
@@ -281,11 +270,11 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
       setNinNumber(resVer.data.ninNumber || "");
       setBvnNumber(resVer.data.bvnNumber || "");
     }
-  }
+  }, [verificationEndpoint]);
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   async function submit() {
     setError(null);

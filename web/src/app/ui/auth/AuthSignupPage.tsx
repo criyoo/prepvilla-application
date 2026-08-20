@@ -184,10 +184,10 @@ export function AuthSignupPage({
       fullName: submittedFullName,
       ...(isTutorFlow
         ? {
-            firstName: firstName.trim(),
-            middleName: middleName.trim(),
-            lastName: lastName.trim(),
-          }
+          firstName: firstName.trim(),
+          middleName: middleName.trim(),
+          lastName: lastName.trim(),
+        }
         : {}),
     });
     if (!res.ok) {
@@ -275,7 +275,7 @@ export function AuthSignupPage({
         <AppHeader hideMenu={hideHeaderMenu} hideActions={hideHeaderActions} />
         <main className="mx-auto w-full max-w-[1400px] px-4 pb-12 pt-6 md:px-8">
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <section className="brand-hero relative overflow-hidden rounded-[36px] p-6 text-white md:p-10">
+            <section className="mt-10 brand-hero relative overflow-hidden rounded-[36px] p-6 text-white md:p-10">
               <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-surface/22 blur-3xl" />
               <div className="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
               <div className="relative">
@@ -309,7 +309,7 @@ export function AuthSignupPage({
               </div>
             </section>
 
-            <section className="form-panel w-full rounded-[30px] p-6 sm:p-8">
+            <section className="mt-10 form-panel w-full rounded-[30px] p-6 sm:p-8">
               <h2 className="brand-heading text-[28px] font-semibold leading-[36px]">Create Tutor Account</h2>
               <p className="mt-1 text-sm text-muted">
                 Sign up with your email and password, or continue with Google SSO.

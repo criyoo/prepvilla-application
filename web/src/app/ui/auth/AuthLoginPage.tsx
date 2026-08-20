@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Chrome, Lock, Mail, X } from "lucide-react";
+import { Chrome, Lock, Mail } from "lucide-react";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
+import { AppHeader } from "../shared/AppHeader";
 import { api } from "../shared/api";
 import { requestGoogleAuthorizationCode } from "../shared/googleMeet";
 import { useAuthStore } from "../shared/authStore";
@@ -137,17 +138,10 @@ export function AuthLoginPage() {
   }
 
   return (
-    <div className="brand-page min-h-screen px-4 py-6 sm:py-10">
-      <main className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-[560px] items-center justify-center sm:min-h-[calc(100vh-5rem)]">
+    <div className="brand-page min-h-screen">
+      <AppHeader />
+      <main className="mx-auto flex min-h-[calc(100vh-var(--app-header-height)-4rem)] w-full max-w-[560px] items-center justify-center px-4 py-6 sm:py-10">
         <section className="form-panel relative w-full rounded-[28px] p-6 backdrop-blur-sm sm:p-8">
-          <Link
-            href="/"
-            className="absolute left-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white text-black/65 transition hover:-translate-y-0.5 hover:border-[rgba(139,97,120,0.36)] hover:bg-[var(--secondary-color-soft)] hover:text-black"
-            aria-label="Close login"
-          >
-            <X className="h-5 w-5" />
-          </Link>
-
           <h1 className="brand-heading mt-2 text-center text-3xl font-semibold tracking-tight">Log in</h1>
           <p className="mt-1 text-center text-sm text-black/65">Use the same sign-in method you used during registration.</p>
 

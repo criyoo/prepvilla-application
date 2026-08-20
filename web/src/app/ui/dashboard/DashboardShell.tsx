@@ -45,7 +45,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     <RequireAuth>
       <div className="min-h-screen bg-background">
         <AppHeader />
-        <main className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-6 px-4 pb-10 pt-6 lg:grid-cols-[260px_1fr]">
+        <main className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-6 px-4 pb-10 pt-[4.75rem] lg:grid-cols-[260px_1fr]">
           {firstName && (roleKey === "student" || roleKey === "tutor") ? (
             <div className="lg:col-span-2">
               <p className="text-[14px] font-medium leading-[22px] text-black/60">Welcome</p>

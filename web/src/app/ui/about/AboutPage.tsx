@@ -63,13 +63,13 @@ const trustPrinciples = [
 export function AboutPage() {
   return (
     <div className="brand-page min-h-screen">
-      <AppHeader />
+      <AppHeader overlay />
 
-      <main>
+      <main className="hero-under-header">
         <section className="relative overflow-hidden border-b border-[rgba(139,97,120,0.16)] bg-[linear-gradient(135deg,#fff7f1_0%,#fffdf8_52%,#efe2e8_100%)]">
           <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-accent/15 blur-3xl" />
           <div className="absolute -bottom-36 left-1/3 h-96 w-96 rounded-full bg-primary/12 blur-3xl" />
-          <div className="relative mx-auto grid w-full max-w-[1480px] gap-10 px-4 py-16 md:px-10 md:py-24 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="relative mx-auto grid w-full max-w-[1480px] gap-10 px-4 pb-16 pt-[calc(var(--app-header-height)+4rem)] md:px-10 md:pb-24 md:pt-[calc(var(--app-header-height)+6rem)] lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-surface/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-accent-hover shadow-sm">
                 <Sparkles className="h-3.5 w-3.5" />

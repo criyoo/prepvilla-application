@@ -388,10 +388,10 @@ export function HomePage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">Explore the community</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-primary-deep md:text-3xl">Meet tutors ready to help you grow</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Browse a selection of tutors, then open full search when you are ready to narrow down your options.</p>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Open full search when you are ready to narrow down your options.</p>
             </div>
             <Link href="/search">
-              <Button variant="secondary" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              <Button variant="secondary" rightIcon={<ArrowRight className="h-6 w-8" />}>
                 Open full search
               </Button>
             </Link>

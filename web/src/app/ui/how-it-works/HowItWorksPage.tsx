@@ -195,13 +195,13 @@ export function HowItWorksPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <AppHeader />
+      <AppHeader overlay />
 
-      <main>
+      <main className="hero-under-header">
         <section className="relative overflow-hidden border-b border-black/8 bg-[linear-gradient(135deg,var(--palette-navy-deep)_0%,var(--palette-navy)_62%,var(--palette-plum)_100%)] text-white">
           <div className="pointer-events-none absolute -right-28 -top-36 h-96 w-96 rounded-full bg-accent/30 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-44 left-[18%] h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-          <div className="relative mx-auto grid w-full max-w-[1240px] gap-12 px-5 py-16 sm:px-8 md:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:items-end lg:px-10">
+          <div className="relative mx-auto grid w-full max-w-[1240px] gap-12 px-5 pb-16 pt-[calc(var(--app-header-height)+4rem)] sm:px-8 md:pb-24 md:pt-[calc(var(--app-header-height)+6rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-end lg:px-10">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent-light">How PrepVilla works</p>
               <h1 className="brand-heading mt-5 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
