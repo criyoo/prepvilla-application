@@ -14,7 +14,6 @@ ADMIN_TASK_CONTAINER_NAME="${ADMIN_TASK_CONTAINER_NAME:-migration}"
 PUBLIC_SUBNET_IDS="${PUBLIC_SUBNET_IDS:-}"
 APP_SECURITY_GROUP_ID="${APP_SECURITY_GROUP_ID:-}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@prepvilla.info}"
-ADMIN_PASSWORD="${DJANGO_SUPERUSER_PASSWORD:-${ADMIN_PASSWORD:-}}"
 
 export AWS_PAGER=""
 
@@ -57,16 +56,16 @@ read_tfvars_string() {
 
 build_overrides_json() {
   ADMIN_EMAIL="${ADMIN_EMAIL}" \
-  ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
   ADMIN_TASK_CONTAINER_NAME="${ADMIN_TASK_CONTAINER_NAME}" \
   python3 - <<'PY'
 import json
 import os
 
 command = (
-    "cd /app && python manage.py ensure_superuser "
+    'cd /app && : "${DJANGO_SUPERUSER_PASSWORD:?DJANGO_SUPERUSER_PASSWORD is required}" '
+    "&& python manage.py ensure_superuser "
     '--email "$ADMIN_EMAIL" '
-    '--password "$ADMIN_PASSWORD" '
+    '--password "$DJANGO_SUPERUSER_PASSWORD" '
     '--display-name "Admin" '
     '--full-name "Admin" '
     '--timezone "UTC"'
@@ -79,7 +78,6 @@ payload = {
             "command": ["sh", "-lc", command],
             "environment": [
                 {"name": "ADMIN_EMAIL", "value": os.environ["ADMIN_EMAIL"]},
-                {"name": "ADMIN_PASSWORD", "value": os.environ["ADMIN_PASSWORD"]},
             ],
         }
     ]
@@ -94,8 +92,6 @@ require_cmd python3
 require_cmd sed
 require_cmd tr
 set_aws_auth_mode
-
-[ -n "${ADMIN_PASSWORD}" ] || fail "ADMIN_PASSWORD is required"
 
 if [ -f "${TFVARS_FILE}" ]; then
   PROJECT_NAME="${PROJECT_NAME:-$(read_tfvars_string project_name)}"

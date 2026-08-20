@@ -165,3 +165,6 @@ api/db.sqlite3
 .factorypath
 *.zip
 postgres_data
+.vscode
+.kilo
+.kilocode

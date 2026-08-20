@@ -22,7 +22,7 @@ from config.routing import websocket_application
 http_application = get_asgi_application()
 
 if settings.DEBUG:
-    # Daphne does not serve staticfiles in development unless we wrap the HTTP app.
+    # ASGI servers do not serve Django static files automatically in development.
     http_application = ASGIStaticFilesHandler(http_application)
 
 application = ProtocolTypeRouter({
