@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from core.models import AppUser, SubscriptionPayment
-from core.subscription_plans import get_subscription_plan_catalog, get_subscription_plan
+from core.subscription_plans import get_subscription_plan_catalog, SUBSCRIPTION_PLANS as plan
 
 
 
@@ -81,24 +81,24 @@ class SubscriptionPlanTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["amount"], get_subscription_plan("platinum"))
+        self.assertEqual(response.json()["amount"], plan[3]["price"])
         payment = SubscriptionPayment.objects.get(user=self.tutor)
         self.assertEqual(payment.plan, "platinum")
-        self.assertEqual(payment.amount, Decimal(get_subscription_plan("platinum")))
+        self.assertEqual(payment.amount, plan[3]["price"])
         initialize_payment.assert_called_once()
 
     def test_subscription_history_is_scoped_to_the_authenticated_user(self):
         SubscriptionPayment.objects.create(
             user=self.student,
             plan="silver",
-            amount=Decimal("5000.00"),
+            amount=plan[1]["price"],
             transaction_id="student-subscription",
             status=SubscriptionPayment.Status.COMPLETED,
         )
         SubscriptionPayment.objects.create(
             user=self.tutor,
             plan="gold",
-            amount=Decimal("7500.00"),
+            amount=plan[2]["price"],
             transaction_id="tutor-subscription",
             status=SubscriptionPayment.Status.COMPLETED,
         )
