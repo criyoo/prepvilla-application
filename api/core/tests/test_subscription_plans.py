@@ -79,12 +79,15 @@ class SubscriptionPlanTests(TestCase):
             {"plan": "platinum"},
             format="json",
         )
-
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["amount"], Decimal(plan[3]["price"]))
+
+        amount = Decimal(response.json()["amount"])
+        self.assertEqual(amount, plan[3]["price"])
+
         payment = SubscriptionPayment.objects.get(user=self.tutor)
         self.assertEqual(payment.plan, "platinum")
-        self.assertEqual(payment.amount, Decimal(plan[3]["price"]))
+        self.assertEqual(Decimal(payment.amount), plan[3]["price"])
+        
         initialize_payment.assert_called_once()
 
     def test_subscription_history_is_scoped_to_the_authenticated_user(self):
