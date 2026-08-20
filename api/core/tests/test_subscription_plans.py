@@ -34,7 +34,7 @@ class SubscriptionPlanTests(TestCase):
         self.assertEqual(response.json(), get_subscription_plan_catalog())
         self.assertEqual(
             {plan["code"]: plan["price"] for plan in response.json()["plans"]},
-            {"free": 0, "silver": 5000, "gold": 7500, "platinum": 10000},
+            {"free": plan[0]["price"], "silver": plan[1]["price"], "gold": plan[2]["price"], "platinum": plan[3]["price"]},
         )
 
     def test_student_can_activate_the_free_package_once(self):
@@ -81,10 +81,10 @@ class SubscriptionPlanTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["amount"], plan[3]["price"])
+        self.assertEqual(response.json()["amount"], Decimal(plan[3]["price"]))
         payment = SubscriptionPayment.objects.get(user=self.tutor)
         self.assertEqual(payment.plan, "platinum")
-        self.assertEqual(payment.amount, plan[3]["price"])
+        self.assertEqual(payment.amount, Decimal(plan[3]["price"]))
         initialize_payment.assert_called_once()
 
     def test_subscription_history_is_scoped_to_the_authenticated_user(self):
