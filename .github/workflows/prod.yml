@@ -1,4 +1,4 @@
-name: Deploy Production
+name: Validate and deploy production
 
 on:
   pull_request:
@@ -6,290 +6,239 @@ on:
       - main
     paths:
       - "api/**"
-      - "worker/**"
       - "web/**"
       - "packages/**"
-      - "scripts/deploy/api.sh"
-      - "scripts/deploy/common.sh"
-      - "scripts/deploy/web.sh"
-      - "scripts/ensure-rollup-native.cjs"
-      - "scripts/migrate.sh"
+      - "scripts/**"
       - "package.json"
       - "package-lock.json"
-      - "turbo.json"
+      - ".github/workflows/prod.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - "web/**"
+      - "packages/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/prod.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write
-  issues: write
-  pull-requests: read
 
 concurrency:
-  group: deploy-production
+  group: prepvilla-app-production
   cancel-in-progress: false
 
 env:
   AWS_REGION: "eu-west-1"
-  AWS_USE_PROFILE: "0"
+  AWS_WORKLOAD_PROFILE: "prod-prepvilla"
+  WORKSPACE: "prod"
   IMAGE_TAG: ${{ github.sha }}
-  LINUX_PLATFORM: "arm64"
   PYTHON_VERSION: "3.12"
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   DJANGO_SETTINGS_MODULE: "config.settings.test"
-  DJANGO_DEBUG: "1"
   DJANGO_ENV: "test"
+  DJANGO_DEBUG: "1"
   DJANGO_SECRET_KEY: "ci-secret-key"
-  VITE_API_URL: "https://api.rentdirect.homes/api/v1"
-  VITE_MEDIA_URL: "https://media.rentdirect.homes"
-  VITE_WS_URL: "wss://api.rentdirect.homes"
+  FRONTEND_DOMAIN: "prepvilla.info"
+  API_DOMAIN: "api.prepvilla.info"
+  FRONTEND_BUCKET: "prepvilla-prod-frontend"
+  NEXT_PUBLIC_API_BASE_URL: "https://api.prepvilla.info"
+  NEXT_PUBLIC_WS_BASE_URL: "wss://api.prepvilla.info"
 
 jobs:
-  detect-web-changes:
+  changes:
+    name: Detect changed applications
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 3
     outputs:
-      web: ${{ steps.filter.outputs.web }}
+      web: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.web == 'true' }}
+      api: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.api == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: dorny/paths-filter@v3
+
+      - name: Detect changes
         id: filter
+        uses: dorny/paths-filter@v4
         with:
-          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref }}
           filters: |
             web:
               - "web/**"
               - "packages/**"
-              - "scripts/deploy/common.sh"
-              - "scripts/deploy/web.sh"
-              - "scripts/ensure-rollup-native.cjs"
               - "package.json"
               - "package-lock.json"
-              - "turbo.json"
-              - ".github/workflows/$${{ vars.ENVIRONMENT }}.yml"
-
-
-  check-web:
-    needs: detect-web-changes
-    if: needs.detect-web-changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install frontend dependencies
-        run: |
-          npm --prefix web ci
-          node scripts/ensure-rollup-native.cjs web
-
-      - name: Typecheck frontend
-        run: npm --prefix web exec -- tsc -b web/tsconfig.json --pretty false
-
-
-  test-web:
-    needs:
-      - detect-web-changes
-      - check-web
-    if: needs.detect-web-changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install frontend dependencies
-        run: |
-          npm --prefix web ci
-          node scripts/ensure-rollup-native.cjs web
-
-      - name: Test frontend
-        run: npm --prefix web run test --if-present
-
-
-  build-web:
-    needs:
-      - detect-web-changes
-      - test-web
-    if: needs.detect-web-changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install frontend dependencies
-        run: |
-          npm --prefix web ci
-          node scripts/ensure-rollup-native.cjs web
-
-      - name: Build frontend
-        run: npm --prefix web run build
-
-      - name: Upload web build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: |
-            web/dist
-            web/public
-            web/package.json
-            web/package-lock.json
-            web/vite.config.*
-            package.json
-            package-lock.json
-            turbo.json
-          retention-days: 1
-
-
-  deploy-web:
-    needs:
-      - detect-web-changes
-      - build-web
-    if: needs.detect-web-changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download web build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: web-build
-          path: .
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy Web
-        run: BUILD_WEB=0 INSTALL_DEPS=0 bash scripts/deploy/web.sh $${{ vars.ENVIRONMENT }}
-
-
-  detect-api-changes:
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    outputs:
-      api: ${{ steps.filter.outputs.api }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref }}
-          filters: |
+              - ".github/workflows/prod.yml"
             api:
               - "api/**"
-              - "worker/**"
               - "scripts/deploy/api.sh"
-              - "scripts/deploy/common.sh"
               - "scripts/migrate.sh"
+              - ".github/workflows/prod.yml"
 
-
-  check-api:
-    needs: detect-api-changes
-    if: needs.detect-api-changes.outputs.api == 'true'
+  web:
+    name: Validate and build web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: production
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint web
+        run: npm run lint --workspace web
+
+      - name: Typecheck web
+        run: npm run typecheck --workspace web
+
+      - name: Test web
+        run: npm run test --if-present --workspace web
+
+      - name: Build static web application
+        run: npm run build:static --workspace web
+
+      - name: Upload web build
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-build-${{ github.sha }}
+          path: web/out
+          if-no-files-found: error
+          retention-days: 1
+
+  api:
+    name: Validate and test API
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: api/requirements.txt
 
       - name: Install backend dependencies
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r api/requirements.txt
+        run: python -m pip install --disable-pip-version-check -r api/requirements.txt
 
-      - name: Check backend
+      - name: Check Django configuration and migrations
+        working-directory: api
         run: |
-          source .venv/bin/activate
-          cd api
           python manage.py makemigrations --check --dry-run
           python manage.py check
 
-
-  test-api:
-    needs:
-      - detect-api-changes
-      - check-api
-    if: needs.detect-api-changes.outputs.api == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "${{ env.PYTHON_VERSION }}"
-          cache: pip
-          cache-dependency-path: api/requirements.txt
-
-      - name: Install backend dependencies
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r api/requirements.txt
-
       - name: Run backend tests
-        run: |
-          source .venv/bin/activate
-          cd api
-          python manage.py test
+        working-directory: api
+        run: python manage.py test
 
+  deploy-web:
+    name: Deploy web to production
+    needs:
+      - changes
+      - web
+    if: github.event_name != 'pull_request' && needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download web build
+        uses: actions/download-artifact@v8
+        with:
+          name: web-build-${{ github.sha }}
+          path: web/out
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: prepvilla-app-prod-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Publish web assets
+        run: |
+          aws s3 sync web/out/ "s3://${FRONTEND_BUCKET}/" \
+            --region "${AWS_REGION}" \
+            --delete \
+            --exclude "*.html" \
+            --exclude "_next/static/*"
+          aws s3 sync web/out/ "s3://${FRONTEND_BUCKET}/" \
+            --region "${AWS_REGION}" \
+            --delete \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "public,max-age=0,s-maxage=60,must-revalidate"
+          if [ -d web/out/_next/static ]; then
+            aws s3 sync web/out/_next/static/ "s3://${FRONTEND_BUCKET}/_next/static/" \
+              --region "${AWS_REGION}" \
+              --delete \
+              --cache-control "public,max-age=31536000,immutable"
+          fi
+
+      - name: Invalidate CloudFront cache
+        run: |
+          distribution_id="$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Aliases.Items!=null && contains(Aliases.Items, '${FRONTEND_DOMAIN}')].Id | [0]" \
+            --output text)"
+          test -n "${distribution_id}"
+          test "${distribution_id}" != "None"
+          aws cloudfront create-invalidation \
+            --distribution-id "${distribution_id}" \
+            --paths "/*"
 
   deploy-api:
+    name: Deploy API to production
     needs:
-      - detect-api-changes
-      - test-api
-    if: needs.detect-api-changes.outputs.api == 'true'
+      - changes
+      - api
+    if: github.event_name != 'pull_request' && needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: production
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-      - uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
         with:
-          platforms: ${{ env.LINUX_PLATFORM }}
+          platforms: arm64
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: prepvilla-api-prod-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
+          aws-profile: ${{ env.AWS_WORKLOAD_PROFILE }}
 
-      - name: Deploy API
-        run: bash scripts/deploy/api.sh $${{ vars.ENVIRONMENT }}
+      - name: Build and deploy API
+        env:
+          BACKEND_DIR: api
+          REGION: ${{ env.AWS_REGION }}
+        run: bash scripts/deploy/api.sh "${WORKSPACE}"

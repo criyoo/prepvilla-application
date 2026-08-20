@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Key, Mail, Phone, Shield, UserX } from "lucide-react";
+import { GraduationCap, Key, Mail, MapPin, Phone, Shield, UserX } from "lucide-react";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
 import { OtpResendButton } from "../shared/OtpResendButton";
@@ -11,6 +11,9 @@ import { useAuthStore } from "../shared/authStore";
 import { getMobileNumberError, sanitizeMobileNumberInput } from "../shared/profileValidation";
 
 type MeResponse = {
+  email: string;
+  mobileNumber: string;
+  address: string;
   isFrozen: boolean;
   freezeUntil: string | null;
 };
@@ -18,6 +21,7 @@ type MeResponse = {
 type TutorSettingsProfile = {
   verificationStatus: string;
   isListed: boolean;
+  qualification?: string;
 };
 
 export default function DashboardSettingsPage() {
@@ -30,7 +34,6 @@ export default function DashboardSettingsPage() {
   const tutorVerificationStatus = (tutorProfile?.verificationStatus || "").toLowerCase();
   const isApprovedTutor = tutorVerificationStatus === "approved" || tutorVerificationStatus === "verified";
   const hasCompletedTutorProfile = Boolean(tutorProfile?.isListed);
-  const isApprovedListedTutor = role === "tutor" && isApprovedTutor && hasCompletedTutorProfile;
 
   // Password change
   const [passwordStep, setPasswordStep] = useState(0);
@@ -47,6 +50,21 @@ export default function DashboardSettingsPage() {
   const [newPhone, setNewPhone] = useState("");
   const newPhoneError = newPhone.trim() ? getMobileNumberError(newPhone) : null;
 
+  // Residential address change
+  const [addressStep, setAddressStep] = useState(0);
+  const [currentAddress, setCurrentAddress] = useState("");
+  const [newAddress, setNewAddress] = useState("");
+  const [addressOtp, setAddressOtp] = useState("");
+  const normalizedNewAddress = newAddress.trim().replace(/\s+/g, " ");
+  const newAddressError = normalizedNewAddress && normalizedNewAddress.length < 5
+    ? "Residential address must be at least 5 characters."
+    : null;
+
+  // Qualification change
+  const [qualificationStep, setQualificationStep] = useState(0);
+  const [newQualification, setNewQualification] = useState("");
+  const [qualificationOtp, setQualificationOtp] = useState("");
+
   // Freeze
   const [freezeStep, setFreezeStep] = useState(0);
   const [freezeStartsOn, setFreezeStartsOn] = useState("");
@@ -58,7 +76,8 @@ export default function DashboardSettingsPage() {
   async function loadMe() {
     const res = await api.get<MeResponse>("/api/me");
     if (!res.ok) return;
-    setMe({ isFrozen: res.data.isFrozen, freezeUntil: res.data.freezeUntil });
+    setMe(res.data);
+    setCurrentAddress(res.data.address || "");
   }
 
   const loadTutorProfile = useCallback(async () => {
@@ -126,6 +145,7 @@ export default function DashboardSettingsPage() {
     setOtp("");
     setNewEmail("");
     setEmailStep(0);
+    await loadMe();
     alert("Email changed");
   }
 
@@ -155,7 +175,87 @@ export default function DashboardSettingsPage() {
     setOtp("");
     setNewPhone("");
     setPhoneStep(0);
+    await loadMe();
     alert("Phone changed");
+  }
+
+  async function requestAddressOtp(): Promise<boolean> {
+    if (!normalizedNewAddress) {
+      alert("Residential address is required");
+      return false;
+    }
+    if (newAddressError) {
+      alert(newAddressError);
+      return false;
+    }
+    if (normalizedNewAddress === currentAddress.trim().replace(/\s+/g, " ")) {
+      alert("Residential address is unchanged");
+      return false;
+    }
+    const res = await api.post<{ ok: boolean }>("/api/me/change-address/request", {
+      newAddress: normalizedNewAddress,
+    });
+    if (!res.ok) {
+      alert(res.error);
+      return false;
+    }
+    setAddressOtp("");
+    setAddressStep(2);
+    alert("OTP sent to your email");
+    return true;
+  }
+
+  async function confirmAddressChange() {
+    const res = await api.post<{ ok: boolean; address: string }>("/api/me/change-address/confirm", {
+      code: addressOtp,
+    });
+    if (!res.ok) {
+      alert(res.error);
+      return;
+    }
+    setCurrentAddress(res.data.address);
+    setNewAddress("");
+    setAddressOtp("");
+    setAddressStep(0);
+    alert("Residential address changed");
+  }
+
+  async function requestQualificationOtp(): Promise<boolean> {
+    const normalizedQualification = newQualification.trim();
+    if (!normalizedQualification) {
+      alert("Qualification is required");
+      return false;
+    }
+    if (normalizedQualification === (tutorProfile?.qualification || "").trim()) {
+      alert("Qualification is unchanged");
+      return false;
+    }
+    const res = await api.post<{ ok: boolean }>("/api/me/change-qualification/request", {
+      newQualification: normalizedQualification,
+    });
+    if (!res.ok) {
+      alert(res.error);
+      return false;
+    }
+    setQualificationOtp("");
+    setQualificationStep(2);
+    alert("OTP sent to your email");
+    return true;
+  }
+
+  async function confirmQualificationChange() {
+    const res = await api.post<{ ok: boolean; qualification: string }>("/api/me/change-qualification/confirm", {
+      code: qualificationOtp,
+    });
+    if (!res.ok) {
+      alert(res.error);
+      return;
+    }
+    setTutorProfile((current) => current ? { ...current, qualification: res.data.qualification } : current);
+    setNewQualification("");
+    setQualificationOtp("");
+    setQualificationStep(0);
+    alert("Qualification changed");
   }
 
   async function requestFreezeOtp(): Promise<boolean> {
@@ -261,7 +361,7 @@ export default function DashboardSettingsPage() {
                   {!isApprovedTutor
                     ? "Your tutor profile unlocks after verification is approved."
                     : hasCompletedTutorProfile
-                      ? "Update editable information, speak to support for sensitive data."
+                      ? "Update your public profile here. Use the secure fields below for email, mobile number, and qualification changes."
                       : "Finish your tutor profile so it can be published to students."}
                 </p>
               </div>
@@ -279,6 +379,190 @@ export default function DashboardSettingsPage() {
               >
                 {!isApprovedTutor ? "Open Verification" : hasCompletedTutorProfile ? "Update Profile" : "Complete Profile"}
               </Button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="text-[20px] font-semibold">Personal information</div>
+
+        <div className="form-panel rounded-2xl p-6">
+          <div className="mb-6 flex items-start gap-4">
+            <div className="rounded-full bg-[var(--primary-soft)] p-3">
+              <MapPin className="h-6 w-6 text-[color:var(--palette-coral-deep)]" />
+            </div>
+            <div className="flex-1">
+              <h3 className="mb-2 text-[18px] font-semibold">Residential Address</h3>
+              <p className="mb-2 text-[14px] text-black/65">
+                Update the residential address associated with your PrepVilla account.
+              </p>
+              <p className="mb-4 text-[13px] text-black/55">
+                Current address: {currentAddress || "Not provided"}. Every address change requires an email OTP.
+              </p>
+
+              {addressStep === 0 ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setAddressOtp("");
+                    setNewAddress(currentAddress);
+                    setAddressStep(1);
+                  }}
+                >
+                  Change Residential Address
+                </Button>
+              ) : null}
+
+              {addressStep === 1 ? (
+                <div className="space-y-4">
+                  <Input
+                    label="New Residential Address"
+                    value={newAddress}
+                    onChange={(event) => setNewAddress(event.target.value)}
+                    placeholder="Enter your full residential address"
+                    maxLength={255}
+                    helperText="Enter the full address where you currently reside."
+                    error={newAddressError ?? undefined}
+                  />
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      variant="secondary"
+                      onClick={requestAddressOtp}
+                      disabled={!normalizedNewAddress || Boolean(newAddressError)}
+                    >
+                      Send OTP
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setAddressOtp("");
+                        setNewAddress("");
+                        setAddressStep(0);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {addressStep === 2 ? (
+                <div className="space-y-4">
+                  <Input
+                    label="Enter OTP"
+                    value={addressOtp}
+                    onChange={(event) => setAddressOtp(event.target.value.toUpperCase().slice(0, 6))}
+                    placeholder="Enter the 6-character code"
+                    maxLength={6}
+                  />
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={confirmAddressChange} disabled={addressOtp.trim().length !== 6}>
+                      Update Residential Address
+                    </Button>
+                    <OtpResendButton onResend={requestAddressOtp} />
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setAddressOtp("");
+                        setNewAddress("");
+                        setAddressStep(0);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        {role === "tutor" ? (
+          <div className="form-panel rounded-2xl p-6">
+            <div className="mb-6 flex items-start gap-4">
+              <div className="rounded-full bg-[var(--secondary-color-soft)] p-3">
+                <GraduationCap className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="mb-2 text-[18px] font-semibold">Qualification</h3>
+                <p className="mb-2 text-[14px] text-black/65">
+                  Update the qualification shown on your tutor profile.
+                </p>
+                <p className="mb-4 text-[13px] text-black/55">
+                  Current qualification: {tutorProfile?.qualification || "Not provided"}. Every change requires an email OTP.
+                </p>
+
+                {qualificationStep === 0 ? (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setQualificationOtp("");
+                      setNewQualification(tutorProfile?.qualification || "");
+                      setQualificationStep(1);
+                    }}
+                  >
+                    Change Qualification
+                  </Button>
+                ) : null}
+
+                {qualificationStep === 1 ? (
+                  <div className="space-y-4">
+                    <Input
+                      label="New Qualification"
+                      value={newQualification}
+                      onChange={(event) => setNewQualification(event.target.value)}
+                      placeholder="e.g. B.Ed, Mathematics"
+                      maxLength={100}
+                    />
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        variant="secondary"
+                        onClick={requestQualificationOtp}
+                        disabled={!newQualification.trim()}
+                      >
+                        Send OTP
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setQualificationOtp("");
+                          setNewQualification("");
+                          setQualificationStep(0);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {qualificationStep === 2 ? (
+                  <div className="space-y-4">
+                    <Input
+                      label="Enter OTP"
+                      value={qualificationOtp}
+                      onChange={(event) => setQualificationOtp(event.target.value.toUpperCase().slice(0, 6))}
+                      placeholder="Enter the 6-character code"
+                      maxLength={6}
+                    />
+                    <div className="flex flex-wrap gap-3">
+                      <Button onClick={confirmQualificationChange} disabled={qualificationOtp.trim().length !== 6}>
+                        Update Qualification
+                      </Button>
+                      <OtpResendButton onResend={requestQualificationOtp} />
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setQualificationOtp("");
+                          setNewQualification("");
+                          setQualificationStep(0);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         ) : null}
@@ -386,18 +670,14 @@ export default function DashboardSettingsPage() {
             <div className="flex-1">
               <h3 className="text-[18px] font-semibold mb-2">Change Email Address</h3>
               <p className="mb-4 text-[14px] text-black/65">Update your email address for account notifications and recovery</p>
-              {isApprovedListedTutor ? (
-                <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-[13px] text-slate-700">
-                  Approved tutor email changes are locked. Contact support instead.
-                </div>
-              ) : null}
+              <p className="mb-4 text-[13px] text-black/55">Current email: {me?.email || "Not provided"}</p>
               
-              {!isApprovedListedTutor && emailStep === 0 && (
+              {emailStep === 0 && (
                 <Button variant="secondary" onClick={() => { setOtp(""); setEmailStep(1); }}>
                   Change Email
                 </Button>
               )}
-              {!isApprovedListedTutor && emailStep === 1 && (
+              {emailStep === 1 && (
                 <div className="space-y-4">
                   <Input 
                     label="New Email Address"
@@ -416,7 +696,7 @@ export default function DashboardSettingsPage() {
                   </div>
                 </div>
               )}
-              {!isApprovedListedTutor && emailStep === 2 && (
+              {emailStep === 2 && (
                 <div className="space-y-4">
                   <Input 
                     label="Enter OTP"
@@ -448,18 +728,14 @@ export default function DashboardSettingsPage() {
             <div className="flex-1">
               <h3 className="text-[18px] font-semibold mb-2">Change Phone Number</h3>
               <p className="mb-4 text-[14px] text-black/65">Update your phone number for SMS notifications and verification</p>
-              {isApprovedListedTutor ? (
-                <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-[13px] text-slate-700">
-                  Approved tutor phone changes are locked. Contact support instead.
-                </div>
-              ) : null}
+              <p className="mb-4 text-[13px] text-black/55">Current mobile number: {me?.mobileNumber || "Not provided"}</p>
               
-              {!isApprovedListedTutor && phoneStep === 0 && (
+              {phoneStep === 0 && (
                 <Button variant="secondary" onClick={() => { setOtp(""); setPhoneStep(1); }}>
                   Change Phone Number
                 </Button>
               )}
-              {!isApprovedListedTutor && phoneStep === 1 && (
+              {phoneStep === 1 && (
                 <div className="space-y-4">
                   <Input 
                     label="New Phone Number"
@@ -480,7 +756,7 @@ export default function DashboardSettingsPage() {
                   </div>
                 </div>
               )}
-              {!isApprovedListedTutor && phoneStep === 2 && (
+              {phoneStep === 2 && (
                 <div className="space-y-4">
                   <Input 
                     label="Enter OTP"

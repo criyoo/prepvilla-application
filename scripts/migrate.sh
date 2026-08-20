@@ -56,11 +56,15 @@ require_cmd grep
 require_cmd sed
 require_cmd tr
 
-[ -f "${TFVARS_FILE}" ] || fail "Missing Terraform variables file: ${TFVARS_FILE}"
-
-PROJECT_NAME="$(read_tfvars_string project_name)"
-ENVIRONMENT="$(read_tfvars_string environment)"
-REGION="${AWS_REGION:-$(read_tfvars_string region)}"
+if [ -f "${TFVARS_FILE}" ]; then
+  PROJECT_NAME="${PROJECT_NAME:-$(read_tfvars_string project_name)}"
+  ENVIRONMENT="${ENVIRONMENT:-$(read_tfvars_string environment)}"
+  REGION="${AWS_REGION:-$(read_tfvars_string region)}"
+else
+  PROJECT_NAME="${PROJECT_NAME:-prepvilla}"
+  ENVIRONMENT="${ENVIRONMENT:-${WORKSPACE}}"
+  REGION="${AWS_REGION:-eu-west-1}"
+fi
 NAME_PREFIX="${PROJECT_NAME}-${ENVIRONMENT}"
 CLUSTER_NAME="${ECS_CLUSTER_NAME:-${NAME_PREFIX}-cluster}"
 TASK_DEFINITION="${MIGRATION_TASK_DEFINITION:-${NAME_PREFIX}-migration}"

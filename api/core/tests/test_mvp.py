@@ -531,6 +531,9 @@ class MvpFlowTests(TestCase):
         "homeState": "Lagos",
         "homeAddress": "22 Tutor Street",
         "stateOfOrigin": "Lagos",
+        "lgaOfOrigin": "Ikeja",
+        "countryOfBirth": "Nigeria",
+        "nationality": "Nigerian",
         "subjects": ["Mathematics"],
         "languages": ["English"],
         "headline": "Experienced maths tutor",
@@ -550,6 +553,10 @@ class MvpFlowTests(TestCase):
     self.assertEqual(pending_profile.home_state, "Lagos")
     self.assertEqual(pending_profile.home_city, "Lagos")
     self.assertEqual(pending_profile.home_address, "22 Tutor Street")
+    self.assertEqual(pending_profile.state_of_origin, "Lagos")
+    self.assertEqual(pending_profile.lga_of_origin, "Ikeja")
+    self.assertEqual(pending_profile.country_of_birth, "Nigeria")
+    self.assertEqual(pending_profile.nationality, "Nigerian")
     self.assertEqual(pending_profile.languages_csv, "English")
     self.assertTrue(pending_profile.offers_face_to_face)
     self.assertFalse(pending_profile.offers_webcam)
@@ -759,7 +766,7 @@ class MvpFlowTests(TestCase):
     res = self.client.get("/api/tutors/index.txt/reviews")
     self.assertEqual(res.status_code, 404)
 
-  def test_approved_listed_tutor_cannot_request_email_change(self):
+  def test_approved_listed_tutor_can_change_email_with_otp(self):
     approved_tutor = AppUser.objects.create_user(
       email="locked-email@example.com",
       password="locked123",
@@ -781,9 +788,14 @@ class MvpFlowTests(TestCase):
 
     self.client.force_authenticate(user=approved_tutor)
     res = self.client.post("/api/me/change-email/request", {"newEmail": "new@example.com"}, format="json")
-    self.assertEqual(res.status_code, 403)
+    self.assertEqual(res.status_code, 200)
+    code = re.search(r"\b([A-Z0-9]{6})\b", mail.outbox[-1].body).group(1)
+    confirm = self.client.post("/api/me/change-email/confirm", {"code": code}, format="json")
+    self.assertEqual(confirm.status_code, 200)
+    approved_tutor.refresh_from_db()
+    self.assertEqual(approved_tutor.email, "new@example.com")
 
-  def test_approved_listed_tutor_cannot_request_phone_change(self):
+  def test_approved_listed_tutor_can_change_phone_with_otp(self):
     approved_tutor = AppUser.objects.create_user(
       email="locked-phone@example.com",
       password="locked123",
@@ -806,7 +818,56 @@ class MvpFlowTests(TestCase):
 
     self.client.force_authenticate(user=approved_tutor)
     res = self.client.post("/api/me/change-phone/request", {"newPhone": "+2348099999999"}, format="json")
-    self.assertEqual(res.status_code, 403)
+    self.assertEqual(res.status_code, 200)
+    code = re.search(r"\b([A-Z0-9]{6})\b", mail.outbox[-1].body).group(1)
+    confirm = self.client.post("/api/me/change-phone/confirm", {"code": code}, format="json")
+    self.assertEqual(confirm.status_code, 200)
+    approved_tutor.refresh_from_db()
+    self.assertEqual(approved_tutor.mobile_number, "+2348099999999")
+
+  def test_approved_listed_tutor_can_change_qualification_with_otp(self):
+    approved_tutor = AppUser.objects.create_user(
+      email="qualification@example.com",
+      password="locked123",
+      role="tutor",
+      display_name="Qualification Tutor",
+      timezone="UTC",
+      is_verified=True,
+    )
+    tutor_profile = TutorProfile.objects.create(
+      user=approved_tutor,
+      headline="Tutor",
+      bio="Bio",
+      subjects_csv="Math",
+      hourly_rate_cents=5000,
+      languages_csv="English",
+      qualification="B.Ed",
+      verification_status="approved",
+      is_listed=True,
+    )
+    verification = VerificationRequest.objects.create(
+      tutor_profile=tutor_profile,
+      qualification="B.Ed",
+      status="approved",
+    )
+
+    self.client.force_authenticate(user=approved_tutor)
+    res = self.client.post(
+      "/api/me/change-qualification/request",
+      {"newQualification": "M.Ed, Mathematics"},
+      format="json",
+    )
+    self.assertEqual(res.status_code, 200)
+    code = re.search(r"\b([A-Z0-9]{6})\b", mail.outbox[-1].body).group(1)
+    confirm = self.client.post("/api/me/change-qualification/confirm", {"code": code}, format="json")
+    self.assertEqual(confirm.status_code, 200)
+    tutor_profile.refresh_from_db()
+    verification.refresh_from_db()
+    self.assertEqual(tutor_profile.qualification, "M.Ed, Mathematics")
+    self.assertEqual(verification.qualification, "M.Ed, Mathematics")
+    profile_res = self.client.get("/api/tutors/me/profile")
+    self.assertEqual(profile_res.status_code, 200)
+    self.assertEqual(profile_res.json()["qualification"], "M.Ed, Mathematics")
 
   def test_tutor_can_send_support_message(self):
     self.client.force_authenticate(user=self.tutor_user)
@@ -818,6 +879,8 @@ class MvpFlowTests(TestCase):
     self.assertEqual(res.status_code, 200)
     self.assertEqual(len(mail.outbox), 1)
     self.assertEqual(mail.outbox[0].to, ["support@prepvilla.info"])
+    self.assertIn("Full name: Tutor", mail.outbox[0].body)
+    self.assertIn("Email: tutor@example.com", mail.outbox[0].body)
     self.assertIn("Please help update my NIN number.", mail.outbox[0].body)
 
   def test_student_booking_request_creates_conversation(self):
@@ -1195,14 +1258,35 @@ class MvpFlowTests(TestCase):
         "homeState": "Lagos",
         "homeAddress": "1 Tutor Street",
         "stateOfOrigin": "Oyo",
+        "lgaOfOrigin": "Ibadan North",
       },
       format="json",
     )
     self.assertEqual(res.status_code, 200)
     self.assertTrue(res.json()["isListed"])
+    self.assertEqual(res.json()["lgaOfOrigin"], "Ibadan North")
 
     approved_profile.refresh_from_db()
     self.assertTrue(approved_profile.is_listed)
+    self.assertEqual(approved_profile.lga_of_origin, "Ibadan North")
+
+  def test_tutor_profile_returns_verification_origin_fields(self):
+    self.tutor_profile.state_of_origin = "Lagos"
+    self.tutor_profile.lga_of_origin = "Ikeja"
+    self.tutor_profile.country_of_birth = "Nigeria"
+    self.tutor_profile.nationality = "Nigerian"
+    self.tutor_profile.save(
+      update_fields=["state_of_origin", "lga_of_origin", "country_of_birth", "nationality"]
+    )
+    self.client.force_authenticate(user=self.tutor_user)
+
+    res = self.client.get("/api/tutors/me/profile")
+
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(res.json()["stateOfOrigin"], "Lagos")
+    self.assertEqual(res.json()["lgaOfOrigin"], "Ikeja")
+    self.assertEqual(res.json()["countryOfBirth"], "Nigeria")
+    self.assertEqual(res.json()["nationality"], "Nigerian")
 
   def test_tutor_profile_update_persists_photo_url(self):
     self.client.force_authenticate(user=self.tutor_user)
@@ -1222,26 +1306,25 @@ class MvpFlowTests(TestCase):
     self.assertEqual(self.tutor_profile.profile_photo_url, photo_url)
     self.assertEqual(self.tutor_user.profile_photo_url, photo_url)
 
-  def test_approved_tutor_can_update_home_fields_on_profile(self):
+  def test_approved_tutor_can_update_home_state_and_city_on_profile(self):
     self.client.force_authenticate(user=self.tutor_user)
     res = self.client.put(
       "/api/tutors/me/profile",
       {
         "homeState": "Oyo",
         "homeCity": "Ibadan",
-        "homeAddress": "20 Cocoa Road",
       },
       format="json",
     )
     self.assertEqual(res.status_code, 200)
     self.assertEqual(res.json()["homeState"], "Oyo")
     self.assertEqual(res.json()["homeCity"], "Ibadan")
-    self.assertEqual(res.json()["homeAddress"], "20 Cocoa Road")
+    self.assertEqual(res.json()["homeAddress"], "")
 
     self.tutor_profile.refresh_from_db()
     self.assertEqual(self.tutor_profile.home_state, "Oyo")
     self.assertEqual(self.tutor_profile.home_city, "Ibadan")
-    self.assertEqual(self.tutor_profile.home_address, "20 Cocoa Road")
+    self.assertEqual(self.tutor_profile.home_address, "")
 
   def test_approved_listed_tutor_cannot_update_locked_identity_fields_via_me(self):
     self.client.force_authenticate(user=self.tutor_user)
@@ -1283,6 +1366,17 @@ class MvpFlowTests(TestCase):
     self.tutor_profile.refresh_from_db()
     self.assertEqual(self.tutor_profile.gender, "male")
 
+    change_res = self.client.put(
+      "/api/tutors/me/profile",
+      {
+        "gender": "female",
+      },
+      format="json",
+    )
+    self.assertEqual(change_res.status_code, 403)
+    self.tutor_profile.refresh_from_db()
+    self.assertEqual(self.tutor_profile.gender, "male")
+
   def test_approved_tutor_can_update_display_name_and_home_location(self):
     self.client.force_authenticate(user=self.tutor_user)
     res = self.client.put(
@@ -1291,7 +1385,6 @@ class MvpFlowTests(TestCase):
         "displayName": "Tutor Updated",
         "state": "Lagos",
         "city": "Ikeja",
-        "address": "12 Updated Tutor Street",
       },
       format="json",
     )
@@ -1299,7 +1392,7 @@ class MvpFlowTests(TestCase):
     self.assertEqual(res.json()["displayName"], "Tutor Updated")
     self.assertEqual(res.json()["state"], "Lagos")
     self.assertEqual(res.json()["city"], "Ikeja")
-    self.assertEqual(res.json()["address"], "12 Updated Tutor Street")
+    self.assertEqual(res.json()["address"], "")
 
   def test_tutor_public_endpoints_fall_back_to_user_photo_url(self):
     photo_url = "/media/images/tutors/fallback_photo.jpg"

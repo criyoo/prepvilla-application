@@ -1,10 +1,13 @@
 import Link from "next/link";
+import type { SVGProps } from "react";
 import {
   ArrowRight,
   BadgeCheck,
   BookOpenCheck,
   CalendarCheck2,
   GraduationCap,
+  Instagram,
+  Linkedin,
   Mail,
   MapPin,
   MessageCircle,
@@ -42,6 +45,12 @@ const accountLinks = [
   { label: "Create account", href: "/signup" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "Saved tutors", href: "/dashboard/favorites" },
+];
+
+const socialLinks = [
+  { label: "X", href: "https://x.com/Prepvilla", icon: XIcon },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/prepvilla", icon: Linkedin },
+  { label: "Instagram", href: "https://www.instagram.com/prepvilla", icon: Instagram },
 ];
 
 export function Footer() {
@@ -135,8 +144,28 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 pt-6 text-sm text-white/50 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-5 pt-6 text-sm text-white/50 xl:flex-row xl:items-center xl:justify-between">
             <p>Copyright {new Date().getFullYear()} PrepVilla. All rights reserved.</p>
+            <nav aria-label="Social media" className="flex items-center gap-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Follow us</span>
+              <div className="flex items-center gap-2">
+                {socialLinks.map((socialLink) => {
+                  const Icon = socialLink.icon;
+                  return (
+                    <a
+                      key={socialLink.label}
+                      href={socialLink.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`PrepVilla on ${socialLink.label}`}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/65 transition hover:border-accent/50 hover:bg-accent/15 hover:text-white"
+                    >
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  );
+                })}
+              </div>
+            </nav>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <span className="inline-flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-accent-light" /> Trusted tutor details</span>
               <span className="inline-flex items-center gap-2"><UsersRound className="h-4 w-4 text-accent-light" /> Students and tutors together</span>
@@ -146,6 +175,14 @@ export function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function XIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.967 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+    </svg>
   );
 }
 

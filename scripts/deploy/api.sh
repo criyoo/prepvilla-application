@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+BACKEND_DIR="${BACKEND_DIR:-${REPO_DIR}/api}"
 
 WORKSPACE="${WORKSPACE:-dev}"
 AWS_WORKLOAD_PROFILE="${AWS_WORKLOAD_PROFILE:-${WORKSPACE}-prepvilla}"
@@ -87,6 +89,8 @@ require_cmd grep
 require_cmd sed
 require_cmd tr
 
+[ -d "${BACKEND_DIR}" ] || fail "Missing backend application directory: ${BACKEND_DIR}"
+[ -f "${BACKEND_DIR}/Dockerfile" ] || fail "Missing backend Dockerfile: ${BACKEND_DIR}/Dockerfile"
 
 API_DESIRED_COUNT=1
 

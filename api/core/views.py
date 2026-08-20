@@ -185,6 +185,25 @@ def _normalize_mobile_number(value, *, required: bool = False) -> str | None:
     return normalized
 
 
+def _normalize_residential_address(value, *, required: bool = False) -> str | None:
+    if value is None:
+        if required:
+            raise ValueError("Residential address is required")
+        return None
+    if not isinstance(value, str):
+        raise ValueError("Residential address is required")
+    normalized = " ".join(value.split())
+    if not normalized:
+        if required:
+            raise ValueError("Residential address is required")
+        return ""
+    if len(normalized) < 5:
+        raise ValueError("Residential address must be at least 5 characters")
+    if len(normalized) > 255:
+        raise ValueError("Residential address must not exceed 255 characters")
+    return normalized
+
+
 def _normalize_nin_number(value, *, required: bool = False) -> str | None:
     if value is None:
         if required:
@@ -562,13 +581,17 @@ def _frontend_base_url() -> str:
     ).rstrip("/")
 
 
-def _is_approved_listed_tutor(user: AppUser) -> bool:
-    if getattr(user, "role", None) != "tutor":
-        return False
-    tutor_profile = TutorProfile.objects.filter(user=user).only("verification_status", "is_listed").first()
-    if not tutor_profile:
-        return False
-    return _normalize_tutor_verification_status(tutor_profile.verification_status) == "approved" and tutor_profile.is_listed
+def _current_residential_address(user: AppUser) -> str:
+    current_address = " ".join((user.address or "").split())
+    if current_address:
+        return current_address
+    if user.role == "tutor":
+        profile_address = TutorProfile.objects.filter(user=user).values_list("home_address", flat=True).first()
+        return " ".join((profile_address or "").split())
+    if user.role == "student":
+        verification_address = StudentVerificationRequest.objects.filter(user=user).values_list("address", flat=True).first()
+        return " ".join((verification_address or "").split())
+    return ""
 
 
 def _google_oauth_config():
@@ -1549,11 +1572,12 @@ def me(request):
     user: AppUser = request.user
     if request.method == "GET":
         first_name, middle_name, last_name = _split_full_name(user.full_name or user.display_name)
+        residential_address = _current_residential_address(user)
         return JsonResponse({
             "id": str(user.id), "email": user.email, "role": user.role, "displayName": user.display_name,
             "timezone": user.timezone, "fullName": user.full_name, "firstName": first_name, "middleName": middle_name, "lastName": last_name, "mobileNumber": user.mobile_number,
             "dateOfBirth": user.date_of_birth.isoformat() if user.date_of_birth else None,
-            "profilePhotoUrl": user.profile_photo_url, "location": user.location, "city": user.location, "state": user.state, "address": user.address,
+            "profilePhotoUrl": user.profile_photo_url, "location": user.location, "city": user.location, "state": user.state, "address": residential_address,
             "isVerified": user.is_verified, "isFrozen": user.is_frozen,
             "freezeUntil": user.frozen_until.isoformat() if user.frozen_until else None,
             "isPendingDeletion": user.is_pending_deletion,
@@ -1622,7 +1646,12 @@ def me(request):
             user.date_of_birth = None
     
     if address is not None:
-        user.address = address.strip()
+        try:
+            normalized_address = _normalize_residential_address(address, required=False)
+        except ValueError as exc:
+            return _bad_request(str(exc))
+        if normalized_address != _current_residential_address(user):
+            return _bad_request("Residential address changes require OTP verification in Settings")
     
     if state is not None:
         user.state = state.strip()
@@ -1892,7 +1921,7 @@ def delete_account_request(request):
 
 
 def _issue_me_otp(user: AppUser, purpose: str, payload: dict, subject: str, message: str):
-    if purpose not in {"change_password", "change_email", "change_phone"}:
+    if purpose not in {"change_password", "change_email", "change_phone", "change_address", "change_qualification"}:
         return None
     code = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     salt = secrets.token_hex(16)
@@ -1977,8 +2006,6 @@ def change_password_confirm(request):
 @permission_classes([IsAuthenticated])
 def change_email_request(request):
     user: AppUser = request.user
-    if _is_approved_listed_tutor(user):
-        return _bad_request("Approved tutor email changes require support assistance", status=403)
     new_email = request.data.get("newEmail")
     if not isinstance(new_email, str) or not new_email.strip():
         return _bad_request("Email is required")
@@ -2004,8 +2031,6 @@ def change_email_request(request):
 @permission_classes([IsAuthenticated])
 def change_email_confirm(request):
     user: AppUser = request.user
-    if _is_approved_listed_tutor(user):
-        return _bad_request("Approved tutor email changes require support assistance", status=403)
     code = request.data.get("code")
     if not isinstance(code, str) or len(code.strip()) != 6:
         return _bad_request("code must be 6 characters")
@@ -2031,8 +2056,6 @@ def change_email_confirm(request):
 @permission_classes([IsAuthenticated])
 def change_phone_request(request):
     user: AppUser = request.user
-    if _is_approved_listed_tutor(user):
-        return _bad_request("Approved tutor phone changes require support assistance", status=403)
     new_phone = request.data.get("newPhone")
     try:
         normalized = _normalize_mobile_number(new_phone, required=True)
@@ -2057,8 +2080,6 @@ def change_phone_request(request):
 @permission_classes([IsAuthenticated])
 def change_phone_confirm(request):
     user: AppUser = request.user
-    if _is_approved_listed_tutor(user):
-        return _bad_request("Approved tutor phone changes require support assistance", status=403)
     code = request.data.get("code")
     if not isinstance(code, str) or len(code.strip()) != 6:
         return _bad_request("code must be 6 characters")
@@ -2074,9 +2095,133 @@ def change_phone_confirm(request):
         normalized_phone = _normalize_mobile_number(new_phone, required=True)
     except ValueError:
         return _bad_request("Invalid or expired code")
-    user.mobile_number = normalized_phone
-    user.save(update_fields=["mobile_number"])
+    with transaction.atomic():
+        user.mobile_number = normalized_phone
+        user.save(update_fields=["mobile_number"])
+        if user.role == "student":
+            StudentVerificationRequest.objects.filter(user=user).update(mobile_number=normalized_phone)
     return JsonResponse({"ok": True})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsTutor])
+def change_qualification_request(request):
+    user: AppUser = request.user
+    tutor_profile = TutorProfile.objects.filter(user=user).first()
+    if not tutor_profile:
+        return _bad_request("Tutor profile not found", status=404)
+    new_qualification = request.data.get("newQualification")
+    if not isinstance(new_qualification, str):
+        return _bad_request("Qualification is required")
+    normalized = ", ".join(part.strip() for part in new_qualification.split(",") if part.strip())
+    if not normalized:
+        return _bad_request("Qualification is required")
+    if len(normalized) > 100:
+        return _bad_request("Qualification must not exceed 100 characters")
+    if normalized == (tutor_profile.qualification or "").strip():
+        return _bad_request("Qualification is unchanged")
+    subject = "PrepVilla: Change qualification OTP"
+    message = (
+        "You requested to change the qualification on your PrepVilla tutor profile.\n\n"
+        f"New qualification: {normalized}\n"
+        "OTP code: {OTP}\n\n"
+        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
+    )
+    challenge = _issue_me_otp(
+        user,
+        "change_qualification",
+        {"newQualification": normalized},
+        subject,
+        message,
+    )
+    if not challenge:
+        return _bad_request("Failed to send OTP email", status=500)
+    return JsonResponse({"ok": True})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsTutor])
+def change_qualification_confirm(request):
+    user: AppUser = request.user
+    code = request.data.get("code")
+    if not isinstance(code, str) or len(code.strip()) != 6:
+        return _bad_request("code must be 6 characters")
+    challenge = _consume_me_otp(user, "change_qualification", code)
+    if not challenge:
+        return _bad_request("Invalid or expired code")
+    try:
+        payload = json.loads(challenge.payload or "{}")
+    except Exception:
+        return _bad_request("Invalid or expired code")
+    new_qualification = payload.get("newQualification")
+    if not isinstance(new_qualification, str):
+        return _bad_request("Invalid or expired code")
+    normalized = ", ".join(part.strip() for part in new_qualification.split(",") if part.strip())
+    if not normalized or len(normalized) > 100:
+        return _bad_request("Invalid or expired code")
+
+    with transaction.atomic():
+        updated = TutorProfile.objects.filter(user=user).update(qualification=normalized)
+        if not updated:
+            return _bad_request("Tutor profile not found", status=404)
+        VerificationRequest.objects.filter(tutor_profile__user=user).update(qualification=normalized)
+
+    return JsonResponse({"ok": True, "qualification": normalized})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_address_request(request):
+    user: AppUser = request.user
+    if user.role not in {"student", "tutor"}:
+        return _bad_request("Only students and tutors can change a residential address", status=403)
+    try:
+        normalized = _normalize_residential_address(request.data.get("newAddress"), required=True)
+    except ValueError as exc:
+        return _bad_request(str(exc))
+    if normalized == _current_residential_address(user):
+        return _bad_request("Residential address is unchanged")
+    subject = "PrepVilla: Change residential address OTP"
+    message = (
+        "You requested to change your PrepVilla residential address.\n\n"
+        f"New residential address: {normalized}\n"
+        "OTP code: {OTP}\n\n"
+        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
+    )
+    challenge = _issue_me_otp(user, "change_address", {"newAddress": normalized}, subject, message)
+    if not challenge:
+        return _bad_request("Failed to send OTP email", status=500)
+    return JsonResponse({"ok": True})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_address_confirm(request):
+    user: AppUser = request.user
+    if user.role not in {"student", "tutor"}:
+        return _bad_request("Only students and tutors can change a residential address", status=403)
+    code = request.data.get("code")
+    if not isinstance(code, str) or len(code.strip()) != 6:
+        return _bad_request("code must be 6 characters")
+    challenge = _consume_me_otp(user, "change_address", code)
+    if not challenge:
+        return _bad_request("Invalid or expired code")
+    try:
+        payload = json.loads(challenge.payload or "{}")
+        normalized_address = _normalize_residential_address(payload.get("newAddress"), required=True)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return _bad_request("Invalid or expired code")
+
+    with transaction.atomic():
+        user.address = normalized_address
+        user.save(update_fields=["address"])
+        if user.role == "tutor":
+            TutorProfile.objects.filter(user=user).update(home_address=normalized_address)
+            VerificationRequest.objects.filter(tutor_profile__user=user).update(home_address=normalized_address)
+        else:
+            StudentVerificationRequest.objects.filter(user=user).update(address=normalized_address)
+
+    return JsonResponse({"ok": True, "address": normalized_address})
 
 
 @api_view(["POST"])
@@ -2156,6 +2301,11 @@ def support_requests(request):
 
     if kind not in SupportRequest.Kind.values:
         return _bad_request("kind must be feedback, complaint, or issue")
+    recipient_by_kind = {
+        SupportRequest.Kind.FEEDBACK: "feedback@prepvilla.info",
+        SupportRequest.Kind.COMPLAINT: "complaint@prepvilla.info",
+        SupportRequest.Kind.ISSUE: "issues@prepvilla.info",
+    }
     if not topic:
         return _bad_request("Topic is required")
     if len(topic) > 160:
@@ -2217,7 +2367,7 @@ def support_requests(request):
             subject=f"[PrepVilla {support_request.get_kind_display()}] {support_request.ticket_number}: {topic}",
             body=support_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=["support@prepvilla.info"],
+            to=[recipient_by_kind[kind]],
             reply_to=[user.email] if user.email else None,
         ).send()
     except Exception:
@@ -2254,6 +2404,10 @@ def my_profile(request):
             "homeState": tp.home_state,
             "homeAddress": tp.home_address,
             "stateOfOrigin": tp.state_of_origin,
+            "lgaOfOrigin": tp.lga_of_origin,
+            "countryOfBirth": tp.country_of_birth,
+            "nationality": tp.nationality,
+            "qualification": tp.qualification,
             "verificationStatus": _normalize_tutor_verification_status(tp.verification_status),
             "isListed": tp.is_listed,
             "languages": tp.languages_csv.split(",") if tp.languages_csv else [],
@@ -2282,6 +2436,7 @@ def my_profile(request):
     homeState = request.data.get("homeState")
     homeAddress = request.data.get("homeAddress")
     stateOfOrigin = request.data.get("stateOfOrigin")
+    lgaOfOrigin = request.data.get("lgaOfOrigin")
     languages = request.data.get("languages")
     responseTime = request.data.get("responseTime")
     firstLessonFree = request.data.get("firstLessonFree")
@@ -2298,6 +2453,7 @@ def my_profile(request):
     if tp.is_listed:
         restricted_profile_fields = [
             stateOfOrigin,
+            lgaOfOrigin,
             responseTime,
             additionalDocumentUrls,
         ]
@@ -2318,15 +2474,29 @@ def my_profile(request):
             return _bad_request("Invalid hourly rate")
         tp.hourly_rate_cents = int(hourlyRate * 100)
     if gender is not None:
-        tp.gender = gender.strip()
+        normalized_gender = gender.strip().lower()
+        if normalized_gender not in {"male", "female"}:
+            return _bad_request("Gender must be male or female")
+        if tp.gender.strip() and normalized_gender != tp.gender.strip().lower():
+            return _bad_request("Submitted gender can only be changed by an administrator", status=403)
+        tp.gender = normalized_gender
     if homeCity is not None:
         tp.home_city = homeCity.strip()
     if homeState is not None:
         tp.home_state = homeState.strip()
     if homeAddress is not None:
-        tp.home_address = homeAddress.strip()
+        try:
+            normalized_home_address = _normalize_residential_address(homeAddress, required=False)
+        except ValueError as exc:
+            return _bad_request(str(exc))
+        current_home_address = (tp.home_address or user.address or "").strip()
+        if current_home_address and normalized_home_address != current_home_address:
+            return _bad_request("Residential address changes require OTP verification in Settings")
+        tp.home_address = normalized_home_address or ""
     if stateOfOrigin is not None:
         tp.state_of_origin = stateOfOrigin.strip()
+    if lgaOfOrigin is not None:
+        tp.lga_of_origin = lgaOfOrigin.strip()
     if languages is not None:
         tp.languages_csv = ",".join([l.strip() for l in languages] if isinstance(languages, list) else [])
     if responseTime is not None:
@@ -2379,6 +2549,8 @@ def my_profile(request):
             missing_profile_fields.append("home address")
         if not tp.state_of_origin.strip():
             missing_profile_fields.append("state of origin")
+        if not tp.lga_of_origin.strip():
+            missing_profile_fields.append("LGA of origin")
 
         if missing_profile_fields:
             field_label = ", ".join(missing_profile_fields)
@@ -2415,6 +2587,10 @@ def my_profile(request):
         "homeState": tp.home_state,
         "homeAddress": tp.home_address,
         "stateOfOrigin": tp.state_of_origin,
+        "lgaOfOrigin": tp.lga_of_origin,
+        "countryOfBirth": tp.country_of_birth,
+        "nationality": tp.nationality,
+        "qualification": tp.qualification,
         "verificationStatus": _normalize_tutor_verification_status(tp.verification_status),
         "isListed": tp.is_listed,
         "languages": tp.languages_csv.split(",") if tp.languages_csv else [],
@@ -2711,6 +2887,18 @@ def my_verification(request):
                 + ", ".join(locked_field_errors),
                 status=403,
             )
+
+    current_home_address = (
+        verification.home_address
+        if verification and verification.home_address
+        else tp.home_address or user.address
+    )
+    if (
+        request.data.get("homeAddress") is not None
+        and str(current_home_address or "").strip()
+        and str(homeAddress).strip() != str(current_home_address).strip()
+    ):
+        return _bad_request("Residential address changes require OTP verification in Settings")
 
     missing_fields: list[str] = []
     if not isinstance(homeState, str) or not homeState.strip():
@@ -3813,6 +4001,13 @@ def student_verification(request):
     home_city = submitted("homeCity", submitted("city", verification.city if verification else user.location))
     home_state = submitted("homeState", submitted("state", verification.state if verification else user.state))
     home_address = submitted("homeAddress", submitted("address", verification.address if verification else user.address))
+    current_home_address = verification.address if verification else user.address
+    if (
+        any(field in verification_data for field in ("homeAddress", "address"))
+        and str(current_home_address or "").strip()
+        and str(home_address or "").strip() != str(current_home_address).strip()
+    ):
+        return _bad_request("Residential address changes require OTP verification in Settings")
     qualification = submitted("qualification", verification.qualification if verification else "")
     nin_number = submitted("ninNumber", submitted("nin_number", verification.nin_number if verification else ""))
     bvn_number = submitted("bvnNumber", submitted("bvn_number", verification.bvn_number if verification else ""))

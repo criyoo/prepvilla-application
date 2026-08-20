@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Bug, CircleAlert, Lightbulb, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
 import { Select } from "../shared/Select";
@@ -14,6 +14,7 @@ export type SupportRequestKind = "feedback" | "complaint" | "issue";
 
 type Notification = { type: "success" | "error"; message: string };
 type SubmissionResponse = { ok: true; id: string; ticketNumber: string; status: string };
+type MeResponse = { fullName: string; displayName: string; email: string };
 
 const requestConfig = {
   feedback: {
@@ -100,7 +101,6 @@ const requestConfig = {
 
 export function DashboardSupportRequestPage({ kind }: { kind: SupportRequestKind }) {
   const role = useAuthStore((state) => state.role);
-  const displayName = useAuthStore((state) => state.displayName) || "";
   const config = requestConfig[kind];
   const Icon = config.icon;
   const [category, setCategory] = useState("");
@@ -108,11 +108,25 @@ export function DashboardSupportRequestPage({ kind }: { kind: SupportRequestKind
   const [message, setMessage] = useState("");
   const [relatedReference, setRelatedReference] = useState("");
   const [severity, setSeverity] = useState("normal");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
 
   const normalizedRole = role ? ((role as string).toLowerCase() === "teacher" ? "tutor" : role) : null;
   const isSupportedRole = normalizedRole === "student" || normalizedRole === "tutor";
+
+  useEffect(() => {
+    let active = true;
+    void api.get<MeResponse>("/api/me").then((response) => {
+      if (!active || !response.ok) return;
+      setFullName(response.data.fullName || response.data.displayName || "");
+      setEmail(response.data.email || "");
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -201,8 +215,9 @@ export function DashboardSupportRequestPage({ kind }: { kind: SupportRequestKind
 
       <form onSubmit={(event) => void submit(event)} className="form-panel rounded-2xl p-6">
         <div className="grid gap-5 md:grid-cols-2">
-          <Input label="Name" value={displayName} disabled />
-          <Input label="Account type" value={normalizedRole || ""} disabled className="capitalize" />
+          <Input label="Full Name" value={fullName} disabled />
+          <Input label="Email Address" type="email" value={email} disabled />
+          <Input label="Account Type" value={normalizedRole || ""} disabled className="capitalize" />
           <Select
             label="Category"
             labelClassName="text-sm"

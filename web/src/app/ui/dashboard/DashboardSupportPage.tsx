@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Headset, Mail, MessageSquareMore, PhoneCall } from "lucide-react";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
@@ -13,6 +13,12 @@ type Notification = {
   message: string;
 };
 
+type MeResponse = {
+  fullName: string;
+  displayName: string;
+  email: string;
+};
+
 const SUPPORT_EMAIL = "support@prepvilla.info";
 const SUPPORT_PHONE = "+2348099446062";
 
@@ -20,8 +26,22 @@ export function DashboardSupportPage() {
   const role = useAuthStore((s) => s.role);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void api.get<MeResponse>("/api/me").then((response) => {
+      if (!active || !response.ok) return;
+      setFullName(response.data.fullName || response.data.displayName || "");
+      setEmail(response.data.email || "");
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -94,6 +114,10 @@ export function DashboardSupportPage() {
             <h2 className="text-[20px] font-semibold text-black">Email Support</h2>
           </div>
           <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input label="Full Name" value={fullName} disabled />
+              <Input label="Email Address" type="email" value={email} disabled />
+            </div>
             <Input
               label="Support Email"
               value={SUPPORT_EMAIL}

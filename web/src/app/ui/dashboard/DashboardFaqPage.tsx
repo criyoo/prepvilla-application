@@ -50,7 +50,7 @@ export function DashboardFaqPage() {
         </label>
       </section>
 
-      <div className="flex flex-wrap gap-2" aria-label="FAQ categories">
+      <div className="flex flex-wrap justify-center gap-2" aria-label="FAQ categories">
         {categories.map((item) => (
           <button
             key={item}

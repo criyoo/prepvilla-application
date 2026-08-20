@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import signal
 import time
 from typing import Any
 
@@ -168,35 +169,67 @@ def run_sqs_worker(*, once: bool = False, max_messages: int | None = None) -> No
     batch_size = max(min(int(getattr(settings, "PAYMENT_QUEUE_WORKER_MAX_MESSAGES", 10)), 10), 1)
     visibility_timeout = max(int(getattr(settings, "PAYMENT_QUEUE_VISIBILITY_TIMEOUT_SECONDS", 300)), 1)
     processed = 0
+    stop_requested = False
 
-    while True:
-        response = client.receive_message(
-            QueueUrl=queue_url,
-            MaxNumberOfMessages=batch_size,
-            WaitTimeSeconds=wait_seconds,
-            VisibilityTimeout=visibility_timeout,
-            MessageAttributeNames=["All"],
-            AttributeNames=["ApproximateReceiveCount"],
-        )
-        messages = response.get("Messages", [])
-        if not messages and once:
-            return
+    def request_stop(_signum, _frame) -> None:
+        nonlocal stop_requested
+        stop_requested = True
 
-        for raw_message in messages:
-            receipt_handle = raw_message["ReceiptHandle"]
-            try:
-                message = json.loads(raw_message.get("Body") or "{}")
-                process_payment_task(message["task"], message.get("payload") or {})
-            except Exception:
-                logger.exception("Payment queue SQS message failed and will be retried.")
-            else:
-                client.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
-                processed += 1
-                if max_messages is not None and processed >= max_messages:
+    previous_signal_handlers = {
+        signum: signal.getsignal(signum)
+        for signum in (signal.SIGINT, signal.SIGTERM)
+    }
+    for signum in previous_signal_handlers:
+        signal.signal(signum, request_stop)
+
+    try:
+        while not stop_requested:
+            response = client.receive_message(
+                QueueUrl=queue_url,
+                MaxNumberOfMessages=batch_size,
+                WaitTimeSeconds=wait_seconds,
+                VisibilityTimeout=visibility_timeout,
+                MessageAttributeNames=["All"],
+                AttributeNames=["ApproximateReceiveCount"],
+            )
+            messages = response.get("Messages", [])
+            if not messages and once:
+                return
+
+            for index, raw_message in enumerate(messages):
+                if stop_requested:
+                    release_sqs_messages(client, queue_url, messages[index:])
                     return
 
-        if once:
-            return
+                receipt_handle = raw_message["ReceiptHandle"]
+                try:
+                    message = json.loads(raw_message.get("Body") or "{}")
+                    process_payment_task(message["task"], message.get("payload") or {})
+                except Exception:
+                    logger.exception("Payment queue SQS message failed and will be retried.")
+                else:
+                    client.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
+                    processed += 1
+                    if max_messages is not None and processed >= max_messages:
+                        release_sqs_messages(client, queue_url, messages[index + 1 :])
+                        return
+
+            if once:
+                return
+    finally:
+        for signum, previous_handler in previous_signal_handlers.items():
+            signal.signal(signum, previous_handler)
+
+
+def release_sqs_messages(client, queue_url: str, messages: list[dict[str, Any]]) -> None:
+    for raw_message in messages:
+        receipt_handle = raw_message.get("ReceiptHandle")
+        if receipt_handle:
+            client.change_message_visibility(
+                QueueUrl=queue_url,
+                ReceiptHandle=receipt_handle,
+                VisibilityTimeout=0,
+            )
 
 
 def process_payment_task(task: str, payload: dict[str, Any] | None = None):

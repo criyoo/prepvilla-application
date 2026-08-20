@@ -47,7 +47,9 @@ class SupportRequestTests(TestCase):
         record = SupportRequest.objects.get(user=self.student)
         self.assertEqual(record.kind, SupportRequest.Kind.FEEDBACK)
         self.assertEqual(record.priority, SupportRequest.Priority.NORMAL)
-        self.assertEqual(mail.outbox[0].to, ["support@prepvilla.info"])
+        self.assertEqual(mail.outbox[0].to, ["feedback@prepvilla.info"])
+        self.assertIn("Full name: Support Student", mail.outbox[0].body)
+        self.assertIn("Email: support-student@example.com", mail.outbox[0].body)
 
     def test_tutor_can_submit_an_urgent_issue(self):
         self.client.force_authenticate(self.tutor)
@@ -68,6 +70,24 @@ class SupportRequestTests(TestCase):
         record = SupportRequest.objects.get(user=self.tutor)
         self.assertEqual(record.priority, SupportRequest.Priority.URGENT)
         self.assertEqual(record.related_reference, "prepvilla-payout-test")
+        self.assertEqual(mail.outbox[0].to, ["issues@prepvilla.info"])
+
+    def test_student_complaint_is_emailed_to_complaints_inbox(self):
+        self.client.force_authenticate(self.student)
+
+        response = self.client.post(
+            "/api/support/requests",
+            {
+                "kind": "complaint",
+                "topic": "Booking complaint",
+                "message": "My booking was cancelled without an explanation.",
+                "metadata": {"category": "Booking or cancellation"},
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(mail.outbox[0].to, ["complaint@prepvilla.info"])
 
     def test_request_history_is_scoped_to_current_user(self):
         SupportRequest.objects.create(
@@ -91,4 +111,3 @@ class SupportRequestTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["results"]), 1)
         self.assertEqual(response.json()["results"][0]["kind"], "complaint")
-

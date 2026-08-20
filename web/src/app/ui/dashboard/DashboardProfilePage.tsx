@@ -33,6 +33,10 @@ type TutorData = {
   fullName?: string;
   mobileNumber?: string;
   dateOfBirth?: string | null;
+  countryOfBirth?: string;
+  nationality?: string;
+  stateOfOrigin?: string;
+  lgaOfOrigin?: string;
   homeState?: string;
   homeCity?: string;
   homeAddress?: string;
@@ -55,6 +59,8 @@ type TutorProfileResponse = {
   homeState?: string;
   homeAddress?: string;
   stateOfOrigin?: string;
+  lgaOfOrigin?: string;
+  qualification?: string;
   verificationStatus: string;
   isListed: boolean;
   firstLessonFree?: boolean;
@@ -105,6 +111,7 @@ export function DashboardProfilePage() {
   const [ninNumber, setNinNumber] = useState("");
   const [bvnNumber, setBvnNumber] = useState("");
   const [stateOfOrigin, setStateOfOrigin] = useState("");
+  const [lgaOfOrigin, setLgaOfOrigin] = useState("");
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -141,6 +148,7 @@ export function DashboardProfilePage() {
   const canEditLockedTutorIdentityFields = !isApprovedListedTutor;
   const canEditTutorPublicProfileFields =
     !isTutor || canTutorCompleteInitialProfile || isApprovedTutorEditMode;
+  const hasSubmittedGender = isTutor && Boolean(tutorProfile?.gender?.trim());
   const canEditStateOfOrigin = !isTutor || canTutorCompleteInitialProfile;
   const canEditPhoto = !isTutor || !isApprovedTutorProfile || isApprovedTutorEditMode;
   const isStudent = me?.role === "student";
@@ -173,8 +181,6 @@ export function DashboardProfilePage() {
       ),
     [selectedLanguages],
   );
-  const mobileNumberError =
-    mobileNumber.trim() && (!isTutor || canEditVerificationBackedTutorFields) ? getMobileNumberError(mobileNumber) : null;
   const ninNumberError =
     ninNumber.trim() && isTutor && canEditVerificationBackedTutorFields ? getNinNumberError(ninNumber) : null;
   const bvnNumberError =
@@ -270,16 +276,26 @@ export function DashboardProfilePage() {
 
     if (res.data.role === "tutor") {
       const resTutor = await api.get<TutorData>("/api/tutors/me/verification");
+      const verificationData = resTutor.ok ? resTutor.data : null;
       if (resTutor.ok) {
         setTutorData(resTutor.data);
+        setFullName(resTutor.data.fullName || res.data.fullName || "");
+        setMobileNumber(resTutor.data.mobileNumber || res.data.mobileNumber || "");
+        setDob(resTutor.data.dateOfBirth || res.data.dateOfBirth || "");
         setQualification(resTutor.data.qualification || "");
         setNinNumber(resTutor.data.ninNumber || "");
         setBvnNumber(resTutor.data.bvnNumber || "");
+        setStateOfOrigin(resTutor.data.stateOfOrigin || "");
+        setLgaOfOrigin(resTutor.data.lgaOfOrigin || "");
+        setState(resTutor.data.homeState || res.data.state || "");
+        setCity(resTutor.data.homeCity || res.data.city || res.data.location || "");
+        setAddress(resTutor.data.homeAddress || res.data.address || "");
       }
       const resTutorProfile = await api.get<TutorProfileResponse>("/api/tutors/me/profile");
       if (resTutorProfile.ok) {
-        const normalizedTutorState = NIGERIA_STATES.includes(resTutorProfile.data.homeState || res.data.state || "")
-          ? (resTutorProfile.data.homeState || res.data.state || "")
+        const tutorState = resTutorProfile.data.homeState || verificationData?.homeState || res.data.state || "";
+        const normalizedTutorState = NIGERIA_STATES.includes(tutorState)
+          ? tutorState
           : "";
         setTutorProfile(resTutorProfile.data);
         setHeadline(resTutorProfile.data.headline || "");
@@ -289,9 +305,10 @@ export function DashboardProfilePage() {
         setHourlyRate(String(resTutorProfile.data.hourlyRate ?? ""));
         setGender(resTutorProfile.data.gender || "");
         setState(normalizedTutorState);
-        setCity(resTutorProfile.data.homeCity || res.data.city || res.data.location || "");
-        setAddress(resTutorProfile.data.homeAddress || res.data.address || "");
-        setStateOfOrigin(resTutorProfile.data.stateOfOrigin || "");
+        setCity(resTutorProfile.data.homeCity || verificationData?.homeCity || res.data.city || res.data.location || "");
+        setAddress(resTutorProfile.data.homeAddress || verificationData?.homeAddress || res.data.address || "");
+        setStateOfOrigin(resTutorProfile.data.stateOfOrigin || verificationData?.stateOfOrigin || "");
+        setLgaOfOrigin(resTutorProfile.data.lgaOfOrigin || verificationData?.lgaOfOrigin || "");
         setFirstLessonFree(Boolean(resTutorProfile.data.firstLessonFree));
         setOffersFaceToFace(resTutorProfile.data.offersFaceToFace ?? !resTutorProfile.data.offersWebcam);
         setOffersWebcam(Boolean(resTutorProfile.data.offersWebcam));
@@ -470,6 +487,11 @@ export function DashboardProfilePage() {
         setIsLoading(false);
         return;
       }
+      if (canTutorCompleteInitialProfile && (!stateOfOrigin.trim() || !lgaOfOrigin.trim())) {
+        showNotification("error", "State and LGA of origin are required");
+        setIsLoading(false);
+        return;
+      }
       const verificationRes = await api.post<TutorData>("/api/tutors/me/verification", {
         fullName,
         mobileNumber,
@@ -477,6 +499,8 @@ export function DashboardProfilePage() {
         homeState: state,
         homeCity: city,
         homeAddress: address,
+        stateOfOrigin,
+        lgaOfOrigin,
         qualification,
         ninNumber,
         bvnNumber,
@@ -537,11 +561,12 @@ export function DashboardProfilePage() {
         offersWebcam,
       };
 
-      if (canEditTutorPublicProfileFields) {
+      if (canEditTutorPublicProfileFields && !hasSubmittedGender) {
         tutorSaveData.gender = gender;
       }
       if (canEditStateOfOrigin) {
         tutorSaveData.stateOfOrigin = stateOfOrigin;
+        tutorSaveData.lgaOfOrigin = lgaOfOrigin;
       }
 
       // Include photo URL if there's a pending change
@@ -588,7 +613,11 @@ export function DashboardProfilePage() {
   }
 
   // Get the current or pending photo URL
-  const currentPhotoUrl = previewPhotoUrl || pendingPhotoUrl || me?.profilePhotoUrl || tutorData?.profilePhotoUrl || tutorProfile?.profilePhotoUrl;
+  const currentPhotoUrl = previewPhotoUrl || pendingPhotoUrl || (
+    isTutor
+      ? tutorData?.profilePhotoUrl || tutorProfile?.profilePhotoUrl || me?.profilePhotoUrl
+      : me?.profilePhotoUrl
+  );
 
   return (
     <div className="grid gap-4">
@@ -708,7 +737,7 @@ export function DashboardProfilePage() {
       )}
 
       <div className="form-panel rounded-2xl p-4">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="mb-6 grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <h2 className="mb-3 text-[18px] font-semibold">Basic Information</h2>
           </div>
@@ -782,7 +811,8 @@ export function DashboardProfilePage() {
             />
           )}
         </div>
-        <div className="grid gap-4 md:grid-cols-1">
+
+        <div className="mb-6 grid gap-4 md:grid-cols-2">
           <Input
             label={isTutor ? "Home Address" : "Address"}
             value={address}
@@ -793,8 +823,16 @@ export function DashboardProfilePage() {
             disabled={!canEditVerificationBackedTutorFields}
             placeholder="Full address"
           />
+
+          <Input
+            label="Email Address"
+            value={me?.email || ""}
+            disabled
+            helperText="Change securely in Settings with an email OTP."
+          />
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+
+        <div className="mb-6 grid gap-4 md:grid-cols-2">
           {isTutor ? (
             <Select
               label="State of Origin"
@@ -809,6 +847,21 @@ export function DashboardProfilePage() {
             />
           ) : null}
 
+          {isTutor ? (
+            <Input
+              label="LGA of Origin"
+              value={lgaOfOrigin}
+              onChange={(e) => {
+                setLgaOfOrigin(e.target.value);
+                setHasChanges(true);
+              }}
+              disabled={!canEditStateOfOrigin}
+              placeholder="e.g. Ikeja"
+            />
+          ) : null}
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
           <Input
             label="Mobile Number"
             value={mobileNumber}
@@ -816,33 +869,26 @@ export function DashboardProfilePage() {
               setMobileNumber(sanitizeMobileNumberInput(e.target.value));
               setHasChanges(true);
             }}
-            disabled={isTutor ? !canEditLockedTutorIdentityFields : false}
-            placeholder="+2348012345678"
-            helperText={isApprovedListedTutor ? "" : "Use +234 followed by 10 digits."}
-            error={mobileNumberError ?? undefined}
-          />
-
-          <Input
-            label="Email Address"
-            value={me?.email || ""}
             disabled
-            helperText={isApprovedListedTutor ? "" : undefined}
+            placeholder="+2348012345678"
+            helperText="Change securely in Settings with an email OTP."
           />
 
           {pendingMobileRequests.length > 0 && (
-            <div className="md:col-span-2">
-              <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
-                <h4 className="text-[14px] font-semibold text-orange-800 mb-2">Pending Mobile Number Change</h4>
-                {pendingMobileRequests.map((request) => (
-                  <div key={request.id} className="text-[12px] text-orange-700">
-                    <div>Requested: {request.requestedMobile}</div>
-                    <div>Submitted: {new Date(request.submittedAt).toLocaleDateString()}</div>
-                    <div className="mt-1 text-orange-600">Status: Awaiting admin approval</div>
-                  </div>
-                ))}
-              </div>
+            // <div className="md:col-span-2">
+            <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
+              <h4 className="text-[14px] font-semibold text-orange-800 mb-2">Pending Mobile Number Change</h4>
+              {pendingMobileRequests.map((request) => (
+                <div key={request.id} className="text-[12px] text-orange-700">
+                  <div>Requested: {request.requestedMobile}</div>
+                  <div>Submitted: {new Date(request.submittedAt).toLocaleDateString()}</div>
+                  <div className="mt-1 text-orange-600">Status: Awaiting admin approval</div>
+                </div>
+              ))}
             </div>
+            // </div>
           )}
+
           <Input
             label="Date of Birth"
             type="date"
@@ -855,18 +901,34 @@ export function DashboardProfilePage() {
             helperText={isApprovedListedTutor ? "" : ""}
           />
 
-          <Select
-            label="Gender"
-            labelClassName="text-sm"
-            value={gender}
-            onChange={(e) => {
-              setGender(e.target.value);
-              setHasChanges(true);
-            }}
-            options={genderOptions}
-            disabled={!canEditTutorPublicProfileFields}
-          />
+          <div className="grid gap-1">
+            <Select
+              label="Gender"
+              labelClassName="text-sm"
+              value={gender}
+              onChange={(e) => {
+                setGender(e.target.value);
+                setHasChanges(true);
+              }}
+              options={genderOptions}
+              disabled={!canEditTutorPublicProfileFields || hasSubmittedGender}
+            />
+            <p className="text-[12px] leading-[18px] text-black/55">
+              {hasSubmittedGender
+                ? "Gender is locked after submission. Request a correction through Support; only an administrator can change it."
+                : "Gender is locked after it is submitted."}
+            </p>
+            {hasSubmittedGender ? (
+              <div className="mt-1">
+                <Button variant="ghost" onClick={() => router.push("/dashboard/support")}>
+                  Request Gender Correction
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </div>
 
+        <div className="mb-6 grid gap-4">
           {tutorData && (
             <div className="contents">
               <div className="md:col-span-2 mt-4 border-t border-border pt-4">
@@ -909,8 +971,8 @@ export function DashboardProfilePage() {
                     setQualification(e.target.value);
                     setHasChanges(true);
                   }}
-                  disabled={!canEditLockedTutorIdentityFields}
-                  helperText={isApprovedListedTutor ? "" : ""}
+                  disabled
+                  helperText="Change securely in Settings with an email OTP."
                 />
               </div>
             </div>
@@ -920,7 +982,7 @@ export function DashboardProfilePage() {
 
       {
         me?.role === "tutor" ? (
-          <div className="form-panel rounded-2xl p-4">
+          <div className="mb-6 form-panel rounded-2xl p-4">
             <div className="mb-3">
               <h2 className="text-[18px] font-semibold">Tutor Profile</h2>
               <p className="mt-1 text-[14px] leading-[22px] text-black/65">
