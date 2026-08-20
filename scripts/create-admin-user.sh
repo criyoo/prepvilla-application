@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-WORKSPACE="${WORKSPACE:-dev}"
+WORKSPACE="${1:-${WORKSPACE:-dev}}"
 AWS_WORKLOAD_PROFILE="${AWS_WORKLOAD_PROFILE:-${WORKSPACE}-prepvilla}"
 TFVARS_FILE="${INFRA_DIR}/terraform/envs/${WORKSPACE}.tfvars"
 AWS_REGION="${AWS_REGION:-eu-west-1}"
@@ -14,10 +14,28 @@ ADMIN_TASK_CONTAINER_NAME="${ADMIN_TASK_CONTAINER_NAME:-migration}"
 PUBLIC_SUBNET_IDS="${PUBLIC_SUBNET_IDS:-}"
 APP_SECURITY_GROUP_ID="${APP_SECURITY_GROUP_ID:-}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@prepvilla.info}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-ifG0dbi4mi}"
+ADMIN_PASSWORD="${DJANGO_SUPERUSER_PASSWORD:-${ADMIN_PASSWORD:-}}"
 
 export AWS_PAGER=""
-unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_SECURITY_TOKEN AWS_SESSION_EXPIRATION AWS_ACCESS_KEY AWS_SECRET_KEY
+
+AWS_PROFILE_ARGS=()
+
+set_aws_auth_mode() {
+  if [ "${AWS_USE_PROFILE:-1}" = "0" ] ||
+    [ -n "${AWS_ACCESS_KEY_ID:-}" ] ||
+    [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE:-}" ] ||
+    [ -n "${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI:-}" ] ||
+    [ -n "${AWS_CONTAINER_CREDENTIALS_FULL_URI:-}" ]; then
+    AWS_PROFILE_ARGS=()
+    return
+  fi
+
+  AWS_PROFILE_ARGS=(--profile "${AWS_WORKLOAD_PROFILE}")
+}
+
+aws_with_auth() {
+  aws "${AWS_PROFILE_ARGS[@]}" "$@"
+}
 
 fail() {
   echo "Error: $*" >&2
@@ -75,13 +93,19 @@ require_cmd aws
 require_cmd python3
 require_cmd sed
 require_cmd tr
+set_aws_auth_mode
 
-[ -f "${TFVARS_FILE}" ] || fail "Missing Terraform variables file: ${TFVARS_FILE}"
 [ -n "${ADMIN_PASSWORD}" ] || fail "ADMIN_PASSWORD is required"
 
-PROJECT_NAME="$(read_tfvars_string project_name)"
-ENVIRONMENT="$(read_tfvars_string environment)"
-REGION="${AWS_REGION:-$(read_tfvars_string region)}"
+if [ -f "${TFVARS_FILE}" ]; then
+  PROJECT_NAME="${PROJECT_NAME:-$(read_tfvars_string project_name)}"
+  ENVIRONMENT="${ENVIRONMENT:-$(read_tfvars_string environment)}"
+  REGION="${AWS_REGION:-$(read_tfvars_string region)}"
+else
+  PROJECT_NAME="${PROJECT_NAME:-prepvilla}"
+  ENVIRONMENT="${ENVIRONMENT:-${WORKSPACE}}"
+  REGION="${AWS_REGION:-eu-west-1}"
+fi
 NAME_PREFIX="${PROJECT_NAME}-${ENVIRONMENT}"
 CLUSTER_NAME="${ECS_CLUSTER_NAME:-${NAME_PREFIX}-cluster}"
 TASK_DEFINITION="${ADMIN_TASK_DEFINITION:-${NAME_PREFIX}-migration}"
@@ -90,8 +114,7 @@ API_SERVICE_NAME="${NAME_PREFIX}-api"
 resolve_service_network_value() {
   local query="$1"
 
-  aws ecs describe-services \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  aws_with_auth ecs describe-services \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --services "${API_SERVICE_NAME}" \
@@ -99,11 +122,8 @@ resolve_service_network_value() {
     --output text 2>/dev/null || true
 }
 
-"${INFRA_DIR}/scripts/ensure-sso.sh" "${AWS_WORKLOAD_PROFILE}"
-
 if [ -z "${PUBLIC_SUBNET_IDS}" ]; then
-  PUBLIC_SUBNET_IDS="$(aws ec2 describe-subnets \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  PUBLIC_SUBNET_IDS="$(aws_with_auth ec2 describe-subnets \
     --region "${REGION}" \
     --filters \
       "Name=tag:Project,Values=${PROJECT_NAME}" \
@@ -120,8 +140,7 @@ fi
 [ -n "${PUBLIC_SUBNET_IDS}" ] && [ "${PUBLIC_SUBNET_IDS}" != "None" ] || fail "Could not resolve public subnets for ${NAME_PREFIX}"
 
 if [ -z "${APP_SECURITY_GROUP_ID}" ]; then
-  APP_SECURITY_GROUP_ID="$(aws ec2 describe-security-groups \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  APP_SECURITY_GROUP_ID="$(aws_with_auth ec2 describe-security-groups \
     --region "${REGION}" \
     --filters "Name=group-name,Values=${NAME_PREFIX}-app" \
     --query 'SecurityGroups[0].GroupId' \
@@ -134,8 +153,7 @@ fi
 
 [ -n "${APP_SECURITY_GROUP_ID}" ] && [ "${APP_SECURITY_GROUP_ID}" != "None" ] || fail "Could not resolve app security group for ${NAME_PREFIX}"
 
-TASK_DEFINITION_ARN="$(aws ecs describe-task-definition \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+TASK_DEFINITION_ARN="$(aws_with_auth ecs describe-task-definition \
   --region "${REGION}" \
   --task-definition "${TASK_DEFINITION}" \
   --query 'taskDefinition.taskDefinitionArn' \
@@ -151,8 +169,7 @@ network_configuration="awsvpcConfiguration={subnets=[${subnet_csv}],securityGrou
 overrides_json="$(build_overrides_json)"
 
 echo "Creating or updating ${ADMIN_EMAIL} with task definition ${TASK_DEFINITION_ARN}..."
-TASK_ARN="$(aws ecs run-task \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+TASK_ARN="$(aws_with_auth ecs run-task \
   --region "${REGION}" \
   --cluster "${CLUSTER_NAME}" \
   --launch-type FARGATE \
@@ -167,30 +184,26 @@ TASK_ARN="$(aws ecs run-task \
 
 echo "Task ARN: ${TASK_ARN}"
 
-aws ecs wait tasks-stopped \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+aws_with_auth ecs wait tasks-stopped \
   --region "${REGION}" \
   --cluster "${CLUSTER_NAME}" \
   --tasks "${TASK_ARN}"
 
-TASK_EXIT_CODE="$(aws ecs describe-tasks \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+TASK_EXIT_CODE="$(aws_with_auth ecs describe-tasks \
   --region "${REGION}" \
   --cluster "${CLUSTER_NAME}" \
   --tasks "${TASK_ARN}" \
   --query 'tasks[0].containers[0].exitCode' \
   --output text)"
 
-TASK_STOPPED_REASON="$(aws ecs describe-tasks \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+TASK_STOPPED_REASON="$(aws_with_auth ecs describe-tasks \
   --region "${REGION}" \
   --cluster "${CLUSTER_NAME}" \
   --tasks "${TASK_ARN}" \
   --query 'tasks[0].stoppedReason' \
   --output text)"
 
-TASK_CONTAINER_REASON="$(aws ecs describe-tasks \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+TASK_CONTAINER_REASON="$(aws_with_auth ecs describe-tasks \
   --region "${REGION}" \
   --cluster "${CLUSTER_NAME}" \
   --tasks "${TASK_ARN}" \

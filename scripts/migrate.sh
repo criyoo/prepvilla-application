@@ -14,7 +14,25 @@ MIGRATION_TASK_DEFINITION="${MIGRATION_TASK_DEFINITION:-}"
 MIGRATION_LOG_GROUP="${MIGRATION_LOG_GROUP:-}"
 
 export AWS_PAGER=""
-unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_SECURITY_TOKEN AWS_SESSION_EXPIRATION AWS_ACCESS_KEY AWS_SECRET_KEY
+
+AWS_PROFILE_ARGS=()
+
+set_aws_auth_mode() {
+  if [ "${AWS_USE_PROFILE:-1}" = "0" ] ||
+    [ -n "${AWS_ACCESS_KEY_ID:-}" ] ||
+    [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE:-}" ] ||
+    [ -n "${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI:-}" ] ||
+    [ -n "${AWS_CONTAINER_CREDENTIALS_FULL_URI:-}" ]; then
+    AWS_PROFILE_ARGS=()
+    return
+  fi
+
+  AWS_PROFILE_ARGS=(--profile "${AWS_WORKLOAD_PROFILE}")
+}
+
+aws_with_auth() {
+  aws "${AWS_PROFILE_ARGS[@]}" "$@"
+}
 
 fail() {
   echo "Error: $*" >&2
@@ -55,6 +73,7 @@ require_cmd aws
 require_cmd grep
 require_cmd sed
 require_cmd tr
+set_aws_auth_mode
 
 if [ -f "${TFVARS_FILE}" ]; then
   PROJECT_NAME="${PROJECT_NAME:-$(read_tfvars_string project_name)}"
@@ -81,9 +100,10 @@ run_ecs_task() {
   local overrides="${2:-}"
   local -a run_task_args
 
-  run_task_args=(
-    aws ecs run-task
-    --profile "${AWS_WORKLOAD_PROFILE}"
+  run_task_args=(aws)
+  run_task_args+=("${AWS_PROFILE_ARGS[@]}")
+  run_task_args+=(
+    ecs run-task
     --region "${REGION}"
     --cluster "${CLUSTER_NAME}"
     --launch-type FARGATE
@@ -104,30 +124,26 @@ run_ecs_task() {
 
   echo "Task ARN: ${LAST_TASK_ARN}"
 
-  aws ecs wait tasks-stopped \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  aws_with_auth ecs wait tasks-stopped \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --tasks "${LAST_TASK_ARN}"
 
-  LAST_TASK_EXIT_CODE="$(aws ecs describe-tasks \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  LAST_TASK_EXIT_CODE="$(aws_with_auth ecs describe-tasks \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --tasks "${LAST_TASK_ARN}" \
     --query 'tasks[0].containers[0].exitCode' \
     --output text)"
 
-  LAST_TASK_STOPPED_REASON="$(aws ecs describe-tasks \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  LAST_TASK_STOPPED_REASON="$(aws_with_auth ecs describe-tasks \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --tasks "${LAST_TASK_ARN}" \
     --query 'tasks[0].stoppedReason' \
     --output text)"
 
-  LAST_TASK_CONTAINER_REASON="$(aws ecs describe-tasks \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  LAST_TASK_CONTAINER_REASON="$(aws_with_auth ecs describe-tasks \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --tasks "${LAST_TASK_ARN}" \
@@ -165,8 +181,7 @@ print_task_logs() {
   local log_stream_name
   local task_logs
 
-  log_stream_name="$(aws logs describe-log-streams \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  log_stream_name="$(aws_with_auth logs describe-log-streams \
     --region "${REGION}" \
     --log-group-name "${MIGRATION_LOG_GROUP}" \
     --log-stream-name-prefix "ecs/migration/${task_id}" \
@@ -179,8 +194,7 @@ print_task_logs() {
   fi
 
   echo "Migration task CloudWatch logs from ${MIGRATION_LOG_GROUP}:${log_stream_name}:" >&2
-  task_logs="$(aws logs get-log-events \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  task_logs="$(aws_with_auth logs get-log-events \
     --region "${REGION}" \
     --log-group-name "${MIGRATION_LOG_GROUP}" \
     --log-stream-name "${log_stream_name}" \
@@ -199,8 +213,7 @@ print_task_logs() {
 resolve_service_network_value() {
   local query="$1"
 
-  aws ecs describe-services \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  aws_with_auth ecs describe-services \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --services "${API_SERVICE_NAME}" \
@@ -209,8 +222,7 @@ resolve_service_network_value() {
 }
 
 if [ -z "${PUBLIC_SUBNET_IDS}" ]; then
-  PUBLIC_SUBNET_IDS="$(aws ec2 describe-subnets \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  PUBLIC_SUBNET_IDS="$(aws_with_auth ec2 describe-subnets \
     --region "${REGION}" \
     --filters \
       "Name=tag:Project,Values=${PROJECT_NAME}" \
@@ -227,8 +239,7 @@ fi
 [ -n "${PUBLIC_SUBNET_IDS}" ] && [ "${PUBLIC_SUBNET_IDS}" != "None" ] || fail "Could not resolve public subnets for ${NAME_PREFIX}"
 
 if [ -z "${APP_SECURITY_GROUP_ID}" ]; then
-  APP_SECURITY_GROUP_ID="$(aws ec2 describe-security-groups \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  APP_SECURITY_GROUP_ID="$(aws_with_auth ec2 describe-security-groups \
     --region "${REGION}" \
     --filters "Name=group-name,Values=${NAME_PREFIX}-app" \
     --query 'SecurityGroups[0].GroupId' \
@@ -241,8 +252,7 @@ fi
 
 [ -n "${APP_SECURITY_GROUP_ID}" ] && [ "${APP_SECURITY_GROUP_ID}" != "None" ] || fail "Could not resolve app security group for ${NAME_PREFIX}"
 
-TASK_DEFINITION_ARN="$(aws ecs describe-task-definition \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+TASK_DEFINITION_ARN="$(aws_with_auth ecs describe-task-definition \
   --region "${REGION}" \
   --task-definition "${TASK_DEFINITION}" \
   --query 'taskDefinition.taskDefinitionArn' \

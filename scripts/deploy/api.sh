@@ -26,6 +26,25 @@ INSTALL_BINFMT="${INSTALL_BINFMT:-1}"
 
 export AWS_PAGER=""
 
+AWS_PROFILE_ARGS=()
+
+set_aws_auth_mode() {
+  if [ "${AWS_USE_PROFILE:-1}" = "0" ] ||
+    [ -n "${AWS_ACCESS_KEY_ID:-}" ] ||
+    [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE:-}" ] ||
+    [ -n "${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI:-}" ] ||
+    [ -n "${AWS_CONTAINER_CREDENTIALS_FULL_URI:-}" ]; then
+    AWS_PROFILE_ARGS=()
+    return
+  fi
+
+  AWS_PROFILE_ARGS=(--profile "${AWS_WORKLOAD_PROFILE}")
+}
+
+aws_with_auth() {
+  aws "${AWS_PROFILE_ARGS[@]}" "$@"
+}
+
 fail() {
   echo "Error: $*" >&2
   exit 1
@@ -88,6 +107,7 @@ require_cmd docker
 require_cmd grep
 require_cmd sed
 require_cmd tr
+set_aws_auth_mode
 
 [ -d "${BACKEND_DIR}" ] || fail "Missing backend application directory: ${BACKEND_DIR}"
 [ -f "${BACKEND_DIR}/Dockerfile" ] || fail "Missing backend Dockerfile: ${BACKEND_DIR}/Dockerfile"
@@ -110,8 +130,7 @@ case "${CONTAINER_ARCHITECTURE}" in
     ;;
 esac
 
-REPOSITORY_URI="$(aws ecr describe-repositories \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+REPOSITORY_URI="$(aws_with_auth ecr describe-repositories \
   --region "${REGION}" \
   --repository-names "${REPOSITORY_NAME}" \
   --query 'repositories[0].repositoryUri' \
@@ -122,7 +141,7 @@ REPOSITORY_URI="$(aws ecr describe-repositories \
 REGISTRY_HOST="${REPOSITORY_URI%%/*}"
 
 echo "Authenticating Docker to ${REGISTRY_HOST}..."
-aws ecr get-login-password --profile "${AWS_WORKLOAD_PROFILE}" --region "${REGION}" \
+aws_with_auth ecr get-login-password --region "${REGION}" \
   | docker login --username AWS --password-stdin "${REGISTRY_HOST}" >/dev/null
 
 ensure_buildx
@@ -170,8 +189,7 @@ if [ "${RUN_MIGRATIONS}" = "1" ]; then
   bash "scripts/migrate.sh"
 fi
 
-mapfile -t SERVICE_ARNS < <(aws ecs list-services \
-  --profile "${AWS_WORKLOAD_PROFILE}" \
+mapfile -t SERVICE_ARNS < <(aws_with_auth ecs list-services \
   --region "${REGION}" \
   --cluster "${CLUSTER_NAME}" \
   --query 'serviceArns' \
@@ -192,8 +210,7 @@ for service_name in "${SERVICES[@]}"; do
   echo "Triggering deployment for ${service_name}..."
 
   if [ "${service_name}" = "${NAME_PREFIX}-api" ]; then
-    desired_count="$(aws ecs describe-services \
-      --profile "${AWS_WORKLOAD_PROFILE}" \
+    desired_count="$(aws_with_auth ecs describe-services \
       --region "${REGION}" \
       --cluster "${CLUSTER_NAME}" \
       --services "${service_name}" \
@@ -202,8 +219,7 @@ for service_name in "${SERVICES[@]}"; do
 
     if [ "${desired_count}" = "0" ] && [ "${API_DESIRED_COUNT}" -gt 0 ]; then
       echo "Scaling ${service_name} to ${API_DESIRED_COUNT} so the API can serve traffic."
-      aws ecs update-service \
-        --profile "${AWS_WORKLOAD_PROFILE}" \
+      aws_with_auth ecs update-service \
         --region "${REGION}" \
         --cluster "${CLUSTER_NAME}" \
         --service "${service_name}" \
@@ -213,8 +229,7 @@ for service_name in "${SERVICES[@]}"; do
     fi
   fi
 
-  aws ecs update-service \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  aws_with_auth ecs update-service \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --service "${service_name}" \
@@ -223,8 +238,7 @@ done
 
 if [ "${WAIT_FOR_STABLE}" = "1" ]; then
   echo "Waiting for ECS services to stabilize..."
-  aws ecs wait services-stable \
-    --profile "${AWS_WORKLOAD_PROFILE}" \
+  aws_with_auth ecs wait services-stable \
     --region "${REGION}" \
     --cluster "${CLUSTER_NAME}" \
     --services "${SERVICES[@]}"

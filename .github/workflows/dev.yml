@@ -1,4 +1,4 @@
-name: Validate and deploy development
+name: Deploy development
 
 on:
   push:
@@ -8,7 +8,11 @@ on:
       - "api/**"
       - "web/**"
       - "packages/**"
-      - "scripts/**"
+      - "scripts/create-admin-user.sh"
+      - "scripts/deploy/api.sh"
+      - "scripts/deploy/invalidate_web.sh"
+      - "scripts/deploy/web.sh"
+      - "scripts/migrate.sh"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/dev.yml"
@@ -16,21 +20,25 @@ on:
 
 permissions:
   contents: read
+  id-token: write
+  issues: write
 
 concurrency:
-  group: prepvilla-app-development
+  group: deploy-development
   cancel-in-progress: false
 
 env:
   AWS_REGION: "eu-west-1"
+  AWS_USE_PROFILE: "0"
   AWS_WORKLOAD_PROFILE: "dev-prepvilla"
   WORKSPACE: "dev"
   IMAGE_TAG: ${{ github.sha }}
+  LINUX_PLATFORM: "arm64"
   PYTHON_VERSION: "3.12"
-  NODE_VERSION: "24"
+  NODE_VERSION: "24.0"
   DJANGO_SETTINGS_MODULE: "config.settings.test"
-  DJANGO_ENV: "test"
   DJANGO_DEBUG: "1"
+  DJANGO_ENV: "test"
   DJANGO_SECRET_KEY: "ci-secret-key"
   FRONTEND_DOMAIN: "dev.prepvilla.info"
   API_DOMAIN: "api.dev.prepvilla.info"
@@ -39,133 +47,131 @@ env:
   NEXT_PUBLIC_WS_BASE_URL: "wss://api.dev.prepvilla.info"
 
 jobs:
-  changes:
-    name: Detect changed applications
+  detect-web-changes:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 1
     outputs:
-      web: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.web == 'true' }}
-      api: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.api == 'true' }}
+      web: ${{ steps.filter.outputs.web }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Detect changes
+      - uses: dorny/paths-filter@v3
         id: filter
-        uses: dorny/paths-filter@v4
         with:
+          base: ${{ github.ref }}
           filters: |
             web:
               - "web/**"
               - "packages/**"
+              - "scripts/deploy/invalidate_web.sh"
+              - "scripts/deploy/web.sh"
               - "package.json"
               - "package-lock.json"
               - ".github/workflows/dev.yml"
-            api:
-              - "api/**"
-              - "scripts/deploy/api.sh"
-              - "scripts/migrate.sh"
-              - ".github/workflows/dev.yml"
 
-  web:
-    name: Validate and build web
-    needs: changes
-    if: needs.changes.outputs.web == 'true'
+
+  check-web:
+    needs: detect-web-changes
+    if: needs.detect-web-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
+    environment: development
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
-      - name: Lint web
-        run: npm run lint --workspace web
+      - name: Typecheck frontend
+        run: npm --prefix web run typecheck
 
-      - name: Typecheck web
-        run: npm run typecheck --workspace web
 
-      - name: Test web
-        run: npm run test --if-present --workspace web
+  test-web:
+    needs:
+      - detect-web-changes
+      - check-web
+    if: needs.detect-web-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Build static web application
-        run: npm run build:static --workspace web
-
-      - name: Upload web build
-        uses: actions/upload-artifact@v7
+      - uses: actions/setup-node@v4
         with:
-          name: web-build-${{ github.sha }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Test frontend
+        run: npm --prefix web run test --if-present
+
+
+  build-web:
+    needs:
+      - detect-web-changes
+      - test-web
+    if: needs.detect-web-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm --prefix web run build:static
+
+      - name: Upload web build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
           path: web/out
           if-no-files-found: error
           retention-days: 1
 
-  api:
-    name: Validate and test API
-    needs: changes
-    if: needs.changes.outputs.api == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: api/requirements.txt
-
-      - name: Install backend dependencies
-        run: python -m pip install --disable-pip-version-check -r api/requirements.txt
-
-      - name: Check Django configuration and migrations
-        working-directory: api
-        run: |
-          python manage.py makemigrations --check --dry-run
-          python manage.py check
-
-      - name: Run backend tests
-        working-directory: api
-        run: python manage.py test
 
   deploy-web:
-    name: Deploy web to development
     needs:
-      - changes
-      - web
-    if: needs.changes.outputs.web == 'true'
+      - detect-web-changes
+      - build-web
+    if: needs.detect-web-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: development
-    permissions:
-      contents: read
-      id-token: write
     steps:
-      - name: Download web build
-        uses: actions/download-artifact@v8
+      - uses: actions/checkout@v4
+
+      - name: Download web build artifact
+        uses: actions/download-artifact@v4
         with:
-          name: web-build-${{ github.sha }}
+          name: web-build
           path: web/out
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.2.3
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          role-session-name: prepvilla-app-dev-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Publish web assets
+      - name: Deploy Web
         run: |
           aws s3 sync web/out/ "s3://${FRONTEND_BUCKET}/" \
             --region "${AWS_REGION}" \
@@ -184,9 +190,6 @@ jobs:
               --delete \
               --cache-control "public,max-age=31536000,immutable"
           fi
-
-      - name: Invalidate CloudFront cache
-        run: |
           distribution_id="$(aws cloudfront list-distributions \
             --query "DistributionList.Items[?Aliases.Items!=null && contains(Aliases.Items, '${FRONTEND_DOMAIN}')].Id | [0]" \
             --output text)"
@@ -196,38 +199,136 @@ jobs:
             --distribution-id "${distribution_id}" \
             --paths "/*"
 
-  deploy-api:
-    name: Deploy API to development
-    needs:
-      - changes
-      - api
-    if: needs.changes.outputs.api == 'true'
+
+  detect-api-changes:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    environment: development
-    permissions:
-      contents: read
-      id-token: write
+    timeout-minutes: 1
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+      - uses: actions/checkout@v4
         with:
-          platforms: arm64
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            api:
+              - "api/**"
+              - "scripts/create-admin-user.sh"
+              - "scripts/deploy/api.sh"
+              - "scripts/migrate.sh"
+              - ".github/workflows/dev.yml"
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.2.3
+
+  check-api:
+    needs: detect-api-changes
+    if: needs.detect-api-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: api/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt
+
+      - name: Check backend
+        run: |
+          source .venv/bin/activate
+          cd api
+          python manage.py makemigrations --check --dry-run
+          python manage.py check
+
+
+  test-api:
+    needs:
+      - detect-api-changes
+      - check-api
+    if: needs.detect-api-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: api/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt
+
+      - name: Run backend tests
+        run: |
+          source .venv/bin/activate
+          cd api
+          python manage.py test
+
+
+  deploy-api:
+    needs:
+      - detect-api-changes
+      - test-api
+    if: needs.detect-api-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ env.LINUX_PLATFORM }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          role-session-name: prepvilla-api-dev-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
-          aws-profile: ${{ env.AWS_WORKLOAD_PROFILE }}
 
-      - name: Build and deploy API
+      - name: Deploy API
+        run: SEED_DEMO_ACCOUNTS=1 MIGRATION_START_DB_INSTANCE=1 bash scripts/deploy/api.sh "${WORKSPACE}"
+
+
+  django-superuser:
+    needs:
+      - detect-api-changes
+      - deploy-api
+    if: needs.detect-api-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ env.LINUX_PLATFORM }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create Django Superuser
         env:
-          BACKEND_DIR: api
-          REGION: ${{ env.AWS_REGION }}
-          SEED_DEMO_ACCOUNTS: "1"
-        run: bash scripts/deploy/api.sh "${WORKSPACE}"
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+        run: bash scripts/create-admin-user.sh "${WORKSPACE}"
