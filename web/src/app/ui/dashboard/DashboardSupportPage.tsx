@@ -7,6 +7,7 @@ import { Input } from "../shared/Input";
 import { Textarea } from "../shared/Textarea";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 
 type Notification = {
   type: "success" | "error";
@@ -24,12 +25,21 @@ const SUPPORT_PHONE = "+2348099446062";
 
 export function DashboardSupportPage() {
   const role = useAuthStore((s) => s.role);
+  const userId = useAuthStore((s) => s.userId);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
+  const clearDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.support` : null,
+    { subject, message },
+    (draft) => {
+      if (typeof draft.subject === "string") setSubject(draft.subject);
+      if (typeof draft.message === "string") setMessage(draft.message);
+    },
+  );
 
   useEffect(() => {
     let active = true;
@@ -63,6 +73,7 @@ export function DashboardSupportPage() {
       return;
     }
 
+    clearDraft();
     setSubject("");
     setMessage("");
     setNotification({ type: "success", message: "Your support request has been sent." });

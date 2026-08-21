@@ -19,6 +19,7 @@ from django.db import connections, transaction
 from django.db.models import Min, Avg, Count
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
+from django.utils.html import escape
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework.decorators import api_view, permission_classes
@@ -84,28 +85,152 @@ from .payments import (
 from .subscription_plans import get_subscription_plan, get_subscription_plan_catalog
 from .dikript_verification import DikriptVerificationUnavailable
 from .prembly_verification import PremblyVerificationUnavailable
-from .verification_service import is_verification_configured, verify_nin_and_bvn, verify_nin_identity
+from .verification_service import VerificationProviderUnavailable, verify_nin_and_bvn, verify_nin_identity
 
 def _bad_request(msg: str, status: int = 400):
     return JsonResponse({"error": msg, "detail": msg}, status=status)
 
 def _send_email(subject, message, recipients, html_message=None):
-    from django.core.mail import EmailMessage
+    from django.core.mail import EmailMultiAlternatives
     try:
-        email = EmailMessage(
+        email = EmailMultiAlternatives(
             subject=subject,
             body=message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=recipients,
         )
         if html_message:
-            email.content_subtype = "html"
-            email.body = html_message
+            email.attach_alternative(html_message, "text/html")
         email.send()
         return True
     except Exception:
         logger.exception("Email send failed")
         return False
+
+
+OTP_EMAIL_EXPIRY_MINUTES = 15
+
+
+def _otp_email_action_url(path: str) -> str:
+    return f"{settings.WEB_PUBLIC_URL}{path}"
+
+
+def _build_otp_email_plain_body(*, code: str, label: str, action_url: str) -> str:
+    return (
+        f"Your PrepVilla {label} code is {code}.\n\n"
+        f"It expires in {OTP_EMAIL_EXPIRY_MINUTES} minutes. Do not share this code with anyone.\n\n"
+        f"Return to PrepVilla: {action_url}\n\n"
+        "PrepVilla Support\n"
+        "Email: support@prepvilla.info\n"
+        "Website: https://prepvilla.info"
+    )
+
+
+def _build_otp_email_html_body(
+    *,
+    email: str,
+    code: str,
+    eyebrow: str,
+    headline: str,
+    intro: str,
+    cta_label: str,
+    action_url: str,
+) -> str:
+    safe_email = escape(email)
+    safe_code = escape(code)
+    safe_eyebrow = escape(eyebrow)
+    safe_headline = escape(headline)
+    safe_intro = escape(intro)
+    safe_cta_label = escape(cta_label)
+    safe_action_url = escape(action_url)
+
+    return f"""\
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#FFF7F1;padding:0;font-family:'Buenos Aires','Open Sans',Arial,Helvetica,sans-serif;color:#172033;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFF7F1;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;overflow:hidden;border-radius:28px;background:#FFFDF8;border:1px solid rgba(139,97,120,0.2);box-shadow:0 24px 70px rgba(15,23,40,0.14);">
+            <tr>
+              <td style="padding:0;background:#0F1728;">
+                <div style="padding:30px 28px;background:linear-gradient(135deg,#0F1728 0%,#000080 56%,#F06449 100%);">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="vertical-align:middle;">
+                        <div style="display:inline-block;border-radius:18px;background:#FFFDF8;padding:12px 14px;color:#0F1728;font-size:18px;font-weight:900;letter-spacing:0;">PrepVilla</div>
+                      </td>
+                      <td align="right" style="vertical-align:middle;">
+                        <span style="display:inline-block;border-radius:999px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.34);padding:8px 12px;color:#FFFFFF;font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">{safe_eyebrow}</span>
+                      </td>
+                    </tr>
+                  </table>
+                  <h1 style="margin:28px 0 0;color:#FFFFFF;font-size:32px;line-height:1.08;font-weight:900;letter-spacing:0;">{safe_headline}</h1>
+                  <p style="margin:14px 0 0;color:#F7E8E2;font-size:15px;line-height:1.7;">{safe_intro}</p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px 28px 8px;background:#FFFDF8;">
+                <p style="margin:0;color:#667085;font-size:14px;line-height:1.7;">This code was requested for <strong style="color:#172033;">{safe_email}</strong>.</p>
+                <div style="margin:24px 0;border-radius:22px;background:#FFF0EA;border:1px solid rgba(240,100,73,0.24);padding:22px;text-align:center;">
+                  <p style="margin:0 0 10px;color:#D94E34;font-size:11px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;">Your secure code</p>
+                  <div style="color:#0F1728;font-size:40px;line-height:1;font-weight:900;letter-spacing:0.18em;">{safe_code}</div>
+                  <p style="margin:12px 0 0;color:#667085;font-size:12px;">Expires in {OTP_EMAIL_EXPIRY_MINUTES} minutes.</p>
+                </div>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 22px;">
+                  <tr>
+                    <td style="border-radius:999px;background:#F06449;">
+                      <a href="{safe_action_url}" style="display:inline-block;padding:14px 22px;color:#FFFFFF;text-decoration:none;font-size:14px;font-weight:900;">{safe_cta_label}</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0;color:#667085;font-size:12px;line-height:1.7;text-align:center;">If the button does not work, copy and paste this link into your browser:<br><a href="{safe_action_url}" style="color:#D94E34;text-decoration:none;">{safe_action_url}</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:26px 28px 30px;background:#0F1728;border-top:1px solid rgba(255,255,255,0.08);">
+                <p style="margin:0;color:#FFFFFF;font-size:14px;font-weight:900;">PrepVilla Support</p>
+                <p style="margin:8px 0 0;color:#D7DCE5;font-size:12px;line-height:1.7;">Helping students find trusted tutors and make meaningful progress.<br>Email: <a href="mailto:support@prepvilla.info" style="color:#FF8A73;text-decoration:none;">support@prepvilla.info</a> · Web: <a href="https://prepvilla.info" style="color:#FF8A73;text-decoration:none;">prepvilla.info</a></p>
+                <p style="margin:18px 0 0;color:#98A2B3;font-size:11px;line-height:1.6;">For your security, PrepVilla will never ask you to share this code by phone, chat, or social media.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+"""
+
+
+def _send_otp_email(
+    *,
+    recipient: str,
+    code: str,
+    subject: str,
+    label: str,
+    eyebrow: str,
+    headline: str,
+    intro: str,
+    cta_label: str,
+    action_path: str,
+) -> bool:
+    action_url = _otp_email_action_url(action_path)
+    return _send_email(
+        subject,
+        _build_otp_email_plain_body(code=code, label=label, action_url=action_url),
+        [recipient],
+        _build_otp_email_html_body(
+            email=recipient,
+            code=code,
+            eyebrow=eyebrow,
+            headline=headline,
+            intro=intro,
+            cta_label=cta_label,
+            action_url=action_url,
+        ),
+    )
 
 
 def _generate_email_code() -> str:
@@ -124,7 +249,17 @@ def _issue_email_code(user: AppUser, subject: str, message: str) -> bool:
         code_hash=digest,
         expires_at=expires_at,
     )
-    sent = _send_email(subject, f"{message}\n\n{otp}\n\nThis code will expire in 15 minutes.\n", [user.email])
+    sent = _send_otp_email(
+        recipient=user.email,
+        code=otp,
+        subject=subject,
+        label="account verification",
+        eyebrow="Account security",
+        headline=subject,
+        intro=message,
+        cta_label="Return to PrepVilla",
+        action_path="/login",
+    )
     if not sent:
         challenge.used_at = timezone.now()
         challenge.save(update_fields=["used_at"])
@@ -445,43 +580,6 @@ def _default_dashboard_path(user: AppUser) -> str:
     return "/dashboard"
 
 
-def _apply_tutor_verification_decision(
-    tutor_profile: TutorProfile,
-    verification: VerificationRequest,
-    *,
-    approved: bool,
-    notes: str = "",
-):
-    status = "approved" if approved else "rejected"
-    verification.status = status
-    verification.decided_at = timezone.now()
-    verification.notes = notes
-    verification.save(update_fields=["status", "decided_at", "notes"])
-
-    tutor_user = tutor_profile.user
-    apply_verified_tutor_fields(
-        tutor_user,
-        tutor_profile,
-        full_name=tutor_user.full_name,
-        mobile_number=tutor_user.mobile_number,
-        date_of_birth=tutor_user.date_of_birth,
-        home_state=verification.home_state,
-        home_city=verification.home_city,
-        home_address=verification.home_address,
-        qualification=verification.qualification,
-        nin_number=verification.nin_number,
-        bvn_number=verification.bvn_number,
-        state_of_origin=tutor_profile.state_of_origin,
-        lga_of_origin=tutor_profile.lga_of_origin,
-        country_of_birth=tutor_profile.country_of_birth,
-        nationality=tutor_profile.nationality,
-        profile_photo_url=verification.profile_photo_url,
-        document_urls=verification.document_urls,
-        verification_status=status,
-        is_listed=approved and tutor_profile.is_listed,
-    )
-
-
 def _issue_pending_signup_code(email: str, role: str, full_name: str, password: str) -> bool:
     now = timezone.now()
     PendingSignupChallenge.objects.filter(email=email, used_at__isnull=True).update(used_at=now)
@@ -497,9 +595,17 @@ def _issue_pending_signup_code(email: str, role: str, full_name: str, password: 
         code_hash=digest,
         expires_at=now + timedelta(minutes=15),
     )
-    subject = "Verify your email"
-    message = "Welcome to PrepVilla!\nPlease use the verification code below to verify your email."
-    sent = _send_email(subject, f"{message}\n\n{otp}\n\nThis code will expire in 15 minutes.\n", [email])
+    sent = _send_otp_email(
+        recipient=email,
+        code=otp,
+        subject="Your PrepVilla verification code",
+        label="email verification",
+        eyebrow="Email verification",
+        headline="Complete your PrepVilla registration",
+        intro="Use this verification code to finish creating your account.",
+        cta_label="Return to email verification",
+        action_path="/signup",
+    )
     if not sent:
         challenge.used_at = now
         challenge.save(update_fields=["used_at"])
@@ -1341,9 +1447,17 @@ def password_reset_request(request):
     digest = hashlib.sha256((settings.SECRET_KEY + salt + otp).encode("utf-8")).hexdigest()
     expires_at = timezone.now() + timedelta(minutes=15)
     PasswordResetToken.objects.create(user=user, code_salt=salt, code_hash=digest, expires_at=expires_at)
-    subject = "Password reset code"
-    message = f"Use the code below to reset your password:\n\n{otp}\n\nThis code expires in 15 minutes.\n"
-    sent = _send_email(subject, message, [user.email])
+    sent = _send_otp_email(
+        recipient=user.email,
+        code=otp,
+        subject="Your PrepVilla password reset code",
+        label="password reset",
+        eyebrow="Account recovery",
+        headline="Reset your PrepVilla password",
+        intro="Use this verification code to securely reset your password.",
+        cta_label="Return to password reset",
+        action_path="/forgot-password",
+    )
     if not sent:
         logger.error("Password reset email failed for email=%s", normalized)
     payload = {"ok": True}
@@ -1771,17 +1885,17 @@ def freeze_account_request(request):
         expires_at=now + timedelta(minutes=15),
     )
 
-    days = (req.ends_on - req.starts_on).days + 1
-    subject = "PrepVilla: Freeze account OTP"
-    message = (
-        "You requested to freeze your PrepVilla account.\n\n"
-        f"Freeze start: {req.starts_on.isoformat()}\n"
-        f"Freeze end: {req.ends_on.isoformat()}\n"
-        f"Duration: {days} day(s)\n\n"
-        f"OTP code: {code}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
+    sent = _send_otp_email(
+        recipient=user.email,
+        code=code,
+        subject="Your PrepVilla account freeze code",
+        label="account freeze",
+        eyebrow="Account security",
+        headline="Confirm your account freeze",
+        intro="Use this verification code to confirm the requested pause on your tutor account.",
+        cta_label="Return to account settings",
+        action_path="/dashboard/settings",
     )
-    sent = _send_email(subject, message, [user.email])
     if not sent:
         return _bad_request("Failed to send OTP email", status=500)
 
@@ -1908,20 +2022,59 @@ def delete_account_request(request):
         expires_at=now + timedelta(minutes=15),
     )
 
-    subject = "PrepVilla: Delete account OTP"
-    message = (
-        "You requested to permanently delete your PrepVilla account.\n\n"
-        f"OTP code: {code}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
+    sent = _send_otp_email(
+        recipient=user.email,
+        code=code,
+        subject="Your PrepVilla account deletion code",
+        label="account deletion",
+        eyebrow="Account security",
+        headline="Confirm account deletion",
+        intro="Use this verification code to confirm the permanent deletion of your PrepVilla account.",
+        cta_label="Return to account settings",
+        action_path="/dashboard/settings",
     )
-    sent = _send_email(subject, message, [user.email])
     if not sent:
         return _bad_request("Failed to send OTP email", status=500)
     return JsonResponse({"ok": True})
 
 
-def _issue_me_otp(user: AppUser, purpose: str, payload: dict, subject: str, message: str):
-    if purpose not in {"change_password", "change_email", "change_phone", "change_address", "change_qualification"}:
+ME_OTP_EMAIL_CONTENT = {
+    "change_password": (
+        "Your PrepVilla password verification code",
+        "password change",
+        "Confirm your password change",
+        "Use this verification code to confirm your new PrepVilla password.",
+    ),
+    "change_email": (
+        "Your PrepVilla email verification code",
+        "email change",
+        "Confirm your email change",
+        "Use this verification code to confirm the new email address for your account.",
+    ),
+    "change_phone": (
+        "Your PrepVilla phone verification code",
+        "phone number change",
+        "Confirm your phone number change",
+        "Use this verification code to confirm the new phone number for your account.",
+    ),
+    "change_address": (
+        "Your PrepVilla address verification code",
+        "residential address change",
+        "Confirm your address change",
+        "Use this verification code to confirm your new residential address.",
+    ),
+    "change_qualification": (
+        "Your PrepVilla qualification verification code",
+        "qualification change",
+        "Confirm your qualification change",
+        "Use this verification code to confirm the qualification shown on your tutor profile.",
+    ),
+}
+
+
+def _issue_me_otp(user: AppUser, purpose: str, payload: dict):
+    email_content = ME_OTP_EMAIL_CONTENT.get(purpose)
+    if not email_content:
         return None
     code = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     salt = secrets.token_hex(16)
@@ -1938,7 +2091,18 @@ def _issue_me_otp(user: AppUser, purpose: str, payload: dict, subject: str, mess
         expires_at=now + timedelta(minutes=15),
     )
 
-    sent = _send_email(subject, message.replace("{OTP}", code), [user.email])
+    subject, label, headline, intro = email_content
+    sent = _send_otp_email(
+        recipient=user.email,
+        code=code,
+        subject=subject,
+        label=label,
+        eyebrow="Account security",
+        headline=headline,
+        intro=intro,
+        cta_label="Return to account settings",
+        action_path="/dashboard/settings",
+    )
     if not sent:
         MeOtpChallenge.objects.filter(id=challenge.id).update(used_at=now)
         return None
@@ -1968,13 +2132,7 @@ def change_password_request(request):
     new_password = request.data.get("newPassword")
     if not isinstance(new_password, str) or len(new_password) < 6:
         return _bad_request("Password must be at least 6 characters")
-    subject = "PrepVilla: Change password OTP"
-    message = (
-        "You requested to change your PrepVilla password.\n\n"
-        "OTP code: {OTP}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
-    )
-    challenge = _issue_me_otp(user, "change_password", {"newPassword": new_password}, subject, message)
+    challenge = _issue_me_otp(user, "change_password", {"newPassword": new_password})
     if not challenge:
         return _bad_request("Failed to send OTP email", status=500)
     return JsonResponse({"ok": True})
@@ -2014,14 +2172,7 @@ def change_email_request(request):
         return _bad_request("Email is unchanged")
     if AppUser.objects.filter(email=normalized).exists():
         return _bad_request("Email already registered")
-    subject = "PrepVilla: Change email OTP"
-    message = (
-        "You requested to change your PrepVilla email.\n\n"
-        f"New email: {normalized}\n"
-        "OTP code: {OTP}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
-    )
-    challenge = _issue_me_otp(user, "change_email", {"newEmail": normalized}, subject, message)
+    challenge = _issue_me_otp(user, "change_email", {"newEmail": normalized})
     if not challenge:
         return _bad_request("Failed to send OTP email", status=500)
     return JsonResponse({"ok": True})
@@ -2063,14 +2214,7 @@ def change_phone_request(request):
         return _bad_request(str(exc))
     if normalized == (user.mobile_number or ""):
         return _bad_request("Phone number is unchanged")
-    subject = "PrepVilla: Change phone number OTP"
-    message = (
-        "You requested to change your PrepVilla phone number.\n\n"
-        f"New phone: {normalized}\n"
-        "OTP code: {OTP}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
-    )
-    challenge = _issue_me_otp(user, "change_phone", {"newPhone": normalized}, subject, message)
+    challenge = _issue_me_otp(user, "change_phone", {"newPhone": normalized})
     if not challenge:
         return _bad_request("Failed to send OTP email", status=500)
     return JsonResponse({"ok": True})
@@ -2120,19 +2264,10 @@ def change_qualification_request(request):
         return _bad_request("Qualification must not exceed 100 characters")
     if normalized == (tutor_profile.qualification or "").strip():
         return _bad_request("Qualification is unchanged")
-    subject = "PrepVilla: Change qualification OTP"
-    message = (
-        "You requested to change the qualification on your PrepVilla tutor profile.\n\n"
-        f"New qualification: {normalized}\n"
-        "OTP code: {OTP}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
-    )
     challenge = _issue_me_otp(
         user,
         "change_qualification",
         {"newQualification": normalized},
-        subject,
-        message,
     )
     if not challenge:
         return _bad_request("Failed to send OTP email", status=500)
@@ -2181,14 +2316,7 @@ def change_address_request(request):
         return _bad_request(str(exc))
     if normalized == _current_residential_address(user):
         return _bad_request("Residential address is unchanged")
-    subject = "PrepVilla: Change residential address OTP"
-    message = (
-        "You requested to change your PrepVilla residential address.\n\n"
-        f"New residential address: {normalized}\n"
-        "OTP code: {OTP}\n\n"
-        "This code expires in 15 minutes. If you did not request this, ignore this email.\n"
-    )
-    challenge = _issue_me_otp(user, "change_address", {"newAddress": normalized}, subject, message)
+    challenge = _issue_me_otp(user, "change_address", {"newAddress": normalized})
     if not challenge:
         return _bad_request("Failed to send OTP email", status=500)
     return JsonResponse({"ok": True})
@@ -2950,10 +3078,7 @@ def my_verification(request):
 
     normalized_profile_photo_url = profilePhotoUrl.strip()[:500]
 
-    if (
-        not getattr(settings, "BYPASS_VERIFICATION", False)
-        and is_verification_configured()
-    ):
+    if not getattr(settings, "BYPASS_VERIFICATION", False):
         name_parts = str(fullName).strip().split()
         identity_data = {
             "first_name": name_parts[0] if name_parts else "",
@@ -2969,11 +3094,21 @@ def my_verification(request):
         }
         try:
             verify_nin_and_bvn(identity_data, normalized_nin_number, normalized_bvn_number)
-        except (ValidationError, PremblyVerificationUnavailable, DikriptVerificationUnavailable) as exc:
+        except (
+            ValidationError,
+            VerificationProviderUnavailable,
+            PremblyVerificationUnavailable,
+            DikriptVerificationUnavailable,
+        ) as exc:
             detail = getattr(exc, "detail", str(exc))
             return _bad_request(
                 str(detail),
-                status=503 if isinstance(exc, (PremblyVerificationUnavailable, DikriptVerificationUnavailable)) else 400,
+                status=503
+                if isinstance(
+                    exc,
+                    (VerificationProviderUnavailable, PremblyVerificationUnavailable, DikriptVerificationUnavailable),
+                )
+                else 400,
             )
 
     normalized_bank_account_number = str(bankAccountNumber or "").strip()
@@ -2985,7 +3120,7 @@ def my_verification(request):
     if not verification:
         verification = VerificationRequest(tutor_profile=tp)
 
-    verification.status = "approved" if is_approved_verification else "pending"
+    verification.status = "approved"
     verification.home_state = homeState.strip()
     verification.home_city = homeCity.strip()
     verification.home_address = homeAddress.strip()
@@ -2994,9 +3129,8 @@ def my_verification(request):
     verification.bvn_number = normalized_bvn_number
     verification.profile_photo_url = normalized_profile_photo_url
     verification.document_urls = _dump_string_list(documentUrls)
-    if not is_approved_verification:
-        verification.notes = notes.strip() if isinstance(notes, str) else ""
-    verification.decided_at = (verification.decided_at or timezone.now()) if is_approved_verification else None
+    verification.notes = "Automatically verified against the submitted NIN and BVN records."
+    verification.decided_at = timezone.now()
     verification.submitted_at = timezone.now()
     verification.save()
 
@@ -3018,8 +3152,8 @@ def my_verification(request):
         nationality=nationality.strip(),
         profile_photo_url=normalized_profile_photo_url,
         document_urls=verification.document_urls,
-        verification_status="approved" if is_approved_verification else "pending",
-        is_listed=tp.is_listed if is_approved_verification else False,
+        verification_status="approved",
+        is_listed=tp.is_listed,
     )
     payout_fields = {
         "bank_name": str(bankName or "").strip(),
@@ -3032,18 +3166,12 @@ def my_verification(request):
             setattr(tp, field, value)
         tp.save(update_fields=[*payout_fields.keys()])
 
-    if not is_approved_verification:
-        subject = "Verification Submitted"
-        message = (
-            "Your verification documents have been submitted successfully.\n\n\n"
-            "Residence:\n"
-            f"{verification.home_address}\n"
-            f"{verification.home_city}, {verification.home_state}\n\n"
-            f"Qualification: {qualification}\n\n"
-            f"NIN: {normalized_nin_number}"
-            "\n\n\nOur team will review your credentials and update your status soon. Please allow 1-3 business days for processing."
-        )
-        _send_email(subject, message, [user.email])
+    subject = "Identity Verification Successful"
+    message = (
+        "Your identity details have been verified successfully against the submitted NIN and BVN records.\n\n"
+        "Your verification status is now Verified. You can continue to complete or update your tutor profile."
+    )
+    _send_email(subject, message, [user.email])
 
     data = {
         "status": _normalize_tutor_verification_status(verification.status),
@@ -3077,78 +3205,6 @@ def my_verification(request):
     }
     return JsonResponse(data)
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated, IsTutor])
-def my_verification_resend(request):
-    user: AppUser = request.user
-    tp = TutorProfile.objects.filter(user=user).first()
-    if not tp:
-        return _bad_request("Tutor profile not found", status=404)
-    
-    verification = VerificationRequest.objects.filter(tutor_profile=tp).first()
-    if not verification or verification.status != "pending":
-        return _bad_request("No pending verification to resend", status=400)
-    
-    # Send email
-    subject = "Verification Submitted (Reminder)"
-    message = (
-        "This is a reminder that your verification documents have been submitted.\n\n"
-        "Residence:\n"
-        f"{verification.home_address}\n"
-        f"{verification.home_city}, {verification.home_state}\n\n"
-        f"Qualification: {verification.qualification}\n"
-        f"NIN: {verification.nin_number}\n\n"
-        "Status: Pending Review\n\n"
-        "We will notify you once the review is complete."
-    )
-    html_message = f"""
-    <html>
-    <body>
-    <h2>Verification Re-Submitted Successfully</h2>
-    <p>Your verification documents have been re-submitted successfully.</p>
-    <ul>
-    <li><strong>Residence:</strong> {verification.home_address}, {verification.home_city}, {verification.home_state}</li>
-    <li><strong>Qualification:</strong> {verification.qualification}</li>
-    <li><strong>NIN:</strong> {verification.nin_number}</li>
-    </ul>
-    <p><strong>Status:</strong> Pending Review</p>
-    <p>Please click one of the buttons below to approve or reject the verification:</p>
-    <a href="http://localhost:8500/api/verification/approve?tutor_id={tp.id}&action=approve" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; margin-right: 10px;">Approve</a>
-    <a href="http://localhost:8500/api/verification/approve?tutor_id={tp.id}&action=reject" style="background-color: red; color: white; padding: 10px 20px; text-decoration: none;">Reject</a>
-    <p>We will notify you once the review is complete.</p>
-    </body>
-    </html>
-    """
-    _send_email(subject, message, [user.email], html_message)
-    
-    return JsonResponse({"message": "Email resent"})
-
-@api_view(["GET"])
-def verification_approve(request):
-    tutor_id = request.GET.get('tutor_id')
-    action = request.GET.get('action')
-    if not tutor_id or action not in ['approve', 'reject']:
-        return HttpResponse("Invalid request", status=400)
-    
-    try:
-        tp = TutorProfile.objects.get(id=tutor_id)
-    except TutorProfile.DoesNotExist:
-        return HttpResponse("Tutor not found", status=404)
-    
-    verification = VerificationRequest.objects.filter(tutor_profile=tp).first()
-    if not verification or verification.status != "pending":
-        return HttpResponse("No pending verification", status=400)
-
-    if action == 'approve':
-        _apply_tutor_verification_decision(tp, verification, approved=True, notes="Approved via email link")
-        return HttpResponse("Verification approved! You are now listed and visible to students.")
-    elif action == 'reject':
-        _apply_tutor_verification_decision(tp, verification, approved=False, notes="Rejected via email link")
-        return HttpResponse("Verification rejected. Please resubmit your documents.")
-
-    return HttpResponse("Status updated.")
-
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def admin_verification_requests(request):
@@ -3175,43 +3231,6 @@ def admin_verification_requests(request):
         )
     return JsonResponse({"results": data})
 
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated, IsAdminUser])
-def admin_verification_request_decision(request, request_id, action):
-    if action not in {"approve", "reject"}:
-        return _bad_request("Invalid action")
-
-    verification = (
-        VerificationRequest.objects.select_related("tutor_profile__user")
-        .filter(id=request_id)
-        .first()
-    )
-    if not verification:
-        return _bad_request("Verification request not found", status=404)
-    if _normalize_tutor_verification_status(verification.status) != "pending":
-        return _bad_request("Verification request has already been processed")
-
-    notes = request.data.get("notes", "")
-    normalized_notes = notes.strip() if isinstance(notes, str) else ""
-    approved = action == "approve"
-    _apply_tutor_verification_decision(
-        verification.tutor_profile,
-        verification,
-        approved=approved,
-        notes=normalized_notes,
-    )
-
-    decision_label = "approved" if approved else "rejected"
-    subject = f"Verification {decision_label.title()}"
-    message = (
-        f"Your tutor verification has been {decision_label}."
-        if not normalized_notes
-        else f"Your tutor verification has been {decision_label}.\n\nNotes: {normalized_notes}"
-    )
-    _send_email(subject, message, [verification.tutor_profile.user.email])
-
-    return JsonResponse({"ok": True, "status": decision_label})
 
 @api_view(["GET", "POST", "PUT"])
 @permission_classes([IsAuthenticated, IsTutor])
@@ -4072,7 +4091,7 @@ def student_verification(request):
     if missing_fields:
         return _bad_request(f"Missing required fields: {', '.join(missing_fields)}")
 
-    if not getattr(settings, "BYPASS_VERIFICATION", False) and is_verification_configured():
+    if not getattr(settings, "BYPASS_VERIFICATION", False):
         identity_data = {
             "first_name": str(first_name).strip(),
             "middle_name": str(middle_name or "").strip(),
@@ -4095,12 +4114,26 @@ def student_verification(request):
                     last_name=str(last_name).strip(),
                     date_of_birth=parsed_date_of_birth,
                     mobile_number=normalized_mobile_number,
+                    country_of_birth=str(country_of_birth).strip(),
+                    nationality=str(nationality).strip(),
+                    state_of_origin=str(state_of_origin).strip(),
+                    lga=str(lga_of_origin).strip(),
                 )
-        except (ValidationError, PremblyVerificationUnavailable, DikriptVerificationUnavailable) as exc:
+        except (
+            ValidationError,
+            VerificationProviderUnavailable,
+            PremblyVerificationUnavailable,
+            DikriptVerificationUnavailable,
+        ) as exc:
             detail = getattr(exc, "detail", str(exc))
             return _bad_request(
                 str(detail),
-                status=503 if isinstance(exc, (PremblyVerificationUnavailable, DikriptVerificationUnavailable)) else 400,
+                status=503
+                if isinstance(
+                    exc,
+                    (VerificationProviderUnavailable, PremblyVerificationUnavailable, DikriptVerificationUnavailable),
+                )
+                else 400,
             )
 
     verification, _ = StudentVerificationRequest.objects.update_or_create(
@@ -4169,73 +4202,40 @@ def student_verification(request):
         "documentUrls": _load_string_list(verification.document_urls),
     })
 
-@api_view(["GET", "POST"])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def admin_student_verifications(request):
-    if request.method == "GET":
-        status_filter = request.GET.get("status", "pending")
-        verifications = StudentVerificationRequest.objects.select_related("user").order_by("-submitted_at")
-        if status_filter != "all":
-            verifications = verifications.filter(status=status_filter)
-        
-        data = [{
-            "id": str(v.id),
-            "userId": str(v.user.id),
-            "userName": v.user.display_name,
-            "userEmail": v.user.email,
-            "profilePhotoUrl": v.profile_photo_url,
-            "dateOfBirth": v.date_of_birth.isoformat() if v.date_of_birth else None,
-            "mobileNumber": v.mobile_number,
-            "ninNumber": v.nin_number,
-            "bvnNumber": v.bvn_number,
-            "countryOfBirth": v.country_of_birth,
-            "nationality": v.nationality,
-            "stateOfOrigin": v.state_of_origin,
-            "lgaOfOrigin": v.lga_of_origin,
-            "qualification": v.qualification,
-            "documentUrls": _load_string_list(v.document_urls),
-            "city": v.city,
-            "state": v.state,
-            "address": v.address,
-            "status": v.status,
-            "submittedAt": v.submitted_at.isoformat(),
-            "reviewedAt": v.reviewed_at.isoformat() if v.reviewed_at else None,
-            "adminNotes": v.admin_notes,
-        } for v in verifications]
-        
-        return JsonResponse({"verifications": data})
-    
-    # POST - Approve/Reject verification request
-    verification_id = request.data.get("verificationId")
-    action = request.data.get("action")  # "approve" or "reject"
-    admin_notes = request.data.get("adminNotes", "").strip()
-    
-    if not verification_id or action not in ["approve", "reject"]:
-        return _bad_request("Invalid request data")
-    
-    try:
-        verification = StudentVerificationRequest.objects.get(id=verification_id, status="pending")
-    except StudentVerificationRequest.DoesNotExist:
-        return _bad_request("Verification request not found or already processed")
-    
-    from django.utils import timezone
-    
-    if action == "approve":
-        verification.status = "approved"
-        # User can now contact tutors
-    else:
-        verification.status = "rejected"
-    
-    verification.reviewed_at = timezone.now()
-    verification.reviewed_by = request.user
-    verification.admin_notes = admin_notes
-    verification.save()
-    
-    return JsonResponse({
-        "id": str(verification.id),
-        "status": verification.status,
-        "message": f"Student verification request {action}d successfully",
-    })
+    status_filter = request.GET.get("status", "all")
+    verifications = StudentVerificationRequest.objects.select_related("user").order_by("-submitted_at")
+    if status_filter != "all":
+        verifications = verifications.filter(status=status_filter)
+
+    data = [{
+        "id": str(v.id),
+        "userId": str(v.user.id),
+        "userName": v.user.display_name,
+        "userEmail": v.user.email,
+        "profilePhotoUrl": v.profile_photo_url,
+        "dateOfBirth": v.date_of_birth.isoformat() if v.date_of_birth else None,
+        "mobileNumber": v.mobile_number,
+        "ninNumber": v.nin_number,
+        "bvnNumber": v.bvn_number,
+        "countryOfBirth": v.country_of_birth,
+        "nationality": v.nationality,
+        "stateOfOrigin": v.state_of_origin,
+        "lgaOfOrigin": v.lga_of_origin,
+        "qualification": v.qualification,
+        "documentUrls": _load_string_list(v.document_urls),
+        "city": v.city,
+        "state": v.state,
+        "address": v.address,
+        "status": v.status,
+        "submittedAt": v.submitted_at.isoformat(),
+        "reviewedAt": v.reviewed_at.isoformat() if v.reviewed_at else None,
+        "adminNotes": v.admin_notes,
+    } for v in verifications]
+
+    return JsonResponse({"verifications": data})
 
 
 @api_view(["POST"])

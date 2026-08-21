@@ -1,3 +1,16 @@
+import nigeriaStateLgaRaw from "@/data/nigeria-state-lga.json";
+
+type NigeriaStateLgaMap = Record<string, string[]>;
+
+const rawNigeriaStateLgaMap = nigeriaStateLgaRaw as NigeriaStateLgaMap;
+
+export const NIGERIA_STATE_LGAS: NigeriaStateLgaMap = Object.fromEntries(
+  Object.entries(rawNigeriaStateLgaMap).map(([state, lgas]) => [
+    state === "FCT" ? "Federal Capital Territory" : state,
+    lgas.map((lga) => lga.trim()).sort((left, right) => left.localeCompare(right)),
+  ]),
+);
+
 export const NIGERIA_STATE_CITIES: Record<string, string[]> = {
   Abia: ["Aba", "Arochukwu", "Bende", "Ohafia", "Umuahia", "Uzuakoli"],
   Adamawa: ["Ganye", "Jimeta", "Mubi", "Numan", "Yola"],
@@ -38,7 +51,7 @@ export const NIGERIA_STATE_CITIES: Record<string, string[]> = {
   Zamfara: ["Anka", "Gusau", "Kaura Namoda", "Shinkafi", "Talata Mafara"],
 };
 
-export const NIGERIA_STATES = Object.keys(NIGERIA_STATE_CITIES);
+export const NIGERIA_STATES = Object.keys(NIGERIA_STATE_LGAS).sort((left, right) => left.localeCompare(right));
 
 export const NIGERIAN_SCHOOL_SUBJECTS = [
   "Agricultural Science",

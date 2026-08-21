@@ -8,6 +8,7 @@ import { Select } from "../shared/Select";
 import { Textarea } from "../shared/Textarea";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 import { NIGERIAN_SCHOOL_SUBJECTS, NIGERIA_STATE_CITIES, NIGERIA_STATES, WORLD_LANGUAGES } from "../shared/nigeriaData";
 import { getMobileNumberError, getBvnNumberError, getNinNumberError, sanitizeMobileNumberInput, sanitizeNinInput, sanitizeBvnInput } from "../shared/profileValidation";
 import type { UserRole } from "@prepvilla/types";
@@ -94,7 +95,9 @@ export function DashboardProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const updateProfile = useAuthStore((s) => s.updateProfile);
+  const userId = useAuthStore((s) => s.userId);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormReady, setIsFormReady] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
   const [me, setMe] = useState<MeResponse | null>(null);
   const [tutorData, setTutorData] = useState<TutorData | null>(null);
@@ -133,24 +136,140 @@ export function DashboardProfilePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subjectPickerRef = useRef<HTMLDivElement>(null);
+  const clearDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.profile` : null,
+    {
+      fullName,
+      displayName,
+      mobileNumber,
+      dob,
+      state,
+      city,
+      address,
+      qualification,
+      ninNumber,
+      bvnNumber,
+      stateOfOrigin,
+      lgaOfOrigin,
+      headline,
+      bio,
+      selectedSubjects,
+      subjectQuery,
+      selectedLanguages,
+      languageToAdd,
+      hourlyRate,
+      gender,
+      firstLessonFree,
+      offersFaceToFace,
+      offersWebcam,
+      pendingPhotoUrl,
+    },
+    (draft) => {
+      const hasVerifiedTutorIdentity =
+        me?.role === "tutor" &&
+        ["approved", "verified"].includes(tutorProfile?.verificationStatus?.toLowerCase() ?? "");
+      const lockedVerifiedFields = new Set([
+        "fullName",
+        "displayName",
+        "mobileNumber",
+        "dob",
+        "state",
+        "city",
+        "address",
+        "qualification",
+        "ninNumber",
+        "bvnNumber",
+        "stateOfOrigin",
+        "lgaOfOrigin",
+        "pendingPhotoUrl",
+      ]);
+      const currentValues: Record<string, unknown> = {
+        fullName,
+        displayName,
+        mobileNumber,
+        dob,
+        state,
+        city,
+        address,
+        qualification,
+        ninNumber,
+        bvnNumber,
+        stateOfOrigin,
+        lgaOfOrigin,
+        headline,
+        bio,
+        selectedSubjects,
+        subjectQuery,
+        selectedLanguages,
+        languageToAdd,
+        hourlyRate,
+        gender,
+        firstLessonFree,
+        offersFaceToFace,
+        offersWebcam,
+        pendingPhotoUrl,
+      };
+      const hasDraftChanges = Object.entries(draft).some(
+        ([field, draftValue]) =>
+          !(hasVerifiedTutorIdentity && lockedVerifiedFields.has(field)) &&
+          JSON.stringify(draftValue) !== JSON.stringify(currentValues[field]),
+      );
+      if (!hasVerifiedTutorIdentity) {
+        if (typeof draft.fullName === "string") setFullName(draft.fullName);
+        if (typeof draft.displayName === "string") setDisplayName(draft.displayName);
+        if (typeof draft.mobileNumber === "string") setMobileNumber(draft.mobileNumber);
+        if (typeof draft.dob === "string") setDob(draft.dob);
+        if (typeof draft.state === "string") setState(draft.state);
+        if (typeof draft.city === "string") setCity(draft.city);
+        if (typeof draft.address === "string") setAddress(draft.address);
+        if (typeof draft.qualification === "string") setQualification(draft.qualification);
+        if (typeof draft.ninNumber === "string") setNinNumber(draft.ninNumber);
+        if (typeof draft.bvnNumber === "string") setBvnNumber(draft.bvnNumber);
+        if (typeof draft.stateOfOrigin === "string") setStateOfOrigin(draft.stateOfOrigin);
+        if (typeof draft.lgaOfOrigin === "string") setLgaOfOrigin(draft.lgaOfOrigin);
+      }
+      if (typeof draft.headline === "string") setHeadline(draft.headline);
+      if (typeof draft.bio === "string") setBio(draft.bio);
+      if (Array.isArray(draft.selectedSubjects)) {
+        setSelectedSubjects(draft.selectedSubjects.filter((item): item is string => typeof item === "string"));
+      }
+      if (typeof draft.subjectQuery === "string") setSubjectQuery(draft.subjectQuery);
+      if (Array.isArray(draft.selectedLanguages)) {
+        setSelectedLanguages(draft.selectedLanguages.filter((item): item is string => typeof item === "string"));
+      }
+      if (typeof draft.languageToAdd === "string") setLanguageToAdd(draft.languageToAdd);
+      if (typeof draft.hourlyRate === "string") setHourlyRate(draft.hourlyRate);
+      if (typeof draft.gender === "string") setGender(draft.gender);
+      if (typeof draft.firstLessonFree === "boolean") setFirstLessonFree(draft.firstLessonFree);
+      if (typeof draft.offersFaceToFace === "boolean") setOffersFaceToFace(draft.offersFaceToFace);
+      if (typeof draft.offersWebcam === "boolean") setOffersWebcam(draft.offersWebcam);
+      if (
+        !hasVerifiedTutorIdentity &&
+        (typeof draft.pendingPhotoUrl === "string" || draft.pendingPhotoUrl === null)
+      ) {
+        setPendingPhotoUrl(draft.pendingPhotoUrl);
+      }
+      setHasChanges(hasDraftChanges);
+    },
+    isFormReady,
+  );
   const editMode = searchParams.get("edit") === "profile";
   const verificationStatus = tutorProfile?.verificationStatus?.toLowerCase() ?? "";
   const isApprovedTutorProfile =
     me?.role === "tutor" && (verificationStatus === "approved" || verificationStatus === "verified");
   const isTutor = me?.role === "tutor";
   const hasCompletedTutorProfile = Boolean(tutorProfile?.isListed);
-  const isApprovedListedTutor = isTutor && isApprovedTutorProfile && hasCompletedTutorProfile;
   const canTutorCompleteInitialProfile = isTutor && isApprovedTutorProfile && !hasCompletedTutorProfile;
   const isApprovedTutorEditMode =
     isTutor && isApprovedTutorProfile && hasCompletedTutorProfile && editMode;
-  const canEditVerificationBackedTutorFields =
-    !isTutor || canTutorCompleteInitialProfile || isApprovedTutorEditMode;
-  const canEditLockedTutorIdentityFields = !isApprovedListedTutor;
+  const canEditVerificationBackedTutorFields = !isTutor || !isApprovedTutorProfile;
+  const canEditLockedTutorIdentityFields = canEditVerificationBackedTutorFields;
   const canEditTutorPublicProfileFields =
     !isTutor || canTutorCompleteInitialProfile || isApprovedTutorEditMode;
   const hasSubmittedGender = isTutor && Boolean(tutorProfile?.gender?.trim());
-  const canEditStateOfOrigin = !isTutor || canTutorCompleteInitialProfile;
-  const canEditPhoto = !isTutor || !isApprovedTutorProfile || isApprovedTutorEditMode;
+  const canEditStateOfOrigin = canEditVerificationBackedTutorFields;
+  const canEditPhoto = !isTutor || !isApprovedTutorProfile;
+  const verifiedFieldHelperText = isTutor && isApprovedTutorProfile ? "Verified information is locked." : undefined;
   const isStudent = me?.role === "student";
   const availableCities = useMemo(() => (isStudent && state ? NIGERIA_STATE_CITIES[state] ?? [] : []), [isStudent, state]);
   const stateOptions = useMemo(
@@ -250,6 +369,7 @@ export function DashboardProfilePage() {
     if (!res.ok) {
       showNotification("error", res.error || "Failed to load profile");
       setIsLoading(false);
+      setIsFormReady(true);
       return;
     }
     setMe(res.data);
@@ -315,6 +435,7 @@ export function DashboardProfilePage() {
       }
     }
     setIsLoading(false);
+    setIsFormReady(true);
   }, [showNotification]);
 
   useEffect(() => {
@@ -478,6 +599,7 @@ export function DashboardProfilePage() {
 
       // Reload profile to get updated data
       await load();
+      clearDraft();
       return;
     }
 
@@ -587,6 +709,7 @@ export function DashboardProfilePage() {
     setPendingPhotoUrl(null);
     setHasChanges(false);
     setIsLoading(false);
+    clearDraft();
 
     showNotification("success", "Changes saved successfully!");
 
@@ -729,7 +852,7 @@ export function DashboardProfilePage() {
                 onClick={triggerFileInput}
                 disabled={uploadingImage || !canEditPhoto}
               >
-                {!canEditPhoto ? "change via settings" : uploadingImage ? "uploading..." : "Change Photo"}
+                {!canEditPhoto ? "Verified photo locked" : uploadingImage ? "uploading..." : "Change Photo"}
               </Button>
             </div>
           </div>
@@ -749,7 +872,7 @@ export function DashboardProfilePage() {
               setHasChanges(true);
             }}
             disabled={isTutor ? !canEditLockedTutorIdentityFields : false}
-            helperText={isApprovedListedTutor ? "" : undefined}
+            helperText={verifiedFieldHelperText}
           />
 
           <Input
@@ -760,7 +883,7 @@ export function DashboardProfilePage() {
               setHasChanges(true);
             }}
             disabled={!canEditVerificationBackedTutorFields}
-            helperText={isApprovedTutorEditMode ? "You can still update your public display name." : undefined}
+            helperText={verifiedFieldHelperText}
           />
 
           {isStudent ? (
@@ -898,7 +1021,7 @@ export function DashboardProfilePage() {
               setHasChanges(true);
             }}
             disabled={isTutor ? !canEditLockedTutorIdentityFields : !!me?.dateOfBirth}
-            helperText={isApprovedListedTutor ? "" : ""}
+            helperText={verifiedFieldHelperText}
           />
 
           <div className="grid gap-1">
@@ -945,7 +1068,7 @@ export function DashboardProfilePage() {
                   disabled={!canEditLockedTutorIdentityFields}
                   inputMode="numeric"
                   placeholder="12345678901"
-                  helperText={isApprovedListedTutor ? "" : "NIN must be exactly 11 digits."}
+                  helperText={verifiedFieldHelperText ?? "NIN must be exactly 11 digits."}
                   error={ninNumberError ?? undefined}
                 />
 
@@ -959,7 +1082,7 @@ export function DashboardProfilePage() {
                   disabled={!canEditLockedTutorIdentityFields}
                   inputMode="numeric"
                   placeholder="12345678901"
-                  helperText={isApprovedListedTutor ? "" : "BVN must be exactly 11 digits."}
+                  helperText={verifiedFieldHelperText ?? "BVN must be exactly 11 digits."}
                   error={bvnNumberError ?? undefined}
                   required
                 />

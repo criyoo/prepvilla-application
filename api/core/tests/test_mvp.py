@@ -14,7 +14,6 @@ from django.core import mail
 import hashlib
 
 from core.admin import (
-  TUTOR_VERIFICATION_STATUS_CHOICES,
   TutorProfileAdminForm,
   VerificationRequestAdmin,
   VerificationRequestAdminForm,
@@ -90,6 +89,11 @@ class MvpFlowTests(TestCase):
     
     res2 = self.client.get("/api/health")
     self.assertEqual(res2.status_code, 200)
+
+  def test_jwt_signing_key_meets_hs256_minimum_length(self):
+    signing_key = settings.SIMPLE_JWT["SIGNING_KEY"]
+    key_bytes = signing_key if isinstance(signing_key, bytes) else str(signing_key).encode("utf-8")
+    self.assertGreaterEqual(len(key_bytes), 32)
 
   def test_signup_validates_password_length(self):
     """Test that signup rejects short passwords"""
@@ -186,9 +190,17 @@ class MvpFlowTests(TestCase):
     self.assertEqual(signup_res.status_code, 200)
     self.assertFalse(AppUser.objects.filter(email="pendingtutor@example.com").exists())
 
-    otp_match = re.search(r"\b([A-Z0-9]{6})\b", mail.outbox[-1].body)
+    otp_email = mail.outbox[-1]
+    self.assertEqual(otp_email.subject, "Your PrepVilla verification code")
+    self.assertIn("Return to PrepVilla", otp_email.body)
+    self.assertEqual(len(otp_email.alternatives), 1)
+    self.assertEqual(otp_email.alternatives[0].mimetype, "text/html")
+    self.assertIn("Complete your PrepVilla registration", otp_email.alternatives[0].content)
+
+    otp_match = re.search(r"\b([A-Z0-9]{6})\b", otp_email.body)
     self.assertIsNotNone(otp_match)
     otp_code = otp_match.group(1)
+    self.assertIn(otp_code, otp_email.alternatives[0].content)
 
     verify_res = self.client.post(
       "/api/auth/verify-otp",
@@ -342,7 +354,7 @@ class MvpFlowTests(TestCase):
     self.assertIn("date_of_birth", form.fields)
     self.assertNotIn("verification_status", form.fields)
 
-  def test_verification_request_admin_form_uses_verification_status_dropdown(self):
+  def test_verification_request_admin_form_does_not_allow_manual_status_changes(self):
     unsubmitted_profile = TutorProfile.objects.create(
       user=AppUser.objects.create_user(
         email="verification-form@example.com",
@@ -367,11 +379,7 @@ class MvpFlowTests(TestCase):
 
     form = VerificationRequestAdminForm(instance=verification)
 
-    self.assertEqual(
-      list(form.fields["status"].choices),
-      list(TUTOR_VERIFICATION_STATUS_CHOICES),
-    )
-    self.assertEqual(form.fields["status"].initial, "pending")
+    self.assertNotIn("status", form.fields)
 
   def test_verification_request_admin_form_accepts_relative_profile_photo_path(self):
     unsubmitted_profile = TutorProfile.objects.create(
@@ -393,14 +401,13 @@ class MvpFlowTests(TestCase):
     )
     verification = VerificationRequest.objects.create(
       tutor_profile=unsubmitted_profile,
-      status="pending",
+      status="approved",
       profile_photo_url="/uploads/images/tutors/photo.webp",
     )
 
     form = VerificationRequestAdminForm(
       data={
         "tutor_profile": str(unsubmitted_profile.id),
-        "status": "approved",
         "home_state": "",
         "home_city": "",
         "home_address": "",
@@ -443,12 +450,13 @@ class MvpFlowTests(TestCase):
       subjects_csv="",
       hourly_rate_cents=0,
       languages_csv="",
-      verification_status="pending",
+      verification_status="approved",
       is_listed=False,
     )
     verification = VerificationRequest.objects.create(
       tutor_profile=pending_profile,
-      status="pending",
+      status="approved",
+      decided_at=timezone.now(),
       home_state="Lagos",
       home_city="Lagos",
       home_address="22 Review Road",
@@ -460,7 +468,6 @@ class MvpFlowTests(TestCase):
 
     class DummyForm:
       cleaned_data = {
-        "status": "approved",
         "full_name": "Review Tutor Updated",
         "mobile_number": "+2348099999999",
         "date_of_birth": date(1991, 5, 1),
@@ -491,7 +498,8 @@ class MvpFlowTests(TestCase):
     self.assertEqual(pending_tutor.address, "22 Review Road")
     self.assertEqual(pending_tutor.profile_photo_url, "/media/images/tutors/review.jpg")
 
-  def test_tutor_verification_submission_stays_pending_until_admin_approval(self):
+  @override_settings(BYPASS_VERIFICATION=True)
+  def test_tutor_verification_submission_is_automatically_verified(self):
     pending_tutor = AppUser.objects.create_user(
       email="verifyme@example.com",
       password="verify123",
@@ -545,10 +553,10 @@ class MvpFlowTests(TestCase):
       format="json",
     )
     self.assertEqual(res.status_code, 200)
-    self.assertEqual(res.json()["status"], "pending")
+    self.assertEqual(res.json()["status"], "approved")
 
     pending_profile = TutorProfile.objects.get(user=pending_tutor)
-    self.assertEqual(pending_profile.verification_status, "pending")
+    self.assertEqual(pending_profile.verification_status, "approved")
     self.assertFalse(pending_profile.is_listed)
     self.assertEqual(pending_profile.home_state, "Lagos")
     self.assertEqual(pending_profile.home_city, "Lagos")
@@ -674,7 +682,7 @@ class MvpFlowTests(TestCase):
     self.assertEqual(res.status_code, 400)
     self.assertIn("+234", res.json()["detail"])
 
-  def test_admin_can_approve_pending_tutor_verification(self):
+  def test_manual_tutor_verification_decision_endpoint_is_removed(self):
     pending_tutor = AppUser.objects.create_user(
       email="queue@example.com",
       password="queue123",
@@ -713,14 +721,13 @@ class MvpFlowTests(TestCase):
       {"notes": "Looks good"},
       format="json",
     )
-    self.assertEqual(res.status_code, 200)
-    self.assertEqual(res.json()["status"], "approved")
+    self.assertEqual(res.status_code, 404)
 
     pending_profile.refresh_from_db()
     verification.refresh_from_db()
-    self.assertEqual(pending_profile.verification_status, "approved")
+    self.assertEqual(pending_profile.verification_status, "pending")
     self.assertFalse(pending_profile.is_listed)
-    self.assertEqual(verification.status, "approved")
+    self.assertEqual(verification.status, "pending")
 
   def test_approved_tutor_can_save_additional_documents(self):
     self._login("tutor@example.com", "tutor123")
@@ -1455,6 +1462,7 @@ class MvpFlowTests(TestCase):
     token.refresh_from_db()
     self.assertGreaterEqual(token.attempts, 5)
 
+  @override_settings(BYPASS_VERIFICATION=True)
   def test_tutor_verification_submit_handles_long_urls(self):
     pending_tutor = AppUser.objects.create_user(
       email="longurl@example.com",
@@ -1504,6 +1512,7 @@ class MvpFlowTests(TestCase):
     )
     self.assertEqual(res.status_code, 200)
 
+  @override_settings(BYPASS_VERIFICATION=True)
   def test_tutor_verification_uses_existing_user_fields_when_request_omits_them(self):
     pending_tutor = AppUser.objects.create_user(
       email="existingfields@example.com",
@@ -1545,7 +1554,7 @@ class MvpFlowTests(TestCase):
     )
 
     self.assertEqual(res.status_code, 200)
-    self.assertEqual(res.json()["status"], "pending")
+    self.assertEqual(res.json()["status"], "approved")
     self.assertEqual(res.json()["fullName"], "Existing Fields Tutor")
     self.assertEqual(res.json()["mobileNumber"], "+2348011112222")
     self.assertEqual(res.json()["dateOfBirth"], "1992-06-15")

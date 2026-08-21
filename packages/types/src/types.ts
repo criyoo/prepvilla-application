@@ -25,6 +25,7 @@ export interface TutorCard {
 export interface TutorDetails extends TutorCard {
   bio: string;
   languages: string[];
+  responseTime?: string;
   isListed: boolean;
 }
 

@@ -21,7 +21,6 @@ type QueueResponse = { results: VerificationRequestRow[] };
 export function AdminVerificationPage() {
   const [rows, setRows] = useState<VerificationRequestRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [decisionNotes, setDecisionNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const selected = rows.find((r) => r.id === selectedId) ?? null;
@@ -42,30 +41,6 @@ export function AdminVerificationPage() {
     void load();
   }, [load]);
 
-  async function approve() {
-    if (!selected) return;
-    setError(null);
-    const res = await api.post<{ ok: true }>(`/api/admin/verification-requests/${selected.id}/approve`, { notes: decisionNotes });
-    if (!res.ok) {
-      setError(res.error);
-      return;
-    }
-    setDecisionNotes("");
-    await load();
-  }
-
-  async function reject() {
-    if (!selected) return;
-    setError(null);
-    const res = await api.post<{ ok: true }>(`/api/admin/verification-requests/${selected.id}/reject`, { notes: decisionNotes });
-    if (!res.ok) {
-      setError(res.error);
-      return;
-    }
-    setDecisionNotes("");
-    await load();
-  }
-
   return (
     <RequireAuth allow={["admin"]}>
       <div className="grid gap-4">
@@ -73,7 +48,7 @@ export function AdminVerificationPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="brand-heading text-[24px] font-semibold leading-[32px]">Admin — Verification</h1>
-              <p className="mt-1 text-[14px] leading-[22px] text-black/65">Review and decide tutor verification requests.</p>
+              <p className="mt-1 text-[14px] leading-[22px] text-black/65">View automated tutor identity-verification results.</p>
             </div>
             <Button variant="secondary" onClick={load}>
               Refresh
@@ -85,7 +60,7 @@ export function AdminVerificationPage() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
           <div className="overflow-hidden rounded-2xl border border-border bg-surface-2">
-            <div className="border-b border-border p-3 text-[14px] font-semibold leading-[22px]">Queue</div>
+            <div className="border-b border-border p-3 text-[14px] font-semibold leading-[22px]">Verification history</div>
             <div className="max-h-[560px] overflow-auto">
               {rows.length === 0 ? (
                 <div className="p-3 text-[14px] leading-[22px] text-muted">No requests</div>
@@ -103,7 +78,7 @@ export function AdminVerificationPage() {
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-[14px] font-medium leading-[22px] text-foreground">{r.tutorName}</div>
                       <div className="rounded-full border border-border bg-surface px-2 py-0.5 text-[12px] leading-[18px] text-muted">
-                        {r.status}
+                        {r.status === "approved" ? "Verified" : r.status}
                       </div>
                     </div>
                     <div className="mt-1 text-[12px] leading-[18px]">{new Date(r.submittedAt).toLocaleString()}</div>
@@ -146,22 +121,8 @@ export function AdminVerificationPage() {
                 {selected.notes ? (
                   <div className="rounded-xl border border-border bg-surface p-3 text-[14px] leading-[22px]">{selected.notes}</div>
                 ) : null}
-                <div className="grid gap-2">
-                  <div className="text-[12px] font-medium leading-[18px] text-black/55">Decision notes</div>
-                  <input
-                    className="h-10 rounded-xl border border-black/12 bg-white px-3 text-[14px] leading-[22px] text-black shadow-sm focus:outline-none focus:ring-4 focus:ring-black/8 focus:border-black"
-                    value={decisionNotes}
-                    onChange={(e) => setDecisionNotes(e.target.value)}
-                    placeholder="Reason, next steps, etc."
-                  />
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button onClick={() => void approve()} disabled={selected.status !== "pending"}>
-                    Approve
-                  </Button>
-                  <Button variant="destructive" onClick={() => void reject()} disabled={selected.status !== "pending"}>
-                    Reject
-                  </Button>
+                <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-[14px] leading-[22px] text-green-800">
+                  Verification decisions are completed automatically by the configured identity provider.
                 </div>
               </div>
             )}

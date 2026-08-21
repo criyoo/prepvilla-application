@@ -9,6 +9,7 @@ import { Select } from "../shared/Select";
 import { Textarea } from "../shared/Textarea";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 
 export type SupportRequestKind = "feedback" | "complaint" | "issue";
 
@@ -101,6 +102,7 @@ const requestConfig = {
 
 export function DashboardSupportRequestPage({ kind }: { kind: SupportRequestKind }) {
   const role = useAuthStore((state) => state.role);
+  const userId = useAuthStore((state) => state.userId);
   const config = requestConfig[kind];
   const Icon = config.icon;
   const [category, setCategory] = useState("");
@@ -112,6 +114,17 @@ export function DashboardSupportRequestPage({ kind }: { kind: SupportRequestKind
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
+  const clearDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.${kind}` : null,
+    { category, subject, message, relatedReference, severity },
+    (draft) => {
+      if (typeof draft.category === "string") setCategory(draft.category);
+      if (typeof draft.subject === "string") setSubject(draft.subject);
+      if (typeof draft.message === "string") setMessage(draft.message);
+      if (typeof draft.relatedReference === "string") setRelatedReference(draft.relatedReference);
+      if (typeof draft.severity === "string") setSeverity(draft.severity);
+    },
+  );
 
   const normalizedRole = role ? ((role as string).toLowerCase() === "teacher" ? "tutor" : role) : null;
   const isSupportedRole = normalizedRole === "student" || normalizedRole === "tutor";
@@ -159,6 +172,7 @@ export function DashboardSupportRequestPage({ kind }: { kind: SupportRequestKind
       return;
     }
 
+    clearDraft();
     setCategory("");
     setSubject("");
     setMessage("");

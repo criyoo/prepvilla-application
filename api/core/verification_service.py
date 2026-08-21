@@ -30,13 +30,21 @@ def is_verification_configured() -> bool:
     return bool(checker and checker())
 
 
+def _require_configured_provider():
+    service = _provider_module()
+    checker = getattr(service, "is_prembly_configured", None) or getattr(service, "is_dikript_configured", None)
+    if not checker or not checker():
+        raise VerificationProviderUnavailable()
+    return service
+
+
 def verify_nin_identity(**kwargs):
-    return _provider_module().verify_nin_identity(**kwargs)
+    return _require_configured_provider().verify_nin_identity(**kwargs)
 
 
 def verify_nin_and_bvn(input_data: dict[str, Any], nin_number: str, bvn_number: str):
-    return _provider_module().verify_nin_and_bvn(input_data, nin_number, bvn_number)
+    return _require_configured_provider().verify_nin_and_bvn(input_data, nin_number, bvn_number)
 
 
 def verify_cac(input_data: dict[str, Any], registration_number: str):
-    return _provider_module().verify_cac(input_data, registration_number)
+    return _require_configured_provider().verify_cac(input_data, registration_number)

@@ -32,6 +32,7 @@ import { Textarea } from "../shared/Textarea";
 import { RequireAuth } from "../shared/RequireAuth";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 
 type BookingRow = Booking & {
   tutorName: string;
@@ -349,6 +350,16 @@ export function DashboardVideoRoomPage() {
   const [connectionMode, setConnectionMode] = useState<"p2p" | "server" | "unknown">("unknown");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const clearRoomDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.video-room` : null,
+    { meetingTitle, scheduledAt, durationMinutes, meetingNotes },
+    (draft) => {
+      if (typeof draft.meetingTitle === "string") setMeetingTitle(draft.meetingTitle);
+      if (typeof draft.scheduledAt === "string") setScheduledAt(draft.scheduledAt);
+      if (typeof draft.durationMinutes === "string") setDurationMinutes(draft.durationMinutes);
+      if (typeof draft.meetingNotes === "string") setMeetingNotes(draft.meetingNotes);
+    },
+  );
 
   const jitsiContainerRef = useRef<HTMLDivElement | null>(null);
   const jitsiApiRef = useRef<JitsiApi | null>(null);
@@ -661,6 +672,7 @@ export function DashboardVideoRoomPage() {
 
       upsertSavedRoom(room);
       selectRoom(room);
+      clearRoomDraft();
       setStatusMessage(source === "instant" ? "Instant room created." : "Scheduled room created.");
       if (openImmediately) {
         setIsStageOpen(true);
@@ -675,6 +687,7 @@ export function DashboardVideoRoomPage() {
       scheduledAt,
       selectRoom,
       upsertSavedRoom,
+      clearRoomDraft,
     ],
   );
 

@@ -3,10 +3,21 @@
 import { ChevronDown, CircleHelp, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PREPVILLA_FAQS } from "./prepvillaFaqs";
+import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 
 export function DashboardFaqPage() {
+  const userId = useAuthStore((state) => state.userId);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.faq-search` : null,
+    { query, category },
+    (draft) => {
+      if (typeof draft.query === "string") setQuery(draft.query);
+      if (typeof draft.category === "string") setCategory(draft.category);
+    },
+  );
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(PREPVILLA_FAQS.map((item) => item.category)))],
     [],

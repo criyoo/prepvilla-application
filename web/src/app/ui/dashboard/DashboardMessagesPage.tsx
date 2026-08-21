@@ -6,6 +6,7 @@ import type { ChatMessage, Conversation } from "@prepvilla/types";
 import { Button } from "../shared/Button";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 
 type ConversationsResponse = { results: Conversation[] };
 type MessagesResponse = { results: ChatMessage[] };
@@ -47,6 +48,7 @@ export function DashboardMessagesPage() {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<number | null>(null);
   const reconnectDelayRef = useRef(1000);
+  const previousDraftConversationRef = useRef<string | null>(null);
 
   // Check for conversationId in URL query params
   useEffect(() => {
@@ -58,6 +60,21 @@ export function DashboardMessagesPage() {
 
   const selected = useMemo(() => conversations.find((c) => c.id === selectedId) ?? null, [conversations, selectedId]);
   const isBlocked = useMemo(() => selected?.isBlocked ?? false, [selected]);
+
+  useEffect(() => {
+    if (previousDraftConversationRef.current === selectedId) return;
+    previousDraftConversationRef.current = selectedId;
+    setBody("");
+  }, [selectedId]);
+
+  const clearMessageDraft = useFormDraft(
+    userId && selectedId ? `prepvilla.form-draft.${userId}.message.${selectedId}` : null,
+    { body },
+    (draft) => {
+      if (typeof draft.body === "string") setBody(draft.body);
+    },
+    Boolean(selectedId),
+  );
 
   const loadConversations = useCallback(async (silent = false) => {
     if (!silent) {
@@ -187,6 +204,7 @@ export function DashboardMessagesPage() {
     }
     setMessages((prev) => mergeMessages(prev, [res.data.message]));
     void loadConversations(true);
+    clearMessageDraft();
     setBody("");
   }
 

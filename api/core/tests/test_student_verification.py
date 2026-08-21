@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
-from core.models import AppUser, StudentVerificationRequest, TutorProfile
+from core.models import AppUser, StudentVerificationRequest, TutorProfile, VerificationRequest
 
 
 @override_settings(
@@ -49,8 +49,7 @@ class StudentVerificationTests(TestCase):
 
     @patch("core.views.verify_nin_and_bvn")
     @patch("core.views.verify_nin_identity")
-    @patch("core.views.is_verification_configured", return_value=True)
-    def test_student_can_verify_without_bvn(self, configured, verify_nin, verify_combined):
+    def test_student_can_verify_without_bvn(self, verify_nin, verify_combined):
         response = self.client.post("/api/students/verification", self.payload, format="json")
 
         self.assertEqual(response.status_code, 200)
@@ -64,8 +63,7 @@ class StudentVerificationTests(TestCase):
 
     @patch("core.views.verify_nin_and_bvn")
     @patch("core.views.verify_nin_identity")
-    @patch("core.views.is_verification_configured", return_value=True)
-    def test_student_bvn_is_queried_and_validated_when_provided(self, configured, verify_nin, verify_combined):
+    def test_student_bvn_is_queried_and_validated_when_provided(self, verify_nin, verify_combined):
         payload = {**self.payload, "bvnNumber": "10987654321"}
 
         response = self.client.post("/api/students/verification", payload, format="json")
@@ -82,8 +80,7 @@ class StudentVerificationTests(TestCase):
 
     @patch("core.views.verify_nin_and_bvn")
     @patch("core.views.verify_nin_identity")
-    @patch("core.views.is_verification_configured", return_value=True)
-    def test_student_invalid_optional_bvn_is_rejected_without_provider_call(self, configured, verify_nin, verify_combined):
+    def test_student_invalid_optional_bvn_is_rejected_without_provider_call(self, verify_nin, verify_combined):
         payload = {**self.payload, "bvnNumber": "12345"}
 
         response = self.client.post("/api/students/verification", payload, format="json")
@@ -127,3 +124,53 @@ class StudentVerificationTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("bvnNumber", response.json()["detail"])
+
+    @patch("core.views.verify_nin_and_bvn")
+    def test_tutor_is_automatically_verified_when_identity_records_match(self, verify_combined):
+        tutor = AppUser.objects.create_user(
+            email="automatic-tutor@example.com",
+            password="tutor123",
+            role="tutor",
+            display_name="Automatic",
+            full_name="Automatic Tutor",
+            mobile_number="+2348012345678",
+            timezone="UTC",
+            is_verified=True,
+        )
+        profile = TutorProfile.objects.create(user=tutor, verification_status="not_submitted", hourly_rate_cents=0)
+        self.client.force_authenticate(tutor)
+
+        response = self.client.post(
+            "/api/tutors/me/verification",
+            {
+                "homeState": "Lagos",
+                "homeCity": "Ikeja",
+                "homeAddress": "1 Tutor Street",
+                "qualification": "Bachelor's Degree",
+                "ninNumber": "12345678901",
+                "bvnNumber": "10987654321",
+                "dateOfBirth": "1990-01-02",
+                "profilePhotoUrl": "/uploads/images/tutors/photo.jpg",
+                "documentUrls": [
+                    "/uploads/images/tutors/id.pdf",
+                    "/uploads/images/tutors/qualification.pdf",
+                ],
+                "firstName": "Automatic",
+                "lastName": "Tutor",
+                "mobileNumber": "+2348012345678",
+                "countryOfBirth": "Nigeria",
+                "nationality": "Nigerian",
+                "stateOfOrigin": "Lagos",
+                "lgaOfOrigin": "Ikeja",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "approved")
+        verify_combined.assert_called_once()
+        profile.refresh_from_db()
+        self.assertEqual(profile.verification_status, "approved")
+        verification = VerificationRequest.objects.get(tutor_profile=profile)
+        self.assertEqual(verification.status, "approved")
+        self.assertIsNotNone(verification.decided_at)

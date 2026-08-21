@@ -8,8 +8,11 @@ import { RequireAuth } from "../shared/RequireAuth";
 import { Select } from "../shared/Select";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 import { getBvnNumberError, getMobileNumberError, getNinNumberError, sanitizeBvnInput, sanitizeMobileNumberInput, sanitizeNinInput } from "../shared/profileValidation";
+import { WORLD_COUNTRIES } from "@/data/countries";
 import {
+  NIGERIA_STATE_LGAS,
   NIGERIA_STATES,
   NIGERIAN_TERTIARY_QUALIFICATIONS,
 } from "../shared/nigeriaData";
@@ -98,6 +101,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
   const [state, setState] = useState<VerificationResponse | null>(null);
   const [me, setMe] = useState<MeResponse | null>(null);
   const accessToken = useAuthStore((s) => s.accessToken);
+  const userId = useAuthStore((s) => s.userId);
 
   // Form State
   const [homeState, setHomeState] = useState("");
@@ -121,6 +125,8 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
   const [nationality, setNationality] = useState("");
   const [stateOfOrigin, setStateOfOrigin] = useState("");
   const [lgaOfOrigin, setLgaOfOrigin] = useState("");
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [isFormReady, setIsFormReady] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: "success" | "error", message: string } | null>(null);
@@ -128,6 +134,46 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
   const profilePhotoRef = useRef<HTMLInputElement>(null);
   const idDocumentRef = useRef<HTMLInputElement>(null);
   const qualificationDocumentRef = useRef<HTMLInputElement>(null);
+  const clearDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.verification.${accountRole}` : null,
+    {
+      homeState,
+      homeCity,
+      homeAddress,
+      selectedQualifications,
+      ninNumber,
+      bvnNumber,
+      dob,
+      firstName,
+      middleName,
+      lastName,
+      mobileNumber,
+      countryOfBirth,
+      nationality,
+      stateOfOrigin,
+      lgaOfOrigin,
+    },
+    (draft) => {
+      if (typeof draft.homeState === "string") setHomeState(draft.homeState);
+      if (typeof draft.homeCity === "string") setHomeCity(draft.homeCity);
+      if (typeof draft.homeAddress === "string") setHomeAddress(draft.homeAddress);
+      if (Array.isArray(draft.selectedQualifications)) {
+        setSelectedQualifications(draft.selectedQualifications.filter((item): item is string => typeof item === "string"));
+      }
+      if (typeof draft.ninNumber === "string") setNinNumber(draft.ninNumber);
+      if (typeof draft.bvnNumber === "string") setBvnNumber(draft.bvnNumber);
+      if (typeof draft.dob === "string") setDob(draft.dob);
+      if (typeof draft.firstName === "string") setFirstName(draft.firstName);
+      if (typeof draft.middleName === "string") setMiddleName(draft.middleName);
+      if (typeof draft.lastName === "string") setLastName(draft.lastName);
+      if (typeof draft.mobileNumber === "string") setMobileNumber(draft.mobileNumber);
+      if (typeof draft.countryOfBirth === "string") setCountryOfBirth(draft.countryOfBirth);
+      if (typeof draft.nationality === "string") setNationality(draft.nationality);
+      if (typeof draft.stateOfOrigin === "string") setStateOfOrigin(draft.stateOfOrigin);
+      if (typeof draft.lgaOfOrigin === "string") setLgaOfOrigin(draft.lgaOfOrigin);
+    },
+    isFormReady,
+  );
 
   const isApproved = state?.status === "approved";
   const isRejected = state?.status === "rejected";
@@ -142,6 +188,14 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
   );
   const stateOptions = buildSelectOptions(NIGERIA_STATES, "Select State", homeState);
   const stateOfOriginOptions = buildSelectOptions(NIGERIA_STATES, "Select State", stateOfOrigin);
+  const countryOfBirthOptions = buildSelectOptions([...WORLD_COUNTRIES], "Select Country", countryOfBirth);
+  const nationalityOptions = buildSelectOptions([...WORLD_COUNTRIES], "Select Nationality", nationality);
+  const isNigeriaCountryOfBirth = ["nigeria", "nigerian"].includes(countryOfBirth.trim().toLowerCase());
+  const lgaOfOriginOptions = buildSelectOptions(
+    isNigeriaCountryOfBirth ? NIGERIA_STATE_LGAS[stateOfOrigin] ?? [] : [],
+    stateOfOrigin ? "Select LGA" : "Select State First",
+    lgaOfOrigin,
+  );
 
   useEffect(() => {
     if (!isApproved || !me?.id) return;
@@ -161,7 +215,9 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
   const hasQualificationDocument = Boolean(qualificationDocument || state?.documentUrls?.[1]);
   const mobileNumberError = mobileNumber.trim() ? getMobileNumberError(mobileNumber) : null;
   const ninNumberError = ninNumber.trim() ? getNinNumberError(ninNumber) : null;
-  const bvnNumberError = getBvnNumberError(bvnNumber, { required: !isStudent });
+  const bvnNumberError = getBvnNumberError(bvnNumber, {
+    required: !isStudent && hasAttemptedSubmit,
+  });
   const hasCompleteVerificationInfo = Boolean(
     homeState.trim() &&
     homeCity.trim() &&
@@ -184,8 +240,6 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
     hasIdDocument &&
     hasQualificationDocument,
   );
-  const isFormValid = hasCompleteVerificationInfo;
-
   function addQualification(qualification: string) {
     if (!qualification || selectedQualifications.includes(qualification)) return;
     setSelectedQualifications((prev) => [...prev, qualification]);
@@ -194,6 +248,19 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
 
   function removeQualification(qualification: string) {
     setSelectedQualifications((prev) => prev.filter((item) => item !== qualification));
+  }
+
+  function changeCountryOfBirth(value: string) {
+    if (value !== countryOfBirth) {
+      setStateOfOrigin("");
+      setLgaOfOrigin("");
+    }
+    setCountryOfBirth(value);
+  }
+
+  function changeStateOfOrigin(value: string) {
+    if (value !== stateOfOrigin) setLgaOfOrigin("");
+    setStateOfOrigin(value);
   }
 
   async function uploadFile(file: File, kind: "photo" | "id_document" | "qualification_document") {
@@ -270,6 +337,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
       setNinNumber(resVer.data.ninNumber || "");
       setBvnNumber(resVer.data.bvnNumber || "");
     }
+    setIsFormReady(true);
   }, [verificationEndpoint]);
 
   useEffect(() => {
@@ -277,6 +345,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
   }, [load]);
 
   async function submit() {
+    setHasAttemptedSubmit(true);
     setError(null);
     const fullName = composeFullName(firstName, middleName, lastName);
     const normalizedMobileNumber = sanitizeMobileNumberInput(mobileNumber);
@@ -295,6 +364,10 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
     }
     if (nextBvnNumberError) {
       setError(nextBvnNumberError);
+      return;
+    }
+    if (!hasCompleteVerificationInfo) {
+      setError("Please complete all required fields before submitting.");
       return;
     }
 
@@ -350,6 +423,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
       return;
     }
 
+    clearDraft();
     setState(res.data);
     setProfilePhoto(null);
     setIdDocument(null);
@@ -359,7 +433,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
       type: "success",
       message: isStudent
         ? "Verification completed successfully. You can now contact tutors and book lessons."
-        : "Verification submitted. We will review your credentials and update your status soon.",
+        : "Verification completed successfully. Your identity details have been verified.",
     });
     await load();
   }
@@ -397,7 +471,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
                 }`}>
                 {state?.status === "approved" ? "✓ Approved" :
                   state?.status === "rejected" ? "✗ Rejected" :
-                    state?.status === "pending" ? "⏳ Pending Review" : "Not Submitted"}
+                    state?.status === "pending" ? "Verification Incomplete" : "Not Submitted"}
               </div>
               {isApproved && (
                 <div className="mt-2 text-xs leading-[20px] text-green-600">
@@ -406,7 +480,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
               )}
               {state?.status === "pending" ? (
                 <div className="mt-2 text-xs leading-[20px] text-amber-700">
-                  Your documents are under review. We will notify you after approval.
+                  Resubmit your details to complete automated identity verification.
                 </div>
               ) : null}
             </div>
@@ -477,38 +551,60 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
           </div><br />
 
           <div className={`grid gap-4 md:grid-cols-2 ${isApproved ? "opacity-75" : ""}`}>
-            <Input
+            <Select
               label="Country of Birth *"
               value={countryOfBirth}
-              onChange={(e) => setCountryOfBirth(e.target.value)}
+              onChange={(e) => changeCountryOfBirth(e.target.value)}
+              options={countryOfBirthOptions}
               disabled={isApproved}
-              placeholder="e.g. Nigeria"
-              required
-            />
-            <Input
-              label="Nationality *"
-              value={nationality}
-              onChange={(e) => setNationality(e.target.value)}
-              disabled={isApproved}
-              placeholder="e.g. Nigerian"
               required
             />
             <Select
-              label="State of Origin *"
-              value={stateOfOrigin}
-              onChange={(e) => setStateOfOrigin(e.target.value)}
-              options={stateOfOriginOptions}
+              label="Nationality *"
+              value={nationality}
+              onChange={(e) => setNationality(e.target.value)}
+              options={nationalityOptions}
               disabled={isApproved}
               required
             />
-            <Input
-              label="LGA of Origin *"
-              value={lgaOfOrigin}
-              onChange={(e) => setLgaOfOrigin(e.target.value)}
-              disabled={isApproved}
-              placeholder="e.g. Ikeja"
-              required
-            />
+            {isNigeriaCountryOfBirth ? (
+              <Select
+                label="State of Origin *"
+                value={stateOfOrigin}
+                onChange={(e) => changeStateOfOrigin(e.target.value)}
+                options={stateOfOriginOptions}
+                disabled={isApproved}
+                required
+              />
+            ) : (
+              <Input
+                label="State / Region of Origin *"
+                value={stateOfOrigin}
+                onChange={(e) => setStateOfOrigin(e.target.value)}
+                disabled={isApproved}
+                placeholder="Enter your state or region"
+                required
+              />
+            )}
+            {isNigeriaCountryOfBirth ? (
+              <Select
+                label="LGA of Origin *"
+                value={lgaOfOrigin}
+                onChange={(e) => setLgaOfOrigin(e.target.value)}
+                options={lgaOfOriginOptions}
+                disabled={isApproved || !stateOfOrigin}
+                required
+              />
+            ) : (
+              <Input
+                label="Local Government / Region *"
+                value={lgaOfOrigin}
+                onChange={(e) => setLgaOfOrigin(e.target.value)}
+                disabled={isApproved}
+                placeholder="Enter your local government or region"
+                required
+              />
+            )}
           </div><br />
 
           <div className={`mb-10 grid gap-4 md:grid-cols-2 ${isApproved ? "opacity-75" : ""}`}>
@@ -524,7 +620,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
               required
             />
             <Input
-              label={isStudent ? "BVN Number (Optional)" : "BVN Number *"}
+              label="BVN Number *"
               value={bvnNumber}
               onChange={(e) => setBvnNumber(sanitizeBvnInput(e.target.value))}
               disabled={isApproved}
@@ -543,7 +639,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
             Select every qualification that applies and upload supporting evidence below.
           </p>
           <Select
-            label="Qualification *"
+            label="Highest Qualification *"
             value={qualificationToAdd}
             onChange={(event) => addQualification(event.target.value)}
             options={qualificationOptions}
@@ -689,7 +785,7 @@ export default function DashboardVerificationPage({ accountRole = "tutor" }: { a
         <div className="mt-6">
           <Button
             onClick={() => void submit()}
-            disabled={isApproved || !isFormValid}
+            disabled={isApproved}
           >
             {isApproved ? "Verification Complete" : "Submit Verification"}
           </Button>

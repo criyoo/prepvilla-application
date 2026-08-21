@@ -9,6 +9,7 @@ import { OtpResendButton } from "../shared/OtpResendButton";
 import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
 import { getMobileNumberError, sanitizeMobileNumberInput } from "../shared/profileValidation";
+import { useFormDraft } from "../shared/useFormDraft";
 
 type MeResponse = {
   email: string;
@@ -28,6 +29,7 @@ export default function DashboardSettingsPage() {
   const router = useRouter();
   const clear = useAuthStore((s) => s.clear);
   const role = useAuthStore((s) => s.role);
+  const userId = useAuthStore((s) => s.userId);
 
   const [me, setMe] = useState<MeResponse | null>(null);
   const [tutorProfile, setTutorProfile] = useState<TutorSettingsProfile | null>(null);
@@ -72,6 +74,51 @@ export default function DashboardSettingsPage() {
 
   // Delete
   const [deleteStep, setDeleteStep] = useState(0);
+  const clearSettingsDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.settings` : null,
+    {
+      passwordStep,
+      newPassword,
+      confirmNewPassword,
+      otp,
+      emailStep,
+      newEmail,
+      phoneStep,
+      newPhone,
+      addressStep,
+      newAddress,
+      addressOtp,
+      qualificationStep,
+      newQualification,
+      qualificationOtp,
+      freezeStep,
+      freezeStartsOn,
+      freezeEndsOn,
+      deleteStep,
+    },
+    (draft) => {
+      if (typeof draft.passwordStep === "number") setPasswordStep(draft.passwordStep);
+      if (typeof draft.newPassword === "string") setNewPassword(draft.newPassword);
+      if (typeof draft.confirmNewPassword === "string") setConfirmNewPassword(draft.confirmNewPassword);
+      if (typeof draft.otp === "string") setOtp(draft.otp);
+      if (typeof draft.emailStep === "number") setEmailStep(draft.emailStep);
+      if (typeof draft.newEmail === "string") setNewEmail(draft.newEmail);
+      if (typeof draft.phoneStep === "number") setPhoneStep(draft.phoneStep);
+      if (typeof draft.newPhone === "string") setNewPhone(draft.newPhone);
+      if (typeof draft.addressStep === "number") setAddressStep(draft.addressStep);
+      if (typeof draft.newAddress === "string") setNewAddress(draft.newAddress);
+      if (typeof draft.addressOtp === "string") setAddressOtp(draft.addressOtp);
+      if (typeof draft.qualificationStep === "number") setQualificationStep(draft.qualificationStep);
+      if (typeof draft.newQualification === "string") setNewQualification(draft.newQualification);
+      if (typeof draft.qualificationOtp === "string") setQualificationOtp(draft.qualificationOtp);
+      if (typeof draft.freezeStep === "number") setFreezeStep(draft.freezeStep);
+      if (typeof draft.freezeStartsOn === "string") setFreezeStartsOn(draft.freezeStartsOn);
+      if (typeof draft.freezeEndsOn === "string") setFreezeEndsOn(draft.freezeEndsOn);
+      if (typeof draft.deleteStep === "number") setDeleteStep(draft.deleteStep);
+    },
+    true,
+    "session",
+  );
 
   async function loadMe() {
     const res = await api.get<MeResponse>("/api/me");
@@ -121,6 +168,7 @@ export default function DashboardSettingsPage() {
     setNewPassword("");
     setConfirmNewPassword("");
     setPasswordStep(0);
+    clearSettingsDraft();
     alert("Password changed");
   }
 
@@ -145,6 +193,7 @@ export default function DashboardSettingsPage() {
     setOtp("");
     setNewEmail("");
     setEmailStep(0);
+    clearSettingsDraft();
     await loadMe();
     alert("Email changed");
   }
@@ -175,6 +224,7 @@ export default function DashboardSettingsPage() {
     setOtp("");
     setNewPhone("");
     setPhoneStep(0);
+    clearSettingsDraft();
     await loadMe();
     alert("Phone changed");
   }
@@ -217,6 +267,7 @@ export default function DashboardSettingsPage() {
     setNewAddress("");
     setAddressOtp("");
     setAddressStep(0);
+    clearSettingsDraft();
     alert("Residential address changed");
   }
 
@@ -255,6 +306,7 @@ export default function DashboardSettingsPage() {
     setNewQualification("");
     setQualificationOtp("");
     setQualificationStep(0);
+    clearSettingsDraft();
     alert("Qualification changed");
   }
 
@@ -302,6 +354,7 @@ export default function DashboardSettingsPage() {
     }
     setOtp("");
     setFreezeStep(0);
+    clearSettingsDraft();
     await loadMe();
   }
 
@@ -404,7 +457,7 @@ export default function DashboardSettingsPage() {
                   variant="secondary"
                   onClick={() => {
                     setAddressOtp("");
-                    setNewAddress(currentAddress);
+                    setNewAddress((value) => value || currentAddress);
                     setAddressStep(1);
                   }}
                 >
@@ -435,7 +488,6 @@ export default function DashboardSettingsPage() {
                       variant="ghost"
                       onClick={() => {
                         setAddressOtp("");
-                        setNewAddress("");
                         setAddressStep(0);
                       }}
                     >
@@ -463,7 +515,6 @@ export default function DashboardSettingsPage() {
                       variant="ghost"
                       onClick={() => {
                         setAddressOtp("");
-                        setNewAddress("");
                         setAddressStep(0);
                       }}
                     >
@@ -496,7 +547,7 @@ export default function DashboardSettingsPage() {
                     variant="secondary"
                     onClick={() => {
                       setQualificationOtp("");
-                      setNewQualification(tutorProfile?.qualification || "");
+                      setNewQualification((value) => value || tutorProfile?.qualification || "");
                       setQualificationStep(1);
                     }}
                   >
@@ -525,7 +576,6 @@ export default function DashboardSettingsPage() {
                         variant="ghost"
                         onClick={() => {
                           setQualificationOtp("");
-                          setNewQualification("");
                           setQualificationStep(0);
                         }}
                       >
@@ -553,7 +603,6 @@ export default function DashboardSettingsPage() {
                         variant="ghost"
                         onClick={() => {
                           setQualificationOtp("");
-                          setNewQualification("");
                           setQualificationStep(0);
                         }}
                       >
@@ -584,8 +633,6 @@ export default function DashboardSettingsPage() {
                   variant="secondary"
                   onClick={() => {
                     setOtp("");
-                    setNewPassword("");
-                    setConfirmNewPassword("");
                     setPasswordStep(1);
                   }}
                 >
@@ -620,8 +667,6 @@ export default function DashboardSettingsPage() {
                       variant="ghost"
                       onClick={() => {
                         setOtp("");
-                        setNewPassword("");
-                        setConfirmNewPassword("");
                         setPasswordStep(0);
                       }}
                     >
@@ -647,8 +692,6 @@ export default function DashboardSettingsPage() {
                       variant="ghost"
                       onClick={() => {
                         setOtp("");
-                        setNewPassword("");
-                        setConfirmNewPassword("");
                         setPasswordStep(0);
                       }}
                     >

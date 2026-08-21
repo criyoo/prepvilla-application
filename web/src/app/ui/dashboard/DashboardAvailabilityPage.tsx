@@ -6,14 +6,25 @@ import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
 import { RequireAuth } from "../shared/RequireAuth";
 import { api } from "../shared/api";
+import { useAuthStore } from "../shared/authStore";
+import { useFormDraft } from "../shared/useFormDraft";
 
 type AvailabilityResponse = { results: AvailabilitySlot[] };
 
 export function DashboardAvailabilityPage() {
+  const userId = useAuthStore((state) => state.userId);
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const clearDraft = useFormDraft(
+    userId ? `prepvilla.form-draft.${userId}.availability` : null,
+    { startsAt, endsAt },
+    (draft) => {
+      if (typeof draft.startsAt === "string") setStartsAt(draft.startsAt);
+      if (typeof draft.endsAt === "string") setEndsAt(draft.endsAt);
+    },
+  );
 
   async function load() {
     setError(null);
@@ -35,12 +46,13 @@ export function DashboardAvailabilityPage() {
     const res = await api.put<{ results: AvailabilitySlot[] }>("/api/tutors/me/availability", { slots: next });
     if (!res.ok) {
       setError(res.error);
-      return;
+      return false;
     }
     setSlots(res.data.results || []);
+    return true;
   }
 
-  function addSlot() {
+  async function addSlot() {
     if (!startsAt || !endsAt) return;
     const next: AvailabilitySlot[] = [
       ...slots,
@@ -50,9 +62,11 @@ export function DashboardAvailabilityPage() {
         endsAt: new Date(endsAt).toISOString(),
       },
     ];
-    void saveAll(next);
-    setStartsAt("");
-    setEndsAt("");
+    if (await saveAll(next)) {
+      clearDraft();
+      setStartsAt("");
+      setEndsAt("");
+    }
   }
 
   return (
@@ -82,7 +96,7 @@ export function DashboardAvailabilityPage() {
             />
             <Input label="End" type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} />
             <div className="flex items-end">
-              <Button className="w-full" onClick={addSlot} disabled={!startsAt || !endsAt}>
+              <Button className="w-full" onClick={() => void addSlot()} disabled={!startsAt || !endsAt}>
                 Add slot
               </Button>
             </div>

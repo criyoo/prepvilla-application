@@ -154,7 +154,7 @@ class VerificationRequest(models.Model):
     tutor_profile = models.OneToOneField(TutorProfile, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=[
         ("pending", "Pending"),
-        ("approved", "Approved"),
+        ("approved", "Verified"),
         ("rejected", "Rejected")
     ], default="pending")
     home_state = models.CharField(max_length=120, blank=True, default="")
@@ -670,7 +670,7 @@ class StudentVerificationRequest(models.Model):
     
     status = models.CharField(max_length=20, choices=[
         ("pending", "Pending"),
-        ("approved", "Approved"),
+        ("approved", "Verified"),
         ("rejected", "Rejected")
     ], default="pending")
     submitted_at = models.DateTimeField(auto_now_add=True)

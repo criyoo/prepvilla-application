@@ -213,6 +213,16 @@ def _validate_nin_fields(input_data: dict[str, Any], data: dict[str, Any]) -> di
         mismatches["date_of_birth"] = "Date of birth does not match the NIN record."
     if input_data.get("country_of_birth") and country_of_birth and _normalize_country(input_data.get("country_of_birth")) != _normalize_country(country_of_birth):
         mismatches["country_of_birth"] = "Country of birth does not match the NIN record."
+    optional_fields = (
+        ("state_of_origin", ("selfOriginState", "stateOfOrigin", "state_of_origin"), _normalize_region, "State of origin"),
+        ("lga", ("selfOriginLga", "lgaOfOrigin", "lga", "lga_of_origin"), _normalize_region, "LGA"),
+        ("nationality", ("nationality",), _normalize_nationality, "Nationality"),
+    )
+    for field, keys, normalizer, label in optional_fields:
+        submitted = input_data.get(field)
+        actual = _first_present(data, *keys)
+        if submitted not in (None, "") and actual not in (None, "") and normalizer(submitted) != normalizer(actual):
+            mismatches[field] = f"{label} does not match the NIN record."
     return mismatches
 
 
@@ -274,7 +284,19 @@ def _nin_data(payload: dict[str, Any], input_data: dict[str, Any]) -> dict[str, 
     return data
 
 
-def verify_nin_identity(*, nin_number: str, first_name: str = "", last_name: str = "", middle_name: str = "", date_of_birth: Any = None, mobile_number: str = "") -> dict[str, Any]:
+def verify_nin_identity(
+    *,
+    nin_number: str,
+    first_name: str = "",
+    last_name: str = "",
+    middle_name: str = "",
+    date_of_birth: Any = None,
+    mobile_number: str = "",
+    country_of_birth: str = "",
+    nationality: str = "",
+    state_of_origin: str = "",
+    lga: str = "",
+) -> dict[str, Any]:
     normalized_nin = _digits(nin_number)
     if len(normalized_nin) != 11:
         raise ValidationError({"ninNumber": "NIN must contain 11 digits."})
@@ -286,6 +308,10 @@ def verify_nin_identity(*, nin_number: str, first_name: str = "", last_name: str
             "middle_name": middle_name,
             "date_of_birth": date_of_birth,
             "mobile_number": mobile_number,
+            "country_of_birth": country_of_birth,
+            "nationality": nationality,
+            "state_of_origin": state_of_origin,
+            "lga": lga,
         },
     )
 

@@ -48,6 +48,9 @@ class ResidentialAddressChangeTests(TestCase):
             format="json",
         )
         self.assertEqual(request_response.status_code, 200)
+        self.assertEqual(mail.outbox[-1].subject, "Your PrepVilla address verification code")
+        self.assertEqual(len(mail.outbox[-1].alternatives), 1)
+        self.assertIn("Confirm your address change", mail.outbox[-1].alternatives[0].content)
         student.refresh_from_db()
         self.assertEqual(student.address, "")
 

@@ -5,8 +5,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AvailabilitySlot, TutorDetails, Conversation } from "@prepvilla/types";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  BookOpen,
+  CalendarDays,
+  Check,
+  Clock3,
+  GraduationCap,
+  Languages,
+  MapPin,
+  MessageCircle,
+  Monitor,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { AppHeader } from "../shared/AppHeader";
-import { Badge } from "../shared/Badge";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
 import { api } from "../shared/api";
@@ -57,6 +71,21 @@ type BookingsResponse = {
 
 function formatTeachingMode(mode: string) {
   return mode === "webcam" ? "Webcam" : "Face-to-face";
+}
+
+function formatSlotDate(value: string) {
+  return new Date(value).toLocaleDateString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function formatSlotTime(value: string) {
+  return new Date(value).toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 export function TutorProfilePage({ tutorId }: { tutorId: string }) {
@@ -270,322 +299,451 @@ export function TutorProfilePage({ tutorId }: { tutorId: string }) {
     await loadReviewEligibility();
   }
 
-  const statusTone =
-    data?.tutor.verificationStatus === "approved"
-      ? "success"
-      : data?.tutor.verificationStatus === "rejected"
-        ? "danger"
-        : "neutral";
-
   const photoUrl = resolveMediaUrl(data?.tutor.profilePhotoUrl);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="brand-page min-h-screen">
       <AppHeader />
-      <main className="mx-auto w-full max-w-[1200px] px-4 pb-10 pt-6">
+      <main className="mx-auto w-full max-w-[1280px] px-4 pb-16 pt-5 sm:px-6 lg:px-8">
         {isLoading ? (
-          <div className="h-[240px] animate-pulse rounded-2xl border border-border bg-surface-2" />
+          <div className="space-y-6">
+            <div className="h-[430px] animate-pulse rounded-[2rem] bg-primary-deep/10 sm:h-[360px]" />
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="h-72 animate-pulse rounded-[1.75rem] bg-white/70" />
+              <div className="h-[520px] animate-pulse rounded-[1.75rem] bg-white/70" />
+            </div>
+          </div>
         ) : data ? (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[340px_1fr]">
-            {/* Left Sidebar - Profile Image & Key Stats */}
-            <aside className="h-fit space-y-4 lg:sticky lg:top-24">
-              {/* Profile Card */}
-              <div className="rounded-2xl border border-border bg-surface-2 p-6">
-                {/* Large Profile Image */}
-                <div className="relative mx-auto mb-4 aspect-square w-full max-w-[280px] overflow-hidden rounded-xl">
+          <>
+            <section className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-[linear-gradient(135deg,var(--palette-navy-deep)_0%,var(--palette-navy)_58%,var(--palette-coral)_100%)] px-5 py-6 text-white shadow-[0_28px_70px_rgba(15,23,40,0.22)] sm:px-7 sm:py-8 lg:px-10">
+              <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+              <div className="absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-secondary-color/30 blur-3xl" />
+              <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.26)_1px,transparent_1px)] [background-size:26px_26px]" />
+
+              <div className="relative grid gap-7 md:grid-cols-[220px_minmax(0,1fr)] md:items-center lg:grid-cols-[250px_minmax(0,1fr)]">
+                <div className="relative mx-auto aspect-[4/5] w-full max-w-[250px] overflow-hidden rounded-[1.75rem] border border-white/25 bg-white/10 shadow-2xl">
                   {photoUrl && !photoFailed ? (
                     <Image
                       src={photoUrl}
                       alt={data.tutor.displayName}
                       className="h-full w-full object-cover"
                       fill
-                      loading="lazy"
-                      sizes="(min-width: 1024px) 280px, 80vw"
+                      priority
+                      sizes="(min-width: 1024px) 250px, (min-width: 768px) 220px, 80vw"
                       unoptimized
                       onError={() => setPhotoFailed(true)}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-6xl font-medium text-gray-400">
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/25 to-white/5 text-7xl font-bold text-white/80">
                       {data.tutor.displayName.charAt(0).toUpperCase()}
                     </div>
                   )}
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-primary-deep/70 to-transparent" />
                 </div>
 
-                {/* Hourly Rate - Prominent */}
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">₦{data.tutor.hourlyRate.toLocaleString()}</div>
-                  <div className="text-sm text-gray-500">per hour</div>
-                </div>
-
-                {/* Stats */}
-                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-gray-900">12</div>
-                    <div className="text-xs text-gray-500">Students</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-gray-900">2h</div>
-                    <div className="text-xs text-gray-500">Response</div>
-                  </div>
-                </div>
-
-                {/* Verification Badge */}
-                <div className="mt-4 flex justify-center">
-                  <Badge tone={statusTone}>
-                    {data.tutor.verificationStatus === "approved" ? "✓ Verified" : data.tutor.verificationStatus}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Booking Form */}
-              <div className="form-panel rounded-2xl p-6">
-                <h3 className="brand-heading text-lg font-semibold">Book a Lesson</h3>
-                <div className="mt-4 grid gap-3">
-                  <div className="grid gap-2">
-                    <div className="text-[14px] font-medium leading-[22px] text-black">Lesson method</div>
-                    <div className="flex flex-wrap gap-2">
-                      {availableTeachingModes.map((mode) => {
-                        const label = formatTeachingMode(mode);
-                        const isSelected = lessonType === label;
-                        return (
-                          <button
-                            key={mode}
-                            type="button"
-                            onClick={() => setLessonType(label)}
-                            className={
-                              isSelected
-                                ? "form-chip-active rounded-full px-3 py-1.5 text-[13px] font-semibold"
-                                : "form-chip rounded-full px-3 py-1.5 text-[13px] font-medium hover:border-black hover:bg-black hover:text-white"
-                            }
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {data.tutor.videoCallUrl && lessonType === "Webcam" ? (
-                      <div className="text-[12px] leading-[18px] text-black/65">
-                        Webcam bookings include a video room link on the bookings page.
-                      </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {data.tutor.verificationStatus === "approved" ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/35 bg-emerald-400/15 px-3 py-1.5 text-xs font-semibold text-emerald-50 backdrop-blur">
+                        <BadgeCheck className="h-4 w-4" />
+                        Verified tutor
+                      </span>
+                    ) : null}
+                    {data.tutor.firstLessonFree ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-light/35 bg-accent/20 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        First lesson free
+                      </span>
                     ) : null}
                   </div>
-                  <Input
-                    label="Notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Learning goals, context, etc."
-                  />
-                  <div className="form-inset rounded-xl p-3">
-                    <div className="text-[12px] font-medium leading-[18px] text-black/55">Or request a time range</div>
-                    <div className="mt-2 grid gap-2">
-                      <Input label="From" type="datetime-local" value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)} />
-                      <Input label="To" type="datetime-local" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} />
-                    </div>
-                  </div>
-                  {submitState ? <div className="text-[14px] leading-[22px] text-success">{submitState}</div> : null}
-                  {error ? <div className="text-[14px] leading-[22px] text-danger">{error}</div> : null}
-                  <Button
-                    onClick={() => void submitBookingRequest()}
-                    disabled={(isLoggedIn && !isStudent) || (isStudent && !selectedSlot && !(rangeFrom && rangeTo))}
-                  >
-                    Send booking request
-                  </Button>
-                  <Button variant="secondary" onClick={() => void startMessage()} disabled={isLoggedIn && !isStudent}>
-                    Message tutor
-                  </Button>
-                  {!isLoggedIn ? (
-                    <div className="text-[12px] leading-[18px] text-black/55">
-                      Create a student account to request lessons and message tutors.
-                    </div>
-                  ) : !isStudent ? (
-                    <div className="text-[12px] leading-[18px] text-black/55">
-                      Login as a student to request and message.
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </aside>
 
-            {/* Main Content */}
-            <section className="space-y-6">
-              {/* Header Info */}
-              <div className="rounded-2xl border border-border bg-surface-2 p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <h1 className="text-[28px] font-bold leading-[36px] text-gray-900">{data.tutor.displayName}</h1>
-                    <div className="mt-2 text-[16px] leading-[24px] text-muted">{data.tutor.headline}</div>
-                    <div className="mt-3 flex flex-wrap gap-2 text-[12px] leading-[18px] text-muted">
-                      <span className="rounded-full border border-border bg-surface px-2 py-0.5">
-                        📍 {data.tutor.location ?? data.tutor.timezone}
-                      </span>
-                      {availableTeachingModes.map((mode) => (
-                        <span key={mode} className="rounded-full border border-info-border bg-info-soft px-2 py-0.5 text-info-foreground">
-                          {formatTeachingMode(mode)}
-                        </span>
-                      ))}
-                      {data.tutor.languages.map((l) => (
-                        <span key={l} className="rounded-full border border-border bg-surface px-2 py-0.5">
-                          🌐 {l}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <Link href="/" className="shrink-0 text-[14px] leading-[22px] text-accent hover:underline">
-                    Back
-                  </Link>
-                </div>
-              </div>
+                  <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+                    {data.tutor.displayName}
+                  </h1>
+                  <p className="mt-3 max-w-3xl text-base leading-7 text-white/75 sm:text-lg">
+                    {data.tutor.headline || "A dedicated tutor ready to help you make meaningful progress."}
+                  </p>
 
-              {/* About Me - Large and Bold */}
-              <div className="rounded-2xl border border-border bg-surface-2 p-6">
-                <h2 className="text-[20px] font-bold leading-[28px] text-gray-900">About Me</h2>
-                <p className="mt-4 text-[16px] leading-[28px] text-gray-700">{data.tutor.bio}</p>
-              </div>
-
-              {/* Subjects */}
-              <div className="rounded-2xl border border-border bg-surface-2 p-6">
-                <h2 className="text-[20px] font-bold leading-[28px] text-gray-900">Subjects</h2>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {data.tutor.subjects.map((s) => (
-                    <span key={s} className="rounded-full bg-gray-100 px-4 py-2 text-[14px] font-medium text-gray-700">
-                      {s}
+                  <div className="mt-5 flex flex-wrap gap-2 text-sm text-white/85">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 backdrop-blur">
+                      <MapPin className="h-4 w-4 text-accent-light" />
+                      {data.tutor.location ?? data.tutor.timezone}
                     </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Reviews */}
-              <div className="rounded-2xl border border-border bg-surface-2 p-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-[20px] font-bold leading-[28px] text-gray-900">Reviews ({reviews.length})</h2>
-                  {isLoggedIn && isStudent && reviewableBookingId ? (
-                    <Button variant="secondary" onClick={() => setShowReviewForm(!showReviewForm)}>
-                      {showReviewForm ? "Cancel" : "Write Review"}
-                    </Button>
-                  ) : null}
-                </div>
-                {!isLoggedIn ? (
-                  <div className="mt-3 text-[14px] leading-[22px] text-muted">
-                    <Link href={`/login?next=${encodeURIComponent(nextPath)}`} className="text-accent hover:underline">
-                      Log in as a student
-                    </Link>{" "}
-                    to write a review.
-                  </div>
-                ) : reviewNotice ? (
-                  <div className="mt-3 text-[14px] leading-[22px] text-muted">{reviewNotice}</div>
-                ) : null}
-
-                {/* Review Form */}
-                {showReviewForm && (
-                  <div className="form-panel mt-4 rounded-xl p-4">
-                    <h3 className="brand-heading text-[16px] font-semibold">Write a Review</h3>
-                    <div className="mt-3 grid gap-3">
-                      <div>
-                        <label className="text-[14px] font-medium text-black">Rating</label>
-                        <div className="mt-1 flex gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              onClick={() => setReviewRating(star)}
-                              className="text-2xl"
-                            >
-                              {star <= reviewRating ? "⭐" : "☆"}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-[14px] font-medium text-black">Comment</label>
-                        <textarea
-                          className="mt-1 w-full rounded-xl border border-black/12 bg-white px-4 py-3 text-sm text-black placeholder:text-[color:var(--form-placeholder)] transition-all duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-black/8 focus:border-black"
-                          value={reviewComment}
-                          onChange={(e) => setReviewComment(e.target.value)}
-                          placeholder="Share your experience with this tutor..."
-                          rows={3}
-                        />
-                      </div>
-                      <Button
-                        onClick={() => void submitReview()}
-                        disabled={isSubmittingReview}
+                    {data.tutor.languages.map((language) => (
+                      <span
+                        key={language}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 capitalize backdrop-blur"
                       >
-                        {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                      </Button>
+                        <Languages className="h-4 w-4 text-accent-light" />
+                        {language}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-7 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur">
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/55">Lesson rate</p>
+                      <p className="mt-1 text-2xl font-bold">₦{data.tutor.hourlyRate.toLocaleString()}</p>
+                      <p className="text-xs text-white/55">per hour</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur">
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/55">Rating</p>
+                      <p className="mt-1 flex items-center gap-1.5 text-2xl font-bold">
+                        <Star className="h-5 w-5 fill-accent-light text-accent-light" />
+                        {data.tutor.averageRating.toFixed(1)}
+                      </p>
+                      <p className="text-xs text-white/55">
+                        {data.tutor.totalReviews} {data.tutor.totalReviews === 1 ? "review" : "reviews"}
+                      </p>
+                    </div>
+                    <div className="col-span-2 rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur sm:col-span-1">
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/55">Lessons</p>
+                      <p className="mt-1 text-lg font-bold">
+                        {availableTeachingModes.length === 2
+                          ? "Online & in person"
+                          : formatTeachingMode(availableTeachingModes[0])}
+                      </p>
+                      <p className="text-xs text-white/55">Flexible learning</p>
                     </div>
                   </div>
-                )}
-
-                {/* Reviews List */}
-                <div className="mt-4 space-y-4">
-                  {isLoadingReviews ? (
-                    <div className="text-[14px] leading-[22px] text-muted">Loading reviews...</div>
-                  ) : reviews.length === 0 ? (
-                    <div className="text-[14px] leading-[22px] text-muted">No reviews yet</div>
-                  ) : (
-                    reviews.map((review) => (
-                      <div key={review.id} className="rounded-xl border border-border bg-surface p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="text-[14px] font-medium text-gray-900">{review.studentName}</div>
-                            <div className="flex">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <span key={star} className="text-sm">
-                                  {star <= review.rating ? "⭐" : "☆"}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="text-[12px] text-muted">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </div>
-                        </div>
-                        {review.comment && (
-                          <p className="mt-2 text-[14px] leading-[22px] text-gray-700">{review.comment}</p>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* Availability */}
-              <div className="rounded-2xl border border-border bg-surface-2 p-6">
-                <h2 className="text-[20px] font-bold leading-[28px] text-gray-900">Availability</h2>
-                <div className="mt-4 grid gap-2">
-                  {data.availability.length === 0 ? (
-                    <div className="text-[14px] leading-[22px] text-muted">No upcoming slots</div>
-                  ) : (
-                    data.availability
-                      .slice(0, 6)
-                      .map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => setSelectedSlotId(s.id)}
-                          className={
-                            selectedSlotId === s.id
-                              ? "flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-left"
-                              : "flex items-center justify-between gap-3 rounded-xl border border-border bg-transparent px-4 py-3 text-left text-muted hover:bg-surface"
-                          }
-                        >
-                          <div className="text-[14px] leading-[22px]">
-                            {new Date(s.startsAt).toLocaleString()} → {new Date(s.endsAt).toLocaleString()}
-                          </div>
-                          <div className="text-[12px] leading-[18px]">{selectedSlotId === s.id ? "Selected" : "Select"}</div>
-                        </button>
-                      ))
-                  )}
                 </div>
               </div>
             </section>
-          </div>
+
+            <div className="mt-6 grid items-start gap-2 lg:grid-cols-[minmax(0,1fr)_400px]">
+              <aside id="booking-panel" className="order-first lg:order-last lg:sticky lg:top-24">
+                <div className="overflow-hidden rounded-[1.75rem] border border-border bg-white shadow-[0_24px_58px_rgba(15,23,40,0.1)]">
+                  <div className="border-b border-border bg-[linear-gradient(135deg,var(--palette-coral-mist)_0%,rgba(239,226,232,0.75)_100%)] px-10 py-5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Start learning</p>
+                        <h2 className="brand-heading mt-1 text-2xl font-bold">Book a lesson</h2>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-primary-deep">₦{data.tutor.hourlyRate.toLocaleString()}</p>
+                        <p className="text-xs text-muted">per hour</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 p-6">
+                    <div className="grid gap-2">
+                      <div className="text-sm font-semibold text-primary-deep">How would you like to learn?</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {availableTeachingModes.map((mode) => {
+                          const label = formatTeachingMode(mode);
+                          const isSelected = lessonType === label;
+                          const ModeIcon = mode === "webcam" ? Monitor : GraduationCap;
+                          return (
+                            <button
+                              key={mode}
+                              type="button"
+                              onClick={() => setLessonType(label)}
+                              className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition ${isSelected
+                                ? "border-primary-deep bg-primary-deep text-white shadow-lg shadow-primary-deep/15"
+                                : "border-border bg-surface text-primary-deep hover:-translate-y-0.5 hover:border-accent/35 hover:bg-accent-soft/50"
+                                }`}
+                            >
+                              <ModeIcon className={`h-5 w-5 ${isSelected ? "text-accent-light" : "text-accent"}`} />
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {data.tutor.videoCallUrl && lessonType === "Webcam" ? (
+                        <div className="rounded-xl bg-info-soft px-3 py-2 text-xs leading-5 text-info-foreground">
+                          Webcam bookings include a video room link on the bookings page.
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <Input
+                      label="What would you like help with?"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Share your learning goals"
+                    />
+
+                    <div className="rounded-2xl border border-border bg-surface p-4">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-primary-deep">
+                        <Clock3 className="h-4 w-4 text-accent" />
+                        Request a preferred time
+                      </div>
+                      <div className="mt-3 grid gap-2">
+                        <Input label="From" type="datetime-local" value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)} />
+                        <Input label="To" type="datetime-local" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} />
+                      </div>
+                    </div>
+
+                    {submitState ? (
+                      <div className="rounded-xl border border-success/20 bg-success/10 px-3 py-2 text-sm leading-6 text-success">
+                        {submitState}
+                      </div>
+                    ) : null}
+                    {error ? (
+                      <div className="rounded-xl border border-danger/20 bg-red-50 px-3 py-2 text-sm leading-6 text-danger">
+                        {error}
+                      </div>
+                    ) : null}
+
+                    <Button
+                      size="lg"
+                      fullWidth
+                      onClick={() => void submitBookingRequest()}
+                      disabled={(isLoggedIn && !isStudent) || (isStudent && !selectedSlot && !(rangeFrom && rangeTo))}
+                    >
+                      Send booking request
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      fullWidth
+                      leftIcon={<MessageCircle className="h-4 w-4" />}
+                      onClick={() => void startMessage()}
+                      disabled={isLoggedIn && !isStudent}
+                    >
+                      Message tutor
+                    </Button>
+
+                    {!isLoggedIn ? (
+                      <div className="text-center text-xs leading-5 text-muted">
+                        You will be asked to create a student account before sending your request.
+                      </div>
+                    ) : !isStudent ? (
+                      <div className="text-center text-xs leading-5 text-muted">
+                        Log in as a student to request lessons and message tutors.
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </aside>
+
+              <section className="order-last space-y-6 lg:order-first">
+                <article className="mb-3 rounded-[1.75rem] border border-border bg-white/90 p-6 shadow-[0_18px_45px_rgba(15,23,40,0.06)] sm:p-15">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                      <BookOpen className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Meet your tutor</p>
+                      <h2 className="text-2xl font-bold text-primary-deep">About {data.tutor.displayName}</h2>
+                    </div>
+                  </div>
+                  <p className="mt-6 whitespace-pre-line text-base leading-8 text-foreground/80">
+                    {data.tutor.bio || "This tutor has not added a biography yet."}
+                  </p>
+
+                  {data.tutor.responseTime ? (
+                    <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-info-soft px-3 py-2 text-sm font-medium text-primary-deep">
+                      <Clock3 className="h-4 w-4 text-accent" />
+                      Usually responds {data.tutor.responseTime}
+                    </div>
+                  ) : null}
+                </article>
+
+                <article className="mb-3 rounded-[1.75rem] border border-border bg-white/90 p-6 shadow-[0_18px_45px_rgba(15,23,40,0.06)] sm:p-8">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-primary-deep">
+                      <GraduationCap className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-color">Expertise</p>
+                      <h2 className="text-2xl font-bold text-primary-deep">Subjects taught</h2>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    {data.tutor.subjects.length ? (
+                      data.tutor.subjects.map((subject) => (
+                        <span
+                          key={subject}
+                          className="inline-flex items-center gap-2 rounded-full border border-info-border bg-info-soft px-4 py-2.5 text-sm font-semibold capitalize text-primary-deep"
+                        >
+                          <Check className="h-4 w-4 text-accent" />
+                          {subject}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted">No subjects have been added yet.</p>
+                    )}
+                  </div>
+                </article>
+
+                <article className="rounded-[1.75rem] border border-border bg-white/90 p-6 shadow-[0_18px_45px_rgba(15,23,40,0.06)] sm:p-8">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(245,184,65,0.18)] text-[#8b5e00]">
+                        <CalendarDays className="h-5 w-5" />
+                      </span>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b5e00]">Plan ahead</p>
+                        <h2 className="text-2xl font-bold text-primary-deep">Upcoming availability</h2>
+                      </div>
+                    </div>
+                    {selectedSlot ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+                        <Check className="h-3.5 w-3.5" /> Slot selected
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {data.availability.length === 0 ? (
+                      <div className="col-span-full rounded-2xl border border-dashed border-border-strong bg-surface px-5 py-8 text-center">
+                        <Clock3 className="mx-auto h-7 w-7 text-accent" />
+                        <p className="mt-3 font-semibold text-primary-deep">No public slots yet</p>
+                        <p className="mt-1 text-sm leading-6 text-muted">
+                          Use the booking form to request a time that works for you.
+                        </p>
+                      </div>
+                    ) : (
+                      data.availability.slice(0, 6).map((slot) => {
+                        const isSelected = selectedSlotId === slot.id;
+                        return (
+                          <button
+                            key={slot.id}
+                            type="button"
+                            onClick={() => setSelectedSlotId(slot.id)}
+                            className={`flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition ${isSelected
+                              ? "border-primary-deep bg-primary-deep text-white shadow-lg shadow-primary-deep/15"
+                              : "border-border bg-surface text-primary-deep hover:-translate-y-0.5 hover:border-accent/35 hover:bg-accent-soft/40"
+                              }`}
+                          >
+                            <div>
+                              <p className="text-sm font-bold">{formatSlotDate(slot.startsAt)}</p>
+                              <p className={`mt-1 text-xs ${isSelected ? "text-white/65" : "text-muted"}`}>
+                                {formatSlotTime(slot.startsAt)} – {formatSlotTime(slot.endsAt)}
+                              </p>
+                            </div>
+                            <span className={`flex h-8 w-8 items-center justify-center rounded-full ${isSelected ? "bg-white/15" : "bg-white"}`}>
+                              {isSelected ? <Check className="h-4 w-4" /> : <CalendarDays className="h-4 w-4 text-accent" />}
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </article>
+              </section>
+            </div>
+
+            <article className="mt-3 rounded-[1.75rem] border border-border bg-white/90 p-6 shadow-[0_18px_45px_rgba(15,23,40,0.06)] sm:p-8">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                    <Star className="h-5 w-5 fill-accent text-accent" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Student feedback</p>
+                    <h2 className="text-2xl font-bold text-primary-deep">
+                      Reviews <span className="text-muted">({reviews.length})</span>
+                    </h2>
+                  </div>
+                </div>
+                {isLoggedIn && isStudent && reviewableBookingId ? (
+                  <Button variant="secondary" onClick={() => setShowReviewForm(!showReviewForm)}>
+                    {showReviewForm ? "Cancel" : "Write a review"}
+                  </Button>
+                ) : null}
+              </div>
+
+              {!isLoggedIn ? (
+                <div className="mt-5 rounded-2xl bg-info-soft px-4 py-3 text-sm leading-6 text-muted">
+                  <Link href={`/login?next=${encodeURIComponent(nextPath)}`} className="font-semibold text-accent hover:underline">
+                    Log in as a student
+                  </Link>{" "}
+                  to leave a review after a completed lesson.
+                </div>
+              ) : reviewNotice ? (
+                <div className="mt-5 rounded-2xl bg-info-soft px-4 py-3 text-sm leading-6 text-muted">{reviewNotice}</div>
+              ) : null}
+
+              {showReviewForm ? (
+                <div className="mt-5 rounded-2xl border border-info-border bg-info-soft/50 p-5">
+                  <h3 className="text-lg font-bold text-primary-deep">Share your experience</h3>
+                  <div className="mt-4 grid gap-4">
+                    <div>
+                      <label className="text-sm font-semibold text-primary-deep">Rating</label>
+                      <div className="mt-2 flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewRating(star)}
+                            className="rounded-lg p-1 transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent/50"
+                            aria-label={`Rate ${star} out of 5`}
+                          >
+                            <Star
+                              className={`h-7 w-7 ${star <= reviewRating ? "fill-accent text-accent" : "text-border-strong"
+                                }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-primary-deep">Comment</label>
+                      <textarea
+                        className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm placeholder:text-muted transition focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10"
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                        placeholder="Share your experience with this tutor..."
+                        rows={4}
+                      />
+                    </div>
+                    <Button onClick={() => void submitReview()} disabled={isSubmittingReview}>
+                      {isSubmittingReview ? "Submitting..." : "Submit review"}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="mt-6 space-y-3">
+                {isLoadingReviews ? (
+                  <div className="h-28 animate-pulse rounded-2xl bg-surface" />
+                ) : reviews.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-border-strong bg-surface px-5 py-8 text-center">
+                    <MessageCircle className="mx-auto h-7 w-7 text-secondary-color" />
+                    <p className="mt-3 font-semibold text-primary-deep">No reviews yet</p>
+                    <p className="mt-1 text-sm text-muted">Be the first student to learn with this tutor.</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="rounded-2xl border border-border bg-surface p-5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-primary-deep">{review.studentName}</p>
+                          <div className="mt-1 flex gap-0.5" aria-label={`${review.rating} out of 5 stars`}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-4 w-4 ${star <= review.rating ? "fill-accent text-accent" : "text-border-strong"
+                                  }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted">{new Date(review.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      {review.comment ? (
+                        <p className="mt-4 text-sm leading-7 text-foreground/75">{review.comment}</p>
+                      ) : null}
+                    </div>
+                  ))
+                )}
+              </div>
+            </article>
+          </>
         ) : (
-          <div className="rounded-2xl border border-border bg-surface-2 p-6 text-center">
-            <h1 className="text-[24px] font-semibold leading-[32px] text-gray-900">
-              Unable to load tutor profile
-            </h1>
-            <p className="mt-2 text-[14px] leading-[22px] text-muted">
+          <div className="mx-auto max-w-xl rounded-[1.75rem] border border-border bg-white/90 p-8 text-center shadow-[0_24px_58px_rgba(15,23,40,0.08)]">
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+              <BookOpen className="h-6 w-6" />
+            </span>
+            <h1 className="mt-5 text-2xl font-bold text-primary-deep">Unable to load tutor profile</h1>
+            <p className="mt-2 text-sm leading-6 text-muted">
               {error ?? "This tutor profile is no longer available."}
             </p>
-            <Button className="mt-4" onClick={() => void load()}>
+            <Button className="mt-5" onClick={() => void load()}>
               Try again
             </Button>
           </div>

@@ -24,12 +24,6 @@ from core.models import (
 )
 from core.tutor_sync import apply_verified_tutor_fields
 
-TUTOR_VERIFICATION_STATUS_CHOICES = (
-  ("pending", "Pending"),
-  ("approved", "Verified"),
-  ("rejected", "Rejected"),
-)
-
 admin.site.site_header = "PrepVilla Admin"
 admin.site.site_title = "PrepVilla Admin"
 admin.site.index_title = "PrepVilla Administration"
@@ -43,11 +37,10 @@ class StudentVerificationRequestAdmin(admin.ModelAdmin):
   readonly_fields = (
     "id", "user", "profile_photo_url", "date_of_birth", "mobile_number", "nin_number", "bvn_number",
     "country_of_birth", "nationality", "state_of_origin", "lga_of_origin", "qualification", "document_urls",
-    "city", "state", "address", "notes", "submitted_at",
+    "city", "state", "address", "notes", "status", "reviewed_at", "reviewed_by",
+    "admin_notes", "submitted_at",
   )
-  raw_id_fields = ("reviewed_by",)
   ordering = ("-submitted_at",)
-
 
 def normalize_verification_status(value: str | None) -> str:
   normalized = (value or "").strip().lower()
@@ -201,15 +194,9 @@ class VerificationRequestAdminForm(forms.ModelForm):
     required=False,
     help_text="Accepts relative upload paths such as /uploads/images/...",
   )
-  status = forms.ChoiceField(
-    label="Verification Status",
-    choices=TUTOR_VERIFICATION_STATUS_CHOICES,
-    required=True,
-  )
-
   class Meta:
     model = VerificationRequest
-    fields = "__all__"
+    exclude = ("status",)
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -219,7 +206,6 @@ class VerificationRequestAdminForm(forms.ModelForm):
       self.fields["full_name"].initial = tutor_user.full_name
       self.fields["mobile_number"].initial = tutor_user.mobile_number
       self.fields["date_of_birth"].initial = tutor_user.date_of_birth
-      self.fields["status"].initial = normalize_verification_status(self.instance.status)
 
 
 @admin.register(TutorProfile)
@@ -358,7 +344,7 @@ class VerificationRequestAdmin(admin.ModelAdmin):
   )
   list_filter = ("status", "submitted_at", "decided_at")
   raw_id_fields = ("tutor_profile",)
-  readonly_fields = ("submitted_at", "decided_at")
+  readonly_fields = ("status", "submitted_at", "decided_at")
   fieldsets = (
     (
       "Tutor Account",
@@ -399,19 +385,6 @@ class VerificationRequestAdmin(admin.ModelAdmin):
     return super().get_queryset(request).select_related("tutor_profile__user")
 
   def save_model(self, request, obj, form, change):
-    next_status = normalize_verification_status(form.cleaned_data.get("status"))
-    previous_status = normalize_verification_status(
-      VerificationRequest.objects.filter(pk=obj.pk).values_list("status", flat=True).first()
-      if change and obj.pk
-      else obj.status
-    )
-    status_changed = previous_status != next_status
-    obj.status = next_status
-    if next_status in {"approved", "rejected"}:
-      obj.decided_at = timezone.now() if status_changed or obj.decided_at is None else obj.decided_at
-    else:
-      obj.decided_at = None
-
     super().save_model(request, obj, form, change)
 
     if not obj.tutor_profile_id:
@@ -437,8 +410,8 @@ class VerificationRequestAdmin(admin.ModelAdmin):
       bvn_number=obj.bvn_number,
       profile_photo_url=normalized_photo_url,
       document_urls=obj.document_urls or "",
-      verification_status=next_status,
-      is_listed=tutor_profile.is_listed if next_status == "approved" else False,
+      verification_status=normalize_verification_status(obj.status),
+      is_listed=tutor_profile.is_listed,
     )
 
 admin.site.register(AvailabilitySlot)

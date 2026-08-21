@@ -1,3 +1,4 @@
+import hashlib
 import os
 import sys
 from datetime import timedelta
@@ -218,6 +219,9 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
   "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env_int("ACCESS_TOKEN_LIFETIME_MINUTES", 240)),
   "REFRESH_TOKEN_LIFETIME": timedelta(days=env_int("REFRESH_TOKEN_LIFETIME_DAYS", 30)),
+  # Derive a dedicated, fixed-length HMAC key so JWT signing always meets the
+  # 256-bit minimum for HS256 without exposing or duplicating the Django secret.
+  "SIGNING_KEY": hashlib.sha256(f"prepvilla.jwt:{SECRET_KEY}".encode("utf-8")).digest(),
 }
 
 CORS_ALLOWED_ORIGINS = env_list(

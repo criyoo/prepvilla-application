@@ -135,16 +135,6 @@ def _payload_data(payload: dict[str, Any]) -> dict[str, Any]:
     return {}
 
 
-def _normalized(value: Any) -> str:
-    return " ".join(str(value or "").strip().lower().split())
-
-
-def _date_value(value: Any) -> str:
-    if isinstance(value, date):
-        return value.isoformat()
-    return str(value or "").strip()[:10]
-
-
 def _first_present(data: dict[str, Any], *keys: str) -> Any:
     for key in keys:
         value = data.get(key)
@@ -226,6 +216,16 @@ def _validate_nin_fields(input_data: dict[str, Any], data: dict[str, Any]) -> di
         mismatches["date_of_birth"] = "Date of birth does not match the NIN record."
     if input_data.get("country_of_birth") and country_of_birth and _normalize_country(input_data.get("country_of_birth")) != _normalize_country(country_of_birth):
         mismatches["country_of_birth"] = "Country of birth does not match the NIN record."
+    optional_fields = (
+        ("state_of_origin", ("selfOriginState", "stateOfOrigin", "state_of_origin"), _normalize_region, "State of origin"),
+        ("lga", ("selfOriginLga", "lgaOfOrigin", "lga", "lga_of_origin"), _normalize_region, "LGA"),
+        ("nationality", ("nationality",), _normalize_nationality, "Nationality"),
+    )
+    for field, keys, normalizer, label in optional_fields:
+        submitted = input_data.get(field)
+        actual = _first_present(data, *keys)
+        if submitted not in (None, "") and actual not in (None, "") and normalizer(submitted) != normalizer(actual):
+            mismatches[field] = f"{label} does not match the NIN record."
     return mismatches
 
 
@@ -287,7 +287,19 @@ def _merge_field_mismatches(nin_mismatches: dict[str, str], bvn_mismatches: dict
     return result
 
 
-def verify_nin_identity(*, nin_number: str, first_name: str = "", last_name: str = "", middle_name: str = "", date_of_birth: Any = None, mobile_number: str = "") -> dict[str, Any]:
+def verify_nin_identity(
+    *,
+    nin_number: str,
+    first_name: str = "",
+    last_name: str = "",
+    middle_name: str = "",
+    date_of_birth: Any = None,
+    mobile_number: str = "",
+    country_of_birth: str = "",
+    nationality: str = "",
+    state_of_origin: str = "",
+    lga: str = "",
+) -> dict[str, Any]:
     normalized_nin = "".join(str(nin_number or "").split())
     if len(normalized_nin) != 11 or not normalized_nin.isdigit():
         raise ValidationError({"ninNumber": "NIN must contain 11 digits."})
@@ -300,31 +312,22 @@ def verify_nin_identity(*, nin_number: str, first_name: str = "", last_name: str
         raise ValidationError({"ninNumber": extract_prembly_message(payload) or "The NIN could not be verified."})
 
     data = _payload_data(payload)
-    aliases = {
-        "first_name": ("firstname", "firstName", "first_name"),
-        "last_name": ("surname", "lastName", "lastname", "last_name"),
-        "middle_name": ("middlename", "middleName", "middle_name", "othername"),
-        "date_of_birth": ("birthdate", "birthDate", "dateOfBirth", "date_of_birth"),
-        "mobile_number": ("telephoneno", "telephoneNo", "phoneNumber", "mobile"),
-    }
-    for field, expected in (
-        ("first_name", first_name),
-        ("last_name", last_name),
-        ("middle_name", middle_name),
-        ("date_of_birth", date_of_birth),
-        ("mobile_number", mobile_number),
-    ):
-        if not expected:
-            continue
-        actual = next((data.get(key) for key in aliases[field] if data.get(key) not in (None, "")), "")
-        if field == "date_of_birth":
-            matches = _date_value(expected) == _date_value(actual)
-        elif field == "mobile_number":
-            matches = "".join(str(expected).split())[-10:] == "".join(str(actual).split())[-10:]
-        else:
-            matches = _normalized(expected) == _normalized(actual)
-        if actual and not matches:
-            raise ValidationError({field: f"{field.replace('_', ' ').title()} does not match the NIN record."})
+    mismatches, _ = validate_nin_payload(
+        {
+            "first_name": first_name,
+            "last_name": last_name,
+            "middle_name": middle_name,
+            "date_of_birth": date_of_birth,
+            "mobile": mobile_number,
+            "country_of_birth": country_of_birth,
+            "nationality": nationality,
+            "state_of_origin": state_of_origin,
+            "lga": lga,
+        },
+        data,
+    )
+    if mismatches:
+        raise ValidationError(mismatches)
     return data
 
 
