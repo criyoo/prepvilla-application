@@ -65,7 +65,7 @@ export function TutorProfilePage({ tutorId }: { tutorId: string }) {
   const loadFromStorage = useAuthStore((s) => s.loadFromStorage);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<TutorResponse | null>(null);
 
   const [lessonType, setLessonType] = useState("Face-to-face");
@@ -104,6 +104,7 @@ export function TutorProfilePage({ tutorId }: { tutorId: string }) {
   const load = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setData(null);
     const res = await api.get<TutorResponse>(`/api/tutors/${tutorId}`);
     if (!res.ok) {
       setError(res.error);
@@ -577,7 +578,17 @@ export function TutorProfilePage({ tutorId }: { tutorId: string }) {
             </section>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-surface-2 p-6">Tutor not found</div>
+          <div className="rounded-2xl border border-border bg-surface-2 p-6 text-center">
+            <h1 className="text-[24px] font-semibold leading-[32px] text-gray-900">
+              Unable to load tutor profile
+            </h1>
+            <p className="mt-2 text-[14px] leading-[22px] text-muted">
+              {error ?? "This tutor profile is no longer available."}
+            </p>
+            <Button className="mt-4" onClick={() => void load()}>
+              Try again
+            </Button>
+          </div>
         )}
       </main>
     </div>

@@ -247,12 +247,29 @@ SECURE_REFERRER_POLICY = os.environ.get("SECURE_REFERRER_POLICY", "strict-origin
 X_FRAME_OPTIONS = "DENY"
 WHITENOISE_MAX_AGE = env_int("WHITENOISE_MAX_AGE", 31536000 if not DEBUG else 0)
 
-REDIS_URL = os.environ.get("VALKEY_URL") or os.environ.get("REDIS_URL", "")
-if REDIS_URL:
+def valkey_connection_url() -> str:
+  url = (os.environ.get("VALKEY_URL") or os.environ.get("REDIS_URL", "")).strip()
+  auth_token = os.environ.get("VALKEY_AUTH_TOKEN", "").strip()
+  if not url or not auth_token:
+    return url
+
+  parsed = urlparse(url)
+  if parsed.password is not None:
+    return url
+
+  hostname = parsed.hostname or ""
+  if ":" in hostname:
+    hostname = f"[{hostname}]"
+  host = f"{hostname}:{parsed.port}" if parsed.port else hostname
+  return parsed._replace(netloc=f":{quote_plus(auth_token)}@{host}").geturl()
+
+
+VALKEY_URL = valkey_connection_url()
+if VALKEY_URL:
   CHANNEL_LAYERS = {
     "default": {
       "BACKEND": "channels_redis.core.RedisChannelLayer",
-      "CONFIG": {"hosts": [REDIS_URL]},
+      "CONFIG": {"hosts": [VALKEY_URL]},
     }
   }
 else:
@@ -260,11 +277,11 @@ else:
     "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
   }
 
-if REDIS_URL:
+if VALKEY_URL:
   CACHES = {
     "default": {
       "BACKEND": "django.core.cache.backends.redis.RedisCache",
-      "LOCATION": REDIS_URL,
+      "LOCATION": VALKEY_URL,
     }
   }
 else:
@@ -282,7 +299,7 @@ PAYMENT_QUEUE_BACKEND = (
   else os.environ.get("PAYMENT_QUEUE_BACKEND", "sync").strip().lower() or "sync"
 )
 PAYMENT_QUEUE_NAME = os.environ.get("PAYMENT_QUEUE_NAME", "prepvilla-payments").strip() or "prepvilla-payments"
-PAYMENT_QUEUE_REDIS_URL = os.environ.get("PAYMENT_QUEUE_REDIS_URL", REDIS_URL).strip()
+PAYMENT_QUEUE_REDIS_URL = os.environ.get("PAYMENT_QUEUE_REDIS_URL", VALKEY_URL).strip()
 PAYMENT_QUEUE_JOB_TIMEOUT_SECONDS = env_int("PAYMENT_QUEUE_JOB_TIMEOUT_SECONDS", 300)
 PAYMENT_QUEUE_RESULT_TTL_SECONDS = env_int("PAYMENT_QUEUE_RESULT_TTL_SECONDS", 3600)
 PAYMENT_QUEUE_FAILURE_TTL_SECONDS = env_int("PAYMENT_QUEUE_FAILURE_TTL_SECONDS", 86400)

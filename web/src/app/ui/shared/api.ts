@@ -20,7 +20,27 @@ const publicGetCache = new Map<string, { expiresAt: number; data: unknown }>();
 const publicGetInFlight = new Map<string, Promise<ApiResult<unknown>>>();
 
 function getBaseUrl() {
-  return (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8500").trim().replace(/\/+$/, "");
+  const configuredBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8500")
+    .trim()
+    .replace(/\/+$/, "");
+
+  // The AWS frontend distribution proxies /api to the ALB. Using that
+  // same-origin route avoids making public pages depend on cross-origin
+  // browser requests while preserving the configured API URL everywhere
+  // else, including local development.
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname.toLowerCase();
+    const isFrontendHost =
+      (hostname === "prepvilla.info" || hostname.endsWith(".prepvilla.info")) &&
+      !hostname.startsWith("api.") &&
+      !hostname.startsWith("media.");
+
+    if (window.location.protocol === "https:" && isFrontendHost) {
+      return window.location.origin;
+    }
+  }
+
+  return configuredBaseUrl;
 }
 
 function normalizePath(path: string) {
