@@ -1,0 +1,1680 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R 27 0 R 29 0 R 31 0 R 33 0 R 35 0 R 37 0 R 39 0 R 41 0 R 43 0 R 45 0 R 47 0 R 49 0 R 51 0 R 53 0 R 55 0 R 57 0 R 59 0 R] /Count 28 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 7263 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 20.00 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 773.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 737.89 Tm (Product: PrepVilla verified-teacher marketplace) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 723.09 Tm (Application reviewed: /Users/chris/Developer/Projects/serverbased/prepvilla/apps) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 708.29 Tm (Prepared date: 2026-08-24) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 693.49 Tm (Execution status values: Not Run, Pass, Fail, Blocked, Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 678.69 Tm (Roles in this document: Teacher means the application's Tutor role; Student means the Student role.) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 651.89 Tm (Purpose) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 626.89 Tm (This document provides business-readable User Acceptance Test scripts for the complete PrepVilla teacher and student) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (experience. It covers the implemented web journeys and their supporting business rules, including authentication, automated) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 602.89 Tm (identity verification, tutor discovery, profiles, availability, favorites, bookings, messaging, lesson payment and completion,) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 590.89 Tm (reviews, video rooms, subscriptions, support, account security, permissions, responsive behavior, and recovery states.) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 562.89 Tm (Scope and traceability) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 537.89 Tm (Area | Teacher coverage | Student coverage | Shared or cross-role coverage) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 525.99 Tm (Public site and authentication | PV-COM-001 to PV-COM-010 | PV-COM-001 to PV-COM-010 | PV-COM-001 to PV-COM-010) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 514.09 Tm (Identity verification and profile | PV-TCH-002 to PV-TCH-011 | PV-STU-002 to PV-STU-008 | PV-XRL-007) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 502.19 Tm (Discovery and favorites | PV-TCH-010 to PV-TCH-012 | PV-STU-009 to PV-STU-014 | PV-XRL-001) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 490.29 Tm (Availability and bookings | PV-TCH-013 to PV-TCH-020 | PV-STU-015 to PV-STU-022 | PV-XRL-001 to PV-XRL-004) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 478.39 Tm (Messaging and video lessons | PV-TCH-021 to PV-TCH-024 | PV-STU-023 to PV-STU-025 | PV-XRL-001, PV-XRL-002, PV-XRL-004) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 466.49 Tm (Billing and subscriptions | PV-TCH-025 | PV-STU-026 | PV-XRL-003) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 454.59 Tm (Support, FAQ, and settings | PV-TCH-026 to PV-TCH-030 | PV-STU-027 to PV-STU-031 | PV-XRL-007) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 442.69 Tm (Quality, privacy, and resilience | PV-XRL-005 to PV-XRL-008 | PV-XRL-005 to PV-XRL-008 | PV-XRL-005 to PV-XRL-008) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 418.79 Tm (Assumptions and entry criteria) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 393.79 Tm (- The target UAT environment is available and points to the intended PrepVilla API, database, media storage, email service,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 381.99 Tm (  WebSocket service, verification providers, Flutterwave sandbox, and Jitsi configuration.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 367.99 Tm (- Testers have separate, valid email inboxes for teacher and student accounts, plus access to all six-character OTP) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 356.19 Tm (  messages.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 342.19 Tm (- Test NIN, BVN, mobile, biodata, bank, identity, qualification, and address data are approved for test use and match the) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 330.39 Tm (  configured verification sandbox.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 316.39 Tm (- At least one approved and publicly listed teacher offers face-to-face and webcam lessons, has future availability, and has) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 304.59 Tm (  a valid hourly rate.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 290.59 Tm (- At least one verified student and one approved teacher are available for cross-role booking, chat, payment, completion,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 278.79 Tm (  review, and video-room testing.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 264.79 Tm (- Clear profile photos and identity/qualification documents are available in accepted image or PDF formats. Oversized,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 252.99 Tm (  unsupported, and corrupt files are also available for negative tests.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 238.99 Tm (- Payment-provider test cards and callback scenarios are available for success, cancellation, failure, duplicate callback, and) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 227.19 Tm (  delayed confirmation.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 213.19 Tm (- Testers can capture screenshots, OTP timestamps, booking/payment references, video-room links, and email confirmations) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 201.39 Tm (  as evidence.) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 175.39 Tm (Execution rules) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 150.39 Tm (- Mark each UAT case as Not Run, Pass, Fail, Blocked, or Retest Pass.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 136.39 Tm (- Record the tester, date, environment/build, actual result, evidence link, and defect ID for every executed case.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 122.39 Tm (- Use a new account or reset test data where a one-time rule is involved, such as the free package or OTP attempt limit.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 108.39 Tm (- Do not use real personal identity documents, real bank details, or live payment cards.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 94.39 Tm (- Any Critical or High failure in authentication, identity verification, authorization, booking, payment, lesson completion,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 82.59 Tm (  privacy, or account deletion blocks sign-off until fixed and retested.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 68.59 Tm (- A visible feature that cannot be reached by its intended role must be marked Fail, even if the supporting API exists.) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 1 of 28) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 6024 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 763.89 Tm (Common authentication and navigation tests) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 728.89 Tm (PV-COM-001 - Public pages and primary navigation) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 709.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 695.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 680.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 665.49 Tm (Objective: Confirm logged-out visitors can understand PrepVilla and reach the main entry points.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 650.69 Tm (Preconditions / test data: Tester is logged out.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 635.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 619.89 Tm (1. Open /, /about, /how-it-works, /search, and /tutors.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 605.89 Tm (2. Use the header and footer links for About, How It Works, Find Tutors, Login, Student sign-up, Become a Tutor, support) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 594.09 Tm (   email, and social links.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 580.09 Tm (3. Use the browser Back button from a secondary page.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 566.09 Tm (4. Open an unknown tutor profile URL.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 552.09 Tm (Expected result: Public pages load without authentication errors; links route correctly; the active navigation state is clear;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 540.29 Tm (Back works; an unknown tutor shows a useful not-found/error state without exposing technical details.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 525.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 510.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 485.89 Tm (PV-COM-002 - Create a student account and request OTP) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 466.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 452.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 437.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 422.49 Tm (Objective: Confirm a new student can submit a valid registration.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 407.69 Tm (Preconditions / test data: Unique student email; password of at least six characters.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 392.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 376.89 Tm (1. Open /signup.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 362.89 Tm (2. Enter full name, email, password, and matching confirmation.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 348.89 Tm (3. Submit the form.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 334.89 Tm (4. Check the target inbox.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 320.89 Tm (Expected result: Required-field and matching-password checks pass; the Verify Email screen shows the target address; exactly) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 309.09 Tm (one valid six-character OTP is delivered; the account is not usable until verification.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 294.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 279.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 254.69 Tm (PV-COM-003 - Create a teacher account and request OTP) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 235.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 220.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 206.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 191.29 Tm (Objective: Confirm a new teacher can enter the tutor onboarding path.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 176.49 Tm (Preconditions / test data: Unique teacher email; password of at least six characters.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 161.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 145.69 Tm (1. Open /signup/tutor.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 131.69 Tm (2. Enter first name, optional middle name, last name, email, and password.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 117.69 Tm (3. Submit the form and check the inbox.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 103.69 Tm (Expected result: First and last name are mandatory; the full name is composed correctly; a six-character OTP is sent; the page) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 91.89 Tm (moves to email verification.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 77.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 2 of 28) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 6427 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 751.09 Tm (PV-COM-004 - Verify registration OTP and use resend) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Objective: Confirm correct OTP use and resend behavior for both roles.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Preconditions / test data: One pending student registration and one pending teacher registration.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.09 Tm (1. Request a resend and observe its cooldown/disabled state.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.09 Tm (2. Confirm a replacement OTP is delivered.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.09 Tm (3. Enter the valid OTP for each role.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 600.09 Tm (4. Observe the destination and try reusing the same OTP.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 586.09 Tm (Expected result: Resend is rate-controlled; the newest OTP verifies once; reused codes fail; the teacher is authenticated and) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (routed to verification; the student is routed to Login with an Email verified notice.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 544.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 519.89 Tm (PV-COM-005 - Reject invalid, expired, and over-attempted OTPs) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Objective: Confirm account verification cannot be bypassed.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Preconditions / test data: Pending registration; wrong, expired, and malformed codes.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 426.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 410.89 Tm (1. Submit fewer or more than six characters.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 396.89 Tm (2. Submit an incorrect six-character code repeatedly.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 382.89 Tm (3. Make the sixth attempt after five failed attempts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 368.89 Tm (4. Submit an expired code, then request a new code and use it.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 354.89 Tm (Expected result: Malformed, wrong, and expired codes are rejected; the account remains unverified; five failures trigger a) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 343.09 Tm (clear too-many-attempts response; a newly issued code can complete verification.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 328.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 313.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 288.69 Tm (PV-COM-006 - Google sign-up and sign-in) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 269.69 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 240.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 225.29 Tm (Objective: Confirm Google authentication respects mode, role, verification, and safe redirect rules.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 210.49 Tm (Preconditions / test data: Verified Google email; existing and new PrepVilla test accounts.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 195.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 179.69 Tm (1. Sign up as Student with Google.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 165.69 Tm (2. Sign up as Teacher with a different Google account.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 151.69 Tm (3. Sign in with Google using an existing account.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 137.69 Tm (4. Try to register an existing email under the opposite role.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 123.69 Tm (5. Cancel the Google popup and test an invalid/expired authorization session.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 109.69 Tm (Expected result: Accounts retain the selected role; verified Google email is required; existing-email role mismatch is rejected;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 97.89 Tm (cancellation and configuration errors are readable; safe in-app redirects work without allowing an external redirect.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 83.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 68.29 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 3 of 28) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 12 0 R >>
+endobj
+12 0 obj
+<< /Length 6205 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-COM-007 - Login and role-specific landing route) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm verified users receive the correct authenticated experience.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Verified student and teacher accounts.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Log in as Student with email/password.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Log out, then log in as Teacher.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Repeat from a protected URL containing a valid next path.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: Credentials establish the correct role session; Student and Teacher land on their intended) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (dashboard/onboarding page; a safe next path is honored; role-specific navigation is shown.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 588.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 548.69 Tm (PV-COM-008 - Login validation, unverified account, and frozen account state) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 514.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Objective: Confirm invalid or restricted account states do not receive normal access.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Preconditions / test data: Wrong password, unknown email, unverified account, and frozen teacher account.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 439.69 Tm (1. Submit blank and malformed login fields.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (2. Try an unknown email and wrong password.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (3. Try a correct password for an unverified account.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (4. Sign in to a frozen teacher account and attempt a protected marketplace action.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 383.69 Tm (Expected result: Errors do not reveal whether an account exists except for the explicit unverified state; unverified users are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (denied; frozen-account restrictions and status are clear and business actions remain unavailable until unfreezing/expiry.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 317.49 Tm (PV-COM-009 - Forgot-password recovery) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 298.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Objective: Confirm secure password recovery for either role.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Preconditions / test data: Registered email plus unknown email; access to the registered inbox.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (1. Request a reset for the registered email and for an unknown email.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (2. Confirm the response does not disclose account existence.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (3. Enter mismatched/short passwords and an invalid code.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 166.49 Tm (4. Use the valid code with matching password, then try to reuse it.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 152.49 Tm (5. Log in with the old and new passwords.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 138.49 Tm (Expected result: A valid account receives a reset code; unknown-email response is neutral; password rules apply;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 126.69 Tm (invalid/reused/expired codes fail; only the new password works after success.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 111.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 97.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 4 of 28) Tj ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 14 0 R >>
+endobj
+14 0 obj
+<< /Length 6070 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-COM-010 - Session refresh, protected routes, role boundaries, and logout) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm session continuity and authorization boundaries.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Student and Teacher accounts; an expired access token with valid refresh token.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Open dashboard pages while logged out.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Sign in, expire the access token, and perform a normal read action.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. As Student, open teacher-only Availability, Support, and Verification routes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. As Teacher, open Student Favorites and Student Verification routes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 600.89 Tm (5. Log out and use Back/refresh on a protected page.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 586.89 Tm (Expected result: Logged-out users return to Login with a safe next path; token refresh is transparent and does not duplicate) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 575.09 Tm (requests; wrong-role pages redirect or deny access; logout clears stored credentials and protected content cannot be) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 563.29 Tm (recovered through Back/refresh.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 548.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 533.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 506.89 Tm (Student tests) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 471.89 Tm (PV-STU-001 - Student dashboard and navigation) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 452.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 438.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 423.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 408.49 Tm (Objective: Confirm the student sees only the student workspace.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 393.69 Tm (Preconditions / test data: Logged-in student.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 378.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 362.89 Tm (1. Open /dashboard and use the sidebar/header.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 348.89 Tm (2. Visit Billing, Bookings, Messages, Favorites, Profile, Verification, Feedback, Issues, Complaint, FAQ, and Settings.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 334.89 Tm (3. Confirm the selected menu item updates.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 320.89 Tm (Expected result: Every student page loads; teacher-only items are absent; identity and role remain consistent; navigation works) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 309.09 Tm (on refresh and direct links.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 294.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 279.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 254.69 Tm (PV-STU-002 - Student verification form loads and preserves a draft) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 235.69 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 220.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 206.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 191.29 Tm (Objective: Confirm verification data can be entered safely without accidental loss.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 176.49 Tm (Preconditions / test data: Unverified student.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 161.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 145.69 Tm (1. Open Student Verification.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 131.69 Tm (2. Enter partial biodata, origin, qualification, residence, NIN/BVN, and notes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 117.69 Tm (3. Navigate away and return or refresh.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 103.69 Tm (4. Compare restored fields; verify email is read-only.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 89.69 Tm (Expected result: Authenticated email and existing profile data are prefilled; partial form values are restored for the same user) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 77.89 Tm (only; another account cannot see the draft.) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 5 of 28) Tj ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 16 0 R >>
+endobj
+16 0 obj
+<< /Length 6344 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 761.09 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 736.29 Tm (PV-STU-003 - Submit student verification with NIN only) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Objective: Confirm BVN is optional for students and NIN verification can complete onboarding.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Preconditions / test data: Matching student biodata, linked Nigerian mobile, valid 11-digit NIN, clear photo, ID document, and) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 646.29 Tm (qualification document.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 631.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 615.49 Tm (1. Complete first/middle/last name, date of birth, country/nationality, state/LGA of origin, qualification, residence, and) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 603.69 Tm (   mobile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 589.69 Tm (2. Enter valid NIN and leave BVN blank.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 575.69 Tm (3. Upload the required photo and both documents.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 561.69 Tm (4. Submit.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 547.69 Tm (Expected result: BVN is treated as optional; files upload; NIN data is verified; status becomes Approved; confirmation appears) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 535.89 Tm (and is emailed; profile data is synchronized; the student can contact tutors and book lessons.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 521.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 506.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 481.49 Tm (PV-STU-004 - Submit student verification with NIN and BVN) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 462.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 447.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 432.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 418.09 Tm (Objective: Confirm optional BVN is validated when provided.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 403.29 Tm (Preconditions / test data: Matching biodata, 11-digit NIN and BVN, and required uploads.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 388.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 372.49 Tm (1. Complete all verification fields.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 358.49 Tm (2. Enter valid NIN and BVN.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 344.49 Tm (3. Submit and refresh the status page.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 330.49 Tm (Expected result: NIN and BVN are both verified against submitted biodata; success data persists; status and decision date are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 318.69 Tm (visible; sensitive raw provider payload is not shown.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 303.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 289.09 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 264.29 Tm (PV-STU-005 - Reject incomplete or malformed student verification) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 245.29 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 230.49 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 215.69 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 200.89 Tm (Objective: Confirm required student identity data cannot be skipped.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 186.09 Tm (Preconditions / test data: Student verification form.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 171.29 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 155.29 Tm (1. Submit with required fields blank.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 141.29 Tm (2. Enter invalid mobile, non-11-digit NIN, and a malformed optional BVN.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 127.29 Tm (3. Use an invalid date and change the read-only account email.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 113.29 Tm (4. Omit the photo, ID document, then qualification document in separate attempts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 99.29 Tm (5. Select a Nigerian origin without state/LGA and a non-Nigerian origin without region values.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 85.29 Tm (Expected result: Submission stays blocked; each problem has a readable field or summary error; no Approved record is created;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 73.49 Tm (entered safe values remain available for correction.) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 6 of 28) Tj ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 18 0 R >>
+endobj
+18 0 obj
+<< /Length 6099 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 761.09 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 736.29 Tm (PV-STU-006 - Handle verification mismatch and provider outage) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Objective: Confirm verification failure is safe and actionable.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Preconditions / test data: Mismatching biodata/NIN; configured provider outage simulation.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 643.29 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 627.29 Tm (1. Submit identity data that does not match the NIN/BVN record.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 613.29 Tm (2. Retry during verification-provider unavailability.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 599.29 Tm (3. Correct the data and resubmit after service recovery.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 585.29 Tm (Expected result: Mismatch is rejected without approval; provider outage shows a temporary-service error rather than a false) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (rejection; no duplicate request is created; corrected data can succeed later.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 558.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 543.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 519.09 Tm (PV-STU-007 - Approved student verification is locked) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Objective: Confirm verified identity data cannot be casually altered.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 440.89 Tm (Preconditions / test data: Approved student.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 426.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 410.09 Tm (1. Reopen Verification after approval.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 396.09 Tm (2. Try to change fields or replace files.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 382.09 Tm (3. Refresh and follow the automatic Profile redirect.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 368.09 Tm (Expected result: Status shows Approved; protected fields and file controls are disabled; Submit shows Verification Complete;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 356.29 Tm (the redirect occurs once without a loop; supported changes are directed to Settings or Support.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 341.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 326.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 301.89 Tm (PV-STU-008 - Update student profile and photo) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 282.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 253.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 238.49 Tm (Objective: Confirm allowed student profile fields persist.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 223.69 Tm (Preconditions / test data: Verified student; valid image and invalid upload samples.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 208.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 192.89 Tm (1. Open Profile and edit allowed display/profile/location fields.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 178.89 Tm (2. Upload a valid profile photo and save.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 164.89 Tm (3. Refresh and sign out/in.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 150.89 Tm (4. Try an unsupported or oversized photo and attempt to change a secured address directly.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 136.89 Tm (Expected result: Allowed data and photo persist; upload errors are readable; email remains read-only; secured address changes) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.09 Tm (require Settings OTP; saved identity data stays consistent with verification.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 110.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 95.49 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 7 of 28) Tj ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 20 0 R >>
+endobj
+20 0 obj
+<< /Length 6140 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-009 - Search tutors by category and subject) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm subject discovery returns relevant approved tutors.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Listed tutors across multiple subject categories.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Open Search from Home and select featured subject chips.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Select a Subject Category and a known Subject.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Enter Other Subject.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Use legacy/search query URL parameters and refresh.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: Results match the selected category/subject; dependent subject options update; URL state is normalized and) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (restorable; only approved listed tutors appear.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 534.69 Tm (PV-STU-010 - Apply location and teacher-attribute filters) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 515.69 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Objective: Confirm advanced filters narrow results correctly.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Preconditions / test data: Tutors with varied state/city, rate, qualification, gender, and language.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (1. Filter by State and dependent City, including Other Location.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (2. Set minimum and maximum hourly rate.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (3. Filter by qualification, gender, and language.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 383.69 Tm (4. Combine all filters, then remove them one by one.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 369.69 Tm (Expected result: Each filter and combination returns only matching tutors; city options follow state; rate boundaries are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.89 Tm (inclusive; removing a filter updates results without stale values.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 343.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 328.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 303.49 Tm (PV-STU-011 - Reset filters, paginate results, and handle empty/error states) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 284.49 Tm (Priority: Medium) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 269.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 240.09 Tm (Objective: Confirm search remains understandable across result states.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 225.29 Tm (Preconditions / test data: More than 15 matching tutors; query with no matches; simulated API error.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 210.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (1. Apply filters and use Next/Previous pagination.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (2. Change a filter while on a later page.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 166.49 Tm (3. Search for a non-existent subject/location.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 152.49 Tm (4. Reset filters.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 138.49 Tm (5. Retry after a load failure.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 124.49 Tm (Expected result: Fifteen results or fewer appear per page; paging bounds are respected; filter changes return to page one;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 112.69 Tm (no-results guidance is clear; Reset clears URL and controls; load errors do not show stale results.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 97.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 83.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 8 of 28) Tj ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 22 0 R >>
+endobj
+22 0 obj
+<< /Length 6253 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-012 - Review tutor cards) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm tutor cards support informed selection.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Approved tutors with/without photo, reviews, free-first-lesson, and both teaching methods.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Inspect cards on Home, Search, and Favorites.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Compare name, headline, subjects, location, rate, rating count, badge, methods, free lesson, and photo fallback.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Open a card by mouse and keyboard.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: Card data matches the tutor profile; verified status is trustworthy; missing images use a stable fallback;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (keyboard activation opens the correct profile; no private identity data appears.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 588.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 548.69 Tm (PV-STU-013 - View tutor profile, availability, and reviews) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.69 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 514.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Objective: Confirm the public tutor profile contains accurate booking information.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Preconditions / test data: Approved listed tutor with future slots and reviews.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 439.69 Tm (1. Open the tutor profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (2. Compare rate, rating, location/timezone, languages, headline, bio, subjects, response time, methods, free lesson, and photo) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 413.89 Tm (   with the teacher's saved profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.89 Tm (3. Review up to six future availability slots and the empty-availability state.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 385.89 Tm (4. Review ratings, comments, author, and dates.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (Expected result: Public data is accurate and readable; only future slots appear in local display time; review totals/average) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 360.09 Tm (match visible records; empty and load-error states are useful.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 345.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 330.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 305.69 Tm (PV-STU-014 - Add, persist, and remove favorite teachers) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 286.69 Tm (Priority: Medium) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 271.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 257.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 242.29 Tm (Objective: Confirm favorites belong only to the student.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 227.49 Tm (Preconditions / test data: Logged-out visitor, Student A, Student B, and one listed tutor.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 212.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 196.69 Tm (1. As logged out, inspect the favorite action.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 182.69 Tm (2. As Student A, favorite from Home/Search and open Favorites.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 168.69 Tm (3. Refresh and sign out/in.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 154.69 Tm (4. Confirm Student B does not inherit it.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 140.69 Tm (5. Remove it from the card/Favorites page.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 126.69 Tm (Expected result: Only authenticated students can favorite; the state persists for Student A only; duplicate adds create one) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 114.89 Tm (item; removal updates all views and the empty state.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 100.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 85.29 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 452.20 25.00 Tm (PrepVilla UAT | Page 9 of 28) Tj ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 24 0 R >>
+endobj
+24 0 obj
+<< /Length 5979 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-015 - Block unverified student booking and messaging) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm identity verification gates contact and booking.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Logged-out user, unverified student, approved teacher profile.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Logged out, click Send booking request and Message tutor.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. As an unverified student, repeat both actions and open Messages directly.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. As a teacher account, open another teacher's profile and try both actions.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: Logged-out users are directed to Student sign-up/login with return path; unverified students receive a) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (verification requirement; teachers cannot start student actions; no booking/conversation is created.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 588.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 548.69 Tm (PV-STU-016 - Request a booking from a published availability slot) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 514.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Objective: Confirm a verified student can request an advertised slot.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Preconditions / test data: Verified student; listed teacher with a future slot and face-to-face method.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 439.69 Tm (1. Select Face-to-face and a future slot.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (2. Enter learning goals/notes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (3. Send the request.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (4. Open Bookings and Messages.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 383.69 Tm (Expected result: One Requested booking is created with correct teacher, method, times, and notes; success guidance appears; an) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (associated conversation exists; notes appear as the initial message once.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 317.49 Tm (PV-STU-017 - Request a custom future time range) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 298.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Objective: Confirm booking works when no public slot fits.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Preconditions / test data: Verified student and listed teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (1. Leave availability unselected.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (2. Enter a future From and To range plus notes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (3. Submit and inspect the teacher/student booking records.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 166.49 Tm (4. Try missing endpoint, past start, end before start, and an unavailable/deleted slot.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 152.49 Tm (Expected result: Valid range creates one Requested booking with preserved range; invalid/past/reversed/missing data and) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 140.69 Tm (unavailable slots are rejected without creating a booking.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 111.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 10 of 28) Tj ET
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 26 0 R >>
+endobj
+26 0 obj
+<< /Length 6050 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-018 - Enforce teacher teaching methods) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm students can request only methods the teacher offers.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: One face-to-face-only teacher, one webcam-only teacher, one offering both.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Open each profile and compare visible method choices.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Request each allowed method.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Attempt an unsupported method through a stale page/request.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: UI shows only configured methods; a valid method is saved to the booking; unsupported method is rejected) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (server-side; webcam choice explains video-room availability.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 588.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 548.69 Tm (PV-STU-019 - Start and continue a teacher conversation) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 514.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Objective: Confirm verified students can communicate with listed teachers.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Preconditions / test data: Verified student and listed teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 439.69 Tm (1. Click Message tutor twice from the same profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (2. Confirm the same conversation opens in Messages.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (3. Send text with leading/trailing whitespace and send another message after refresh.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (4. Try a blank message.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 383.69 Tm (Expected result: Only one conversation exists for the pair; nonblank messages are trimmed, ordered, timestamped, and visible to) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (both participants; blank messages are blocked.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 317.49 Tm (PV-STU-020 - Real-time chat, fallback, draft, and access isolation) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 298.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Objective: Confirm chat works securely with and without WebSocket connectivity.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Preconditions / test data: Student/teacher conversation; second student account; WebSocket interruption control.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (1. Exchange messages while both users are online.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (2. Disconnect WebSocket and wait for polling fallback/reconnect.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (3. Type an unsent draft, switch conversations, then return.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 166.49 Tm (4. As Student B, attempt to open Student A's conversation URL.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 152.49 Tm (Expected result: Messages arrive once and in order; reconnect/fallback merges without duplicates; draft is isolated by user) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 140.69 Tm (and conversation; nonparticipants receive not-found/denied response; tokens are not exposed in page text or logs.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 111.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 11 of 28) Tj ET
+endstream
+endobj
+27 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 28 0 R >>
+endobj
+28 0 obj
+<< /Length 5784 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-021 - Review student booking list and statuses) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm a student can track every booking state.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Requested, Confirmed, Completed, Rejected, and Cancelled bookings.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Open Bookings and inspect teacher photo/name, status, schedule/range, method, and notes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Use All and each status tab.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Refresh after the teacher accepts/rejects.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: Newest bookings display correctly; each tab shows only its status; updates appear after refresh; action) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (buttons reflect the current state and role.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 588.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 548.69 Tm (PV-STU-022 - Cancel a student booking) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 514.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Objective: Confirm the student can cancel only eligible own bookings.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Preconditions / test data: Student's Requested and Confirmed bookings; another student's booking; terminal bookings.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 439.69 Tm (1. Cancel the Requested booking, then the Confirmed booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (2. Try to cancel each again.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (3. Attempt to cancel another student's booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (4. Inspect Completed and Rejected bookings.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 383.69 Tm (Expected result: Eligible own bookings become Cancelled; terminal/duplicate/foreign actions are unavailable or denied; no) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (unrelated booking changes.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 317.49 Tm (PV-STU-023 - Rejected booking blocks conversation) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 298.49 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Objective: Confirm a teacher rejection closes the related communication channel.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Preconditions / test data: Requested booking with active student-teacher conversation.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (1. Have the teacher reject the booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (2. Refresh Student Bookings and Messages.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (3. Try to read/send through the blocked thread and direct message endpoint.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 166.49 Tm (Expected result: Booking shows Rejected; conversation is visibly blocked; the composer and real-time connection do not permit) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 154.69 Tm (new messages; prior history remains appropriately visible without leaking data.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 139.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 12 of 28) Tj ET
+endstream
+endobj
+29 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 30 0 R >>
+endobj
+30 0 obj
+<< /Length 6914 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-024 - Pay for a confirmed lesson and handle checkout outcomes) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm the student can reach and complete the lesson-payment workflow required before completion.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Confirmed booking, teacher hourly rate, Flutterwave sandbox success/cancel/failure scenarios.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Open the confirmed booking and start lesson payment.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Verify displayed teacher, booking, amount, currency, and transaction reference.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Complete a successful checkout and return through the callback.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Repeat with cancellation/failure/delayed confirmation and try to start a duplicate payment.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: A visible student action starts checkout for the correct amount; success is verified before marking payment) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (complete; cancelled/failed/pending states are clear and retryable; duplicate completed/open payments are prevented. If no) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 577.29 Tm (user-facing payment entry exists, mark this test Fail because lesson completion requires payment.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 562.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 547.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 522.89 Tm (PV-STU-025 - Confirm lesson completion and submit a review) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 503.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 489.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 474.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 459.49 Tm (Objective: Confirm completion and review rules protect payout and reputation.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 444.69 Tm (Preconditions / test data: Confirmed paid booking that has ended; a future, unpaid, and already-reviewed booking.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 429.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 413.89 Tm (1. Try completion before lesson end and before payment.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.89 Tm (2. After payment/end, confirm completion as Student.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 385.89 Tm (3. Have Teacher confirm and observe final Completed state.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 371.89 Tm (4. Submit a 1-5 rating and comment from the tutor profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 357.89 Tm (5. Try invalid rating, foreign booking, pre-completion, and duplicate review.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 343.89 Tm (Expected result: Early/unpaid completion is blocked; each participant confirms once; final status requires both confirmations;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 332.09 Tm (eligible review appears once in totals/average; invalid, foreign, early, and duplicate reviews are rejected.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 317.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 302.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 277.69 Tm (PV-STU-026 - Student subscription packages and billing history) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 258.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 243.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 229.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 214.29 Tm (Objective: Confirm student subscription selection and payment records are accurate.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 199.49 Tm (Preconditions / test data: New student; payment success/cancel/fail scenarios.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 184.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 168.69 Tm (1. Open Billing and compare Free, Silver, Gold, and Platinum names, NGN prices, durations, badges, and benefits.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 154.69 Tm (2. Activate the one-time 14-day Free package and try it again.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 140.69 Tm (3. Purchase a paid 30-day package and test successful callback.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 126.69 Tm (4. Test cancelled/failed checkout and refresh history.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 112.69 Tm (Expected result: Catalog matches configured values; Free completes without external checkout and cannot be reused; paid) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 100.89 Tm (checkout uses the exact price; callback status is honest; history shows transaction, state, paid/created dates, and expiry;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 89.09 Tm (current package reflects an unexpired completed payment only.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 74.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 13 of 28) Tj ET
+endstream
+endobj
+31 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 32 0 R >>
+endobj
+32 0 obj
+<< /Length 6175 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 751.09 Tm (PV-STU-027 - Join a webcam booking video room) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Objective: Confirm students can enter the correct lesson room securely.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Preconditions / test data: Confirmed webcam booking with schedule; Jitsi available.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.09 Tm (1. Open Video Room from the booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.09 Tm (2. Before the access window, attempt to open the room link.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.09 Tm (3. During the valid window, join and test microphone, camera, chat, screen share, hand raise, tile view, captions, and hang up.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 600.09 Tm (4. Retry after the lesson end.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 586.09 Tm (Expected result: The selected room matches the booking/teacher; early access is denied with schedule details; valid access joins) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (successfully; controls operate or show permission guidance; expired access is denied; another booking's room cannot be inferred) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 562.49 Tm (or entered.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 547.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 532.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 508.09 Tm (PV-STU-028 - Submit feedback, complaint, and issue tickets) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 489.09 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 474.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 459.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 444.69 Tm (Objective: Confirm student support requests are categorized and acknowledged.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 429.89 Tm (Preconditions / test data: Logged-in student.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 415.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.09 Tm (1. Submit Feedback with category, title, and at least ten characters.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 385.09 Tm (2. Submit Complaint with related booking/payment reference.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 371.09 Tm (3. Submit Issues for normal, high, and urgent severity.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 357.09 Tm (4. Try missing category/title, short message, and excessive values.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 343.09 Tm (Expected result: Each valid request produces a unique PV- ticket and Open status; kind/category/reference/severity are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 331.29 Tm (retained; invalid input stays available for correction; requests are isolated to the user.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 316.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 301.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 276.89 Tm (PV-STU-029 - Search and browse FAQ) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 257.89 Tm (Priority: Medium) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 243.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 228.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 213.49 Tm (Objective: Confirm self-service help is discoverable.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 198.69 Tm (Preconditions / test data: Logged-in student.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 183.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 167.89 Tm (1. Search FAQ by question, answer text, and category.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 153.89 Tm (2. Filter each category and expand/collapse results.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 139.89 Tm (3. Enter a no-match query, refresh, and clear filters.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.89 Tm (Expected result: Counts and results match query/category; answers expand accessibly; no-match guidance appears; saved) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 114.09 Tm (search draft belongs only to the current user.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 99.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 84.49 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 14 of 28) Tj ET
+endstream
+endobj
+33 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 34 0 R >>
+endobj
+34 0 obj
+<< /Length 6388 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-STU-030 - Secure student account changes with OTP) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm sensitive student settings require a valid, purpose-bound code.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Verified student; alternate unused email/mobile/address; access to inbox.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Change password, email, mobile, and residential address in separate flows.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. For each, test unchanged/invalid value, wrong code, expired code, resend, and valid code.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Try a code issued for one purpose on another change.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Reopen Profile/Verification and log in with updated credentials.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: Every change requires its own six-character email OTP; unchanged/duplicate/invalid values are rejected;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (codes are single-use and purpose-bound; valid changes synchronize safely to related student data; old credentials stop working) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 577.29 Tm (where applicable.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 562.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 547.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 522.89 Tm (PV-STU-031 - Permanently delete a student account) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 503.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 489.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 474.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 459.49 Tm (Objective: Confirm irreversible deletion is explicit, authenticated, and complete.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 444.69 Tm (Preconditions / test data: Disposable student with profile photo, verification documents, favorites, bookings, messages, and) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 432.89 Tm (support tickets.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 418.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 402.09 Tm (1. Start Delete Account and cancel at the warning.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 388.09 Tm (2. Restart, request OTP, and submit wrong then valid code with explicit confirmation.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 374.09 Tm (3. Try to log in and inspect former public/private references.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 360.09 Tm (Expected result: Cancel leaves account intact; deletion requires warning, explicit confirmation, and valid single-use OTP;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 348.29 Tm (account/session and owned media are removed; login fails; related data follows defined retention/cascade rules without exposing) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 336.49 Tm (orphaned personal information.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 321.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 306.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 280.09 Tm (Teacher tests) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 245.09 Tm (PV-TCH-001 - Teacher dashboard and navigation) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 226.09 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 211.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 196.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 181.69 Tm (Objective: Confirm the teacher sees the tutor workspace only.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 166.89 Tm (Preconditions / test data: Logged-in teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 152.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 136.09 Tm (1. Open Dashboard and use Billing, Availability, Bookings, Messages, Verification, Profile, Video Room, Support, Feedback,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 124.29 Tm (   Issues, Complaint, FAQ, and Settings.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 110.29 Tm (2. Confirm the selected navigation state and direct-link refresh.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 96.29 Tm (Expected result: Teacher pages load and retain identity; student-only Favorites and Student Verification are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 84.49 Tm (absent/inaccessible; onboarding status is clear.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 69.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 15 of 28) Tj ET
+endstream
+endobj
+35 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 36 0 R >>
+endobj
+36 0 obj
+<< /Length 6285 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 751.09 Tm (PV-TCH-002 - Teacher verification form and draft) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Objective: Confirm teacher onboarding data is prefilled and recoverable.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Preconditions / test data: Newly verified teacher account.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.09 Tm (1. Open Verification.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.09 Tm (2. Enter partial biodata, origin, NIN/BVN, qualifications, residence, and notes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.09 Tm (3. Refresh or navigate away and return.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 600.09 Tm (4. Inspect email and name values.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 586.09 Tm (Expected result: Registration name/email are prefilled; email is read-only; partial non-file values restore only for this teacher;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (verification status is Not Submitted or Incomplete.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 544.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 519.89 Tm (PV-TCH-003 - Submit valid teacher identity verification) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Objective: Confirm a teacher can be verified against NIN and BVN.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Preconditions / test data: Matching biodata, linked mobile, valid 11-digit NIN/BVN, residence, qualification, clear photo, ID) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 429.89 Tm (document, and qualification document.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 415.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.09 Tm (1. Complete all mandatory identity, origin, qualification, and residence fields.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 385.09 Tm (2. Enter valid NIN and BVN.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 371.09 Tm (3. Upload required photo and both documents.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 357.09 Tm (4. Submit and check confirmation email/status.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 343.09 Tm (Expected result: Identity providers validate matching data; status becomes Approved/Verified; decision date and safe note are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 331.29 Tm (saved; verified data synchronizes to account/tutor profile; teacher proceeds to profile completion.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 316.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 301.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 276.89 Tm (PV-TCH-004 - Reject incomplete or malformed teacher verification) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 257.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 243.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 228.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 213.49 Tm (Objective: Confirm all mandatory teacher verification controls are enforced.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 198.69 Tm (Preconditions / test data: Verification form and negative values.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 183.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 167.89 Tm (1. Submit missing first/last name, mobile, DOB, origin, residence, qualification, NIN, or BVN.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 153.89 Tm (2. Enter malformed mobile, NIN, BVN, date, and mismatched email.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 139.89 Tm (3. Omit each required upload in turn.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 125.89 Tm (4. Select neither/invalid origin dependencies.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 111.89 Tm (Expected result: Submission is blocked with actionable errors; NIN/BVN must each be 11 digits; required photo and documents are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 100.09 Tm (enforced; no approval or listing occurs.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 85.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 70.49 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 16 of 28) Tj ET
+endstream
+endobj
+37 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 38 0 R >>
+endobj
+38 0 obj
+<< /Length 5927 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-005 - Validate verification file uploads) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm teacher evidence uploads are reliable and safe.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Valid image/PDF plus oversized, unsupported, corrupt, and duplicate-name files.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Upload a valid profile image, identity image/PDF, and qualification image/PDF.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Try each negative file sample.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Upload files with the same filename from two accounts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Retry after an interrupted upload.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: Valid files receive distinct retrievable URLs; unsupported/oversized/corrupt content is rejected without) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (partial submission; filenames do not collide; retry succeeds; private evidence is not exposed through public tutor pages.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 534.69 Tm (PV-TCH-006 - Handle identity mismatch and provider outage) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 515.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Objective: Confirm verification cannot falsely approve and can recover from provider failure.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Preconditions / test data: Mismatching NIN/BVN/biodata and outage simulation.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (1. Submit mismatched identity data.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (2. Submit during NIN/BVN provider unavailability.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (3. Correct data and retry after recovery.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 383.69 Tm (Expected result: Mismatch is rejected; provider outage is reported as temporary, not approved/rejected incorrectly; no) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (duplicate conflicting request is created; corrected data can complete later.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 317.49 Tm (PV-TCH-007 - Approved teacher identity fields are locked) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 298.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Objective: Confirm approved identity cannot be altered through normal profile requests.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Preconditions / test data: Approved, listed teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (1. Reopen Verification/Profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (2. Try to change name, DOB, gender, origin, NIN, BVN, qualification, mobile, address, and evidence directly.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (3. Try a stale modified request.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 166.49 Tm (Expected result: Locked fields and files are disabled or denied server-side; address/qualification/mobile changes are routed to) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 154.69 Tm (OTP Settings and other corrections to Support; no public or verification data diverges.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 139.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 17 of 28) Tj ET
+endstream
+endobj
+39 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 40 0 R >>
+endobj
+40 0 obj
+<< /Length 6068 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-008 - Block profile publication before approval and completion) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm only approved and complete teachers become discoverable.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Unverified teacher, approved teacher with incomplete profile.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Try to save/publish profile before verification approval.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. After approval, omit display name, headline, bio, subjects, languages, rate, city/state/address, state/LGA of origin in) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 631.09 Tm (   separate attempts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 617.09 Tm (3. Search public Tutor lists.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (Expected result: Pre-approval editing/publication is denied; incomplete save names every missing requirement; teacher remains) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 591.29 Tm (absent from public search until all required data is saved.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 576.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 561.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 536.89 Tm (PV-TCH-009 - Complete and publish teacher profile) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 517.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 503.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 488.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 473.49 Tm (Objective: Confirm an approved teacher can create the student-facing profile.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 458.69 Tm (Preconditions / test data: Approved teacher; valid profile photo and complete public data.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 443.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 427.89 Tm (1. Enter headline, positive NGN hourly rate, About, subjects, languages, state/city/address, and allowed profile photo.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 413.89 Tm (2. Select at least one teaching method and save.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.89 Tm (3. Refresh Profile and open public Search/Profile as a student.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 385.89 Tm (Expected result: Profile saves once, becomes Listed, and matches the public card/profile; location/photo synchronize; save) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 374.09 Tm (state changes from unsaved to saved; no verification documents or bank identifiers appear publicly.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 359.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 344.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 319.69 Tm (PV-TCH-010 - Update allowed public teacher fields) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 300.69 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 285.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 271.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 256.29 Tm (Objective: Confirm allowed profile edits update discovery data.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 241.49 Tm (Preconditions / test data: Approved listed teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 226.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 210.69 Tm (1. Enter profile edit mode if required.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 196.69 Tm (2. Change headline, About, positive hourly rate, photo, subjects, languages, and teaching methods.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 182.69 Tm (3. Save, refresh, and inspect Search/public profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 168.69 Tm (4. Try zero/negative/non-numeric rate.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 154.69 Tm (Expected result: Allowed edits persist and appear publicly; invalid rate is rejected; unsaved-state messaging is accurate; locked) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 142.89 Tm (identity fields remain unchanged.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 128.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 113.29 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 18 of 28) Tj ET
+endstream
+endobj
+41 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 42 0 R >>
+endobj
+42 0 obj
+<< /Length 5705 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-011 - Manage subjects, languages, free first lesson, and methods) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm teacher marketing and delivery options work together.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Approved teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Add/remove multiple suggested subjects and languages; try duplicates.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Toggle Offer first lesson for free.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Save Face-to-face only, Webcam only, then both.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Try saving with neither method.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: Lists are normalized without duplicates/empty items; free badge updates on cards; method choices update) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (booking options; at least one method is mandatory; webcam enables Video Room entry.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 534.69 Tm (PV-TCH-012 - Public listing visibility follows teacher state) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 515.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Objective: Confirm only currently eligible teachers are discoverable.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Preconditions / test data: Not-submitted, rejected, approved-incomplete, approved-listed, frozen, and deleted teachers.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (1. Search by exact name/subject for each state.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (2. Open a previously copied public URL for each ineligible state.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 397.69 Tm (Expected result: Only approved, listed, active, unfrozen teachers appear and load; ineligible URLs return a safe not-found) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 385.89 Tm (state; unfreezing an approved teacher restores listing according to business rules.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 356.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 331.49 Tm (PV-TCH-013 - Create valid future availability) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 312.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 297.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 282.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.09 Tm (Objective: Confirm teachers can publish bookable time slots.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 253.29 Tm (Preconditions / test data: Approved teacher; future start/end values.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 238.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 222.49 Tm (1. Open Availability and add several future slots.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (2. Refresh and compare chronological order.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (3. Open public tutor profile as Student.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 180.49 Tm (Expected result: Slots save and return with stable IDs; display is chronological/localized; future slots appear on the public) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 168.69 Tm (profile; adding a slot does not remove unrelated valid slots.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 153.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 139.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 19 of 28) Tj ET
+endstream
+endobj
+43 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 44 0 R >>
+endobj
+44 0 obj
+<< /Length 5701 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-014 - Reject invalid and overlapping availability) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm availability remains internally consistent.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Existing future slot.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Try missing date, malformed date, past start, equal start/end, and end before start.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Add a slot partly/fully overlapping the existing slot and a duplicate slot.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Attempt more than 50 future slots.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: Invalid, duplicate, and overlapping slots are rejected without deleting existing availability; the maximum of 50 is) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (enforced; error identifies the conflicting rule. If overlaps are accepted, mark Fail because the PrepVilla requirements require) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 591.29 Tm (overlap prevention.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 576.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 561.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 536.89 Tm (PV-TCH-015 - Remove and replace availability) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 517.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 503.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 488.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 473.49 Tm (Objective: Confirm availability updates safely.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 458.69 Tm (Preconditions / test data: Several future slots, including one selected by a student in an open page.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 443.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 427.89 Tm (1. Remove one slot and refresh public profile.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 413.89 Tm (2. Add a replacement slot.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.89 Tm (3. From the student's stale page, submit the removed slot.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 385.89 Tm (Expected result: Only the selected slot is removed; public availability updates; replacement appears; stale removed-slot request) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 374.09 Tm (is rejected and no booking is created.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 359.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 344.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 319.69 Tm (PV-TCH-016 - View incoming booking requests) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 300.69 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 285.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 271.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 256.29 Tm (Objective: Confirm teacher booking records are complete and role-appropriate.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 241.49 Tm (Preconditions / test data: Slot and range requests using both teaching methods.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 226.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 210.69 Tm (1. Open Bookings and inspect student name, status, schedule/range, notes, and method.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 196.69 Tm (2. Use each status filter and Refresh.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 182.69 Tm (Expected result: Only this teacher's bookings appear, newest first; all data matches student request; action buttons are) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 170.89 Tm (correct for each state; no student verification secrets are displayed.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 156.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 141.29 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 20 of 28) Tj ET
+endstream
+endobj
+45 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 46 0 R >>
+endobj
+46 0 obj
+<< /Length 5505 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-017 - Accept a requested booking) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm teacher acceptance changes the shared booking state once.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Requested booking owned by teacher; another teacher's booking.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Click Accept and refresh both teacher/student lists.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Try accepting the same booking again.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Try accepting another teacher's booking.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 614.89 Tm (Expected result: Own Requested booking becomes Confirmed for both users; duplicate/non-requested acceptance is blocked;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 603.09 Tm (foreign booking is denied; Reject buttons disappear appropriately.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 588.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 573.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 548.69 Tm (PV-TCH-018 - Reject a requested booking) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 514.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 485.29 Tm (Objective: Confirm rejection closes the request and related conversation.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 470.49 Tm (Preconditions / test data: Requested booking with conversation.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 455.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 439.69 Tm (1. Click Reject and refresh both accounts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (2. Try to reject again or reject a non-requested/foreign booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (3. Try to send a message in the related thread.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 397.69 Tm (Expected result: Booking becomes Rejected; conversation becomes blocked; duplicate/non-requested/foreign action is denied;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 385.89 Tm (existing messages are not modified.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 356.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 331.49 Tm (PV-TCH-019 - Cancel an eligible teacher booking) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 312.49 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 297.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 282.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.09 Tm (Objective: Confirm the teacher can cancel only own nonterminal bookings.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 253.29 Tm (Preconditions / test data: Own Requested/Confirmed bookings and foreign/terminal bookings.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 238.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 222.49 Tm (1. Cancel own Requested and Confirmed bookings.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (2. Retry and attempt foreign, Completed, Rejected, or Cancelled bookings.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 194.49 Tm (Expected result: Eligible bookings become Cancelled for both roles; terminal/foreign actions are hidden or denied; no payment or) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 182.69 Tm (unrelated booking is altered incorrectly.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 167.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 153.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 21 of 28) Tj ET
+endstream
+endobj
+47 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 48 0 R >>
+endobj
+48 0 obj
+<< /Length 5992 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-020 - Teacher completion confirmation and payout gating) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm teacher payout cannot be released before a paid lesson is properly completed.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Future, ended-unpaid, ended-paid Confirmed bookings; student completion states.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Confirm completion before end and on an unpaid booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Confirm the ended paid booking as Teacher.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Have Student confirm before and after Teacher in separate runs.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Try duplicate confirmation and inspect final payout status.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: Future/unpaid completion is blocked; each role confirms once; payout remains gated until required) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (confirmations/payment; final Completed state is consistent; payout is queued/released once with no duplicate amount.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 534.69 Tm (PV-TCH-021 - Receive and reply to student messages) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 515.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Objective: Confirm teachers can communicate only in their conversations.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Preconditions / test data: Active conversations from two students and another teacher's conversation.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 425.69 Tm (1. Open Messages, select each student, and reply.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 411.69 Tm (2. Exchange messages in real time and through fallback reconnect.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 397.69 Tm (3. Try blank message and another teacher's conversation URL.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 383.69 Tm (Expected result: Correct student/thread is shown; messages deliver once in order; blank message is blocked; foreign thread is) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 371.89 Tm (denied; blocked conversations cannot send.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 317.49 Tm (PV-TCH-022 - Open booking-linked webcam rooms) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 298.49 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Objective: Confirm booking rooms are generated only for webcam lessons.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Preconditions / test data: Webcam and face-to-face bookings.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 208.49 Tm (1. Open Video Room from the webcam booking.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 194.49 Tm (2. Confirm the room/title/student/schedule and shareable PrepVilla wrapper link.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 180.49 Tm (3. Try to attach/open a video room for face-to-face or foreign booking.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 166.49 Tm (Expected result: Webcam booking maps to one stable PrepVilla room; face-to-face and foreign booking room management is denied;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 154.69 Tm (no arbitrary external URL replaces the managed room without validation.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 139.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.09 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 22 of 28) Tj ET
+endstream
+endobj
+49 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 50 0 R >>
+endobj
+50 0 obj
+<< /Length 6571 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-023 - Create, schedule, copy, and remove teacher video rooms) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm approved teachers can manage standalone lesson rooms.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Approved webcam-enabled teacher; clipboard permission.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Open the default tutor lobby.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Create an instant room.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Create a scheduled room with title, future time, duration, and notes.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Try a past schedule and invalid duration.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 600.89 Tm (5. Copy/open room link, refresh/sign in again, and remove a saved room.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 586.89 Tm (Expected result: Rooms receive unique prepvilla- names and HTTPS wrapper links; future schedule and minimum sensible duration) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 575.09 Tm (are enforced; saved local rooms restore only for this teacher/browser; copy/open works; removing a standalone room does not) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 563.29 Tm (alter bookings.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 548.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 533.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 508.89 Tm (PV-TCH-024 - Use live video-room controls and access window) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 489.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 475.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 460.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 445.49 Tm (Objective: Confirm live teaching controls and booking time restrictions behave safely.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 430.69 Tm (Preconditions / test data: Valid booking room; camera/microphone allowed and denied variants.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 415.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.89 Tm (1. Try the booking room before opening and after expiry.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 385.89 Tm (2. Join during the valid window.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 371.89 Tm (3. Test microphone, camera, screen share, chat, whiteboard, captions, reactions, hand raise, participants, tile view,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 360.09 Tm (   breakout/lobby controls, audio-only, and hang up.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 346.09 Tm (4. Deny browser media permissions and retry.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 332.09 Tm (Expected result: Early/expired rooms are denied clearly; valid room loads; controls are enabled only after join; permission denial) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 320.29 Tm (gives recovery guidance; hang up disposes the conference; the wrapper never exposes another user's private token.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 305.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 290.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 265.89 Tm (PV-TCH-025 - Teacher subscription packages and billing history) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 246.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 232.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 217.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 202.49 Tm (Objective: Confirm teacher subscriptions use the configured catalog and secure checkout.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 187.69 Tm (Preconditions / test data: New teacher; Flutterwave sandbox outcomes.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 172.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 156.89 Tm (1. Compare Free, Silver, Gold, and Platinum plans/benefits/prices/durations.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 142.89 Tm (2. Activate Free and try to activate it again later.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 128.89 Tm (3. Purchase a paid package; test success, cancel, fail, delayed callback, and refresh.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 114.89 Tm (Expected result: One-time Free completes for 14 days; paid plans charge exact NGN amount for 30 days; verified callback) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 103.09 Tm (determines completion; history/current package/expiry are correct; duplicate callback does not duplicate entitlement or ledger) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 91.29 Tm (entries.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 76.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 23 of 28) Tj ET
+endstream
+endobj
+51 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 52 0 R >>
+endobj
+52 0 obj
+<< /Length 6268 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 751.09 Tm (PV-TCH-026 - Contact teacher support) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Objective: Confirm teachers can request help for locked fields and onboarding.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Preconditions / test data: Logged-in teacher; email service available.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.09 Tm (1. Open Support and verify name/email/support contacts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.09 Tm (2. Submit subject/message, then submit blank values.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.09 Tm (3. Use email and telephone links.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 600.09 Tm (4. Inspect the disabled Chat with Support placeholder.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 586.09 Tm (Expected result: Valid request is emailed with teacher identity and confirms success; blank input is blocked; contact links use) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (correct destinations; unavailable live chat is visibly disabled and does not imply a sent message.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 544.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 519.89 Tm (PV-TCH-027 - Submit teacher feedback, complaint, issue, and use FAQ) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Objective: Confirm general teacher service channels work.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Preconditions / test data: Logged-in teacher.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 426.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 410.89 Tm (1. Submit valid Feedback, Complaint with reference, and Issue with severity.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 396.89 Tm (2. Verify ticket numbers and validation for missing/short/excessive data.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 382.89 Tm (3. Search/filter/expand FAQ content for verification, bookings, payouts, subscriptions, video, and support.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 368.89 Tm (Expected result: Each valid request creates a unique Open ticket with correct role/kind/metadata; errors preserve the draft;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.09 Tm (FAQ search and category counts are accurate.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 342.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 327.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 302.69 Tm (PV-TCH-028 - Secure teacher password, email, mobile, address, and qualification changes) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 283.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 268.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 254.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 239.29 Tm (Objective: Confirm teacher profile corrections use purpose-bound OTP controls.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 224.49 Tm (Preconditions / test data: Approved teacher; alternate values; inbox access.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 209.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 193.69 Tm (1. Run separate password, email, mobile, residential address, and qualification change flows.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 179.69 Tm (2. Test unchanged/invalid/duplicate values, wrong/expired code, resend, and valid code.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 165.69 Tm (3. Try a code on the wrong purpose.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 151.69 Tm (4. Inspect Profile, Verification, Search, and login after each valid change.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 137.69 Tm (Expected result: Each change requires its own valid single-use code; address/qualification/mobile synchronize to related) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 125.89 Tm (records; email/password authentication updates; locked-profile rules remain consistent; no partial update occurs on failure.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 111.09 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 96.29 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 24 of 28) Tj ET
+endstream
+endobj
+53 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 54 0 R >>
+endobj
+54 0 obj
+<< /Length 6408 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-TCH-029 - Freeze and unfreeze teacher account) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm a teacher can temporarily remove the account from service.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Approved listed teacher; no conflicting active lessons for the test period.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Try missing, past, reversed, less-than-minimum, and over-three-month date ranges.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 642.89 Tm (2. Enter a valid range, request OTP, submit wrong then correct code.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 628.89 Tm (3. Search for the teacher and attempt teacher actions while frozen.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 614.89 Tm (4. Unfreeze and search again.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 600.89 Tm (Expected result: Date rules are enforced; valid OTP freezes until the selected end and removes listing; frozen status is visible;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 589.09 Tm (unfreeze clears it and restores an approved listing; existing records are preserved.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 574.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 534.69 Tm (PV-TCH-030 - Permanently delete teacher account and owned media) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 515.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 500.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Objective: Confirm irreversible teacher deletion removes account access and sensitive assets.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Preconditions / test data: Disposable teacher with photo, verification documents, availability, bookings, conversations, and) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 444.69 Tm (support records.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 429.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 413.89 Tm (1. Start deletion and cancel at warning.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 399.89 Tm (2. Request deletion OTP; try invalid then valid code with explicit confirmation.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 385.89 Tm (3. Search/open the former public profile and try login.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 371.89 Tm (4. Verify stored owned media and dependent records follow retention policy.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 357.89 Tm (Expected result: Cancellation is harmless; valid confirmation permanently deletes account and session; public listing disappears;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 346.09 Tm (login fails; owned photos/documents are removed; relational data is deleted/anonymized according to policy without privacy leaks.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 331.29 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 316.49 Tm (Defect ID: ____________________) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 289.69 Tm (Cross-role and quality tests) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 254.69 Tm (PV-XRL-001 - End-to-end face-to-face lesson journey) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 235.69 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 220.89 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 206.09 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 191.29 Tm (Objective: Confirm the primary marketplace journey works across both roles.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 176.49 Tm (Preconditions / test data: Verified student; approved listed face-to-face teacher with availability.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 161.69 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 145.69 Tm (1. Student searches, favorites, opens profile, requests a slot, and messages Teacher.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 131.69 Tm (2. Teacher reviews and accepts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 117.69 Tm (3. Student completes required lesson payment.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 103.69 Tm (4. Both coordinate, lesson ends, and both confirm completion.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 89.69 Tm (5. Student submits review.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 75.69 Tm (Expected result: Every transition appears consistently for both roles; exactly one booking, conversation, payment, completion,) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 63.89 Tm (payout, and review is recorded; final rating/public profile updates.) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 25 of 28) Tj ET
+endstream
+endobj
+55 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 56 0 R >>
+endobj
+56 0 obj
+<< /Length 6542 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 775.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 761.09 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 736.29 Tm (PV-XRL-002 - End-to-end webcam lesson journey) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Objective: Confirm online lessons work from discovery through completion.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 658.09 Tm (Preconditions / test data: Verified student; approved webcam teacher; future slot; Jitsi available.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 643.29 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 627.29 Tm (1. Student requests Webcam and Teacher accepts.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 613.29 Tm (2. Student pays and both open the same booking room.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 599.29 Tm (3. Join during the allowed time and exchange video/chat/screen share.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 585.29 Tm (4. End lesson, confirm completion in both orders, and review.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 571.29 Tm (Expected result: Both roles resolve the same stable room and booking data; time window is enforced;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 559.49 Tm (payment/completion/payout/review remain single and consistent.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 544.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 529.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 505.09 Tm (PV-XRL-003 - Payment integrity and callback idempotency) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 486.09 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 471.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 456.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 441.69 Tm (Objective: Confirm customer charges, platform fee, teacher payable, and payout cannot be duplicated or mismatched.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 426.89 Tm (Preconditions / test data: Subscription and lesson payments; duplicate/out-of-order/tampered callbacks.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 412.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 396.09 Tm (1. Complete one subscription and one lesson payment.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 382.09 Tm (2. Replay callbacks and webhook events.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 368.09 Tm (3. Send wrong amount/currency/reference/user and invalid signature variants.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 354.09 Tm (4. Complete both booking confirmations and process payout retry.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 340.09 Tm (Expected result: Only valid verified events complete payments; duplicate events are accepted idempotently;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 328.29 Tm (mismatches/signature failures do not credit accounts; ledger balances reconcile; teacher and platform transfers occur once) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 316.49 Tm (and expose safe status to users.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 301.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 286.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 262.09 Tm (PV-XRL-004 - Timezone and date-boundary consistency) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 243.09 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 228.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 213.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 198.69 Tm (Objective: Confirm schedules remain consistent across user timezones and daylight/date boundaries.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 183.89 Tm (Preconditions / test data: Teacher and student in different timezones; slots near midnight and DST boundary where applicable.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 169.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 153.09 Tm (1. Teacher creates availability in local time.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 139.09 Tm (2. Student views/requests it in another timezone.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 125.09 Tm (3. Compare API value, both dashboards, video-room window, and completion time.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 111.09 Tm (Expected result: The same instant is stored once and displayed correctly for each user; ordering and date labels remain) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 99.29 Tm (accurate; no slot moves to an unintended day or opens/expires at the wrong time.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 84.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 69.69 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 26 of 28) Tj ET
+endstream
+endobj
+57 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 58 0 R >>
+endobj
+58 0 obj
+<< /Length 6472 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-XRL-005 - Responsive layout and browser compatibility) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm key teacher/student journeys work on supported viewports and browsers.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Current Chrome, Safari, Firefox, Edge; desktop, tablet, and mobile widths.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 672.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 656.89 Tm (1. Repeat login, verification, search, profile, booking, messages, billing, settings, and video-room entry at representative) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 645.09 Tm (   widths.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 631.09 Tm (2. Test browser zoom at 200 percent and portrait/landscape rotation.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 617.09 Tm (Expected result: No clipped fields/actions, horizontal page overflow, unreadable text, hidden validation, or unusable sticky) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 605.29 Tm (panels; navigation and dialogs remain operable; supported browsers give equivalent outcomes.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 590.49 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 575.69 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 550.89 Tm (PV-XRL-006 - Keyboard and accessibility acceptance) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 531.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 517.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 502.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 487.49 Tm (Objective: Confirm core journeys are usable without a mouse and expose meaningful semantics.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 472.69 Tm (Preconditions / test data: Keyboard-only and screen-reader test setup.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 457.89 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 441.89 Tm (1. Navigate headings, landmarks, menus, forms, tutor cards, filters, status tabs, FAQ accordions, dialogs, and video controls) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 430.09 Tm (   by keyboard.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 416.09 Tm (2. Trigger errors and success notices.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 402.09 Tm (3. Inspect labels, required state, focus indicator/order, image alternatives, button names, status announcements, and color) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 390.29 Tm (   contrast.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 376.29 Tm (Expected result: All core actions are keyboard reachable; focus is visible/logical and not trapped; controls have accessible) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 364.49 Tm (names; errors/status are perceivable; content remains understandable without color alone.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 349.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 334.89 Tm (Defect ID: ____________________) Tj ET
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 310.09 Tm (PV-XRL-007 - Authorization, privacy, and sensitive-data handling) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 291.09 Tm (Priority: Critical) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 276.29 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 261.49 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 246.69 Tm (Objective: Confirm users can access only intended data and actions.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 231.89 Tm (Preconditions / test data: Two students, two teachers, logged-out browser, altered IDs/URLs.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 217.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 201.09 Tm (1. Swap user, tutor, booking, conversation, review, favorite, upload, support, payment, and video-room identifiers.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 187.09 Tm (2. Attempt student actions as teacher and teacher actions as student.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 173.09 Tm (3. Inspect public responses, page source, browser storage, errors, and logs for NIN, BVN, bank details, OTP, tokens,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 161.29 Tm (   document URLs, and raw provider payloads.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 147.29 Tm (Expected result: Foreign/role-invalid reads and writes are denied consistently; public pages reveal only approved profile data;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 135.49 Tm (secrets and full identity/bank data never appear in public output, client logs, URLs, or cross-account drafts.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 120.69 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 105.89 Tm (Defect ID: ____________________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 27 of 28) Tj ET
+endstream
+endobj
+59 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 60 0 R >>
+endobj
+60 0 obj
+<< /Length 5693 >>
+stream
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 48.00 808.89 Tm (PrepVilla Teacher and Student User Acceptance Test) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 799.89 m 547.28 799.89 l S
+BT /F2 11.30 Tf 0.080 0.160 0.270 rg 1 0 0 1 48.00 765.89 Tm (PV-XRL-008 - Failure recovery, duplicate prevention, and acceptable performance) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 746.89 Tm (Priority: High) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 732.09 Tm (Status: [ ] Not Run [ ] Pass [ ] Fail [ ] Blocked [ ] Retest Pass) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 717.29 Tm (Tester: ____________ Date: ____________ Environment/build: ____________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 702.49 Tm (Objective: Confirm users can recover from common interruptions without duplicate business records.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 687.69 Tm (Preconditions / test data: Slow/offline network, API 4xx/5xx, refresh/double-click scenarios, representative tutor/message) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 675.89 Tm (history.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 661.09 Tm (Steps:) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 645.09 Tm (1. Interrupt uploads, verification, profile save, availability save, booking, message send, payment return, support submission,) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 633.29 Tm (   and settings OTP.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 619.29 Tm (2. Double-click major submit/payment/action buttons and refresh during processing.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 605.29 Tm (3. Recover network and retry.) Tj ET
+BT /F1 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 62.00 591.29 Tm (4. Observe public search, dashboard, and chat response times with representative data.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 577.29 Tm (Expected result: Loading/disabled states prevent accidental duplicates; failures are readable and retain safe form drafts;) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 565.49 Tm (retries converge on one record; stale content is not presented as success; key pages become usable within the agreed UAT) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 553.69 Tm (performance target and chat fallback does not overload the service.) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 538.89 Tm (Actual result / evidence: ________________________________________________________________) Tj ET
+BT /F2 8.80 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 524.09 Tm (Defect ID: ____________________) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 497.29 Tm (UAT defect record template) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 472.29 Tm (Use one record per failed case.) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 456.29 Tm (Field | Value) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 444.39 Tm (Defect ID |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 432.49 Tm (Related UAT code |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 420.59 Tm (Summary |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 408.69 Tm (Severity | Critical / High / Medium / Low) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 396.79 Tm (Environment/build |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 384.89 Tm (Account role and test user |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 372.99 Tm (Preconditions/test data |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 361.09 Tm (Steps to reproduce |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 349.19 Tm (Expected result |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 337.29 Tm (Actual result |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 325.39 Tm (Evidence link |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 313.49 Tm (Owner |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 301.59 Tm (Fix version |) Tj ET
+BT /F1 7.70 Tf 0.120 0.120 0.140 rg 1 0 0 1 48.00 289.69 Tm (Retest result/date |) Tj ET
+BT /F2 14.00 Tf 0.480 0.160 0.120 rg 1 0 0 1 48.00 265.79 Tm (UAT sign-off) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 240.79 Tm (The PrepVilla UAT cycle is accepted when all Critical and High cases pass or have documented business acceptance, no) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 228.79 Tm (unresolved Critical/High defects remain, payment and identity-verification records reconcile, both face-to-face and webcam) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 216.79 Tm (end-to-end journeys pass, and authorization/privacy tests pass without exception.) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 200.79 Tm (Business Owner: ____________________ Signature: ____________________ Date: ____________) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 184.79 Tm (QA Lead: ___________________________ Signature: ____________________ Date: ____________) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 168.79 Tm (Product Owner: _____________________ Signature: ____________________ Date: ____________) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 152.79 Tm (Teacher Representative: ____________ Signature: ____________________ Date: ____________) Tj ET
+BT /F1 8.90 Tf 0.080 0.080 0.090 rg 1 0 0 1 48.00 136.79 Tm (Student Representative: ____________ Signature: ____________________ Date: ____________) Tj ET
+0.82 0.82 0.84 RG 0.5 w 48.00 39 m 547.28 39 l S
+BT /F1 7.60 Tf 0.350 0.350 0.380 rg 1 0 0 1 447.72 25.00 Tm (PrepVilla UAT | Page 28 of 28) Tj ET
+endstream
+endobj
+61 0 obj
+<< /Title (PrepVilla Teacher and Student User Acceptance Test) /Author (PrepVilla QA) /Subject (User Acceptance Testing) /Creator (PrepVilla dependency-free UAT PDF generator) >>
+endobj
+xref
+0 62
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000309 00000 n 
+0000000406 00000 n 
+0000000508 00000 n 
+0000000650 00000 n 
+0000007964 00000 n 
+0000008106 00000 n 
+0000014181 00000 n 
+0000014324 00000 n 
+0000020803 00000 n 
+0000020947 00000 n 
+0000027204 00000 n 
+0000027348 00000 n 
+0000033470 00000 n 
+0000033614 00000 n 
+0000040010 00000 n 
+0000040154 00000 n 
+0000046305 00000 n 
+0000046449 00000 n 
+0000052641 00000 n 
+0000052785 00000 n 
+0000059090 00000 n 
+0000059234 00000 n 
+0000065265 00000 n 
+0000065409 00000 n 
+0000071511 00000 n 
+0000071655 00000 n 
+0000077491 00000 n 
+0000077635 00000 n 
+0000084601 00000 n 
+0000084745 00000 n 
+0000090972 00000 n 
+0000091116 00000 n 
+0000097556 00000 n 
+0000097700 00000 n 
+0000104037 00000 n 
+0000104181 00000 n 
+0000110160 00000 n 
+0000110304 00000 n 
+0000116424 00000 n 
+0000116568 00000 n 
+0000122325 00000 n 
+0000122469 00000 n 
+0000128222 00000 n 
+0000128366 00000 n 
+0000133923 00000 n 
+0000134067 00000 n 
+0000140111 00000 n 
+0000140255 00000 n 
+0000146878 00000 n 
+0000147022 00000 n 
+0000153342 00000 n 
+0000153486 00000 n 
+0000159946 00000 n 
+0000160090 00000 n 
+0000166684 00000 n 
+0000166828 00000 n 
+0000173352 00000 n 
+0000173496 00000 n 
+0000179241 00000 n 
+trailer
+<< /Size 62 /Root 1 0 R /Info 61 0 R >>
+startxref
+179436
+%%EOF

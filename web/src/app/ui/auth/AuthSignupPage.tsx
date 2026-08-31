@@ -14,6 +14,7 @@ import { requestGoogleAuthorizationCode } from "../shared/googleMeet";
 import { useAuthStore } from "../shared/authStore";
 import { AuthCard } from "./AuthCard";
 import { GoogleAuthTransition } from "./GoogleAuthTransition";
+import BrandLogo from "../shared/BrandLogo";
 
 type SignupResponse = {
   message: string;
@@ -24,7 +25,16 @@ type VerifiedSignupResponse = {
   accessToken: string;
   refreshToken: string;
   defaultDashboardPath?: string;
-  user: { id: string; role: UserRole; displayName: string; fullName?: string; email?: string };
+  user: {
+    id: string;
+    role: UserRole;
+    displayName: string;
+    fullName?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    email?: string;
+  };
 };
 
 type SignupVariant = "student" | "tutor";
@@ -48,6 +58,13 @@ function mapGoogleAuthError(errorCode: string | null): string | null {
   return map[errorCode] || "Sign up failed. Please try again.";
 }
 
+function composeFullName(firstName: string, middleName: string, lastName: string) {
+  return [firstName, middleName, lastName]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
 type AuthSignupPageProps = {
   signupRole: SignupVariant;
   hideHeaderMenu?: boolean;
@@ -62,7 +79,6 @@ export function AuthSignupPage({
   const router = useRouter();
   const clearSession = useAuthStore((s) => s.clear);
   const setSession = useAuthStore((s) => s.setSession);
-  const [fullName, setFullName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -85,10 +101,6 @@ export function AuthSignupPage({
     if (mappedError) setError(mappedError);
   }, []);
 
-  function tutorFullName() {
-    return [firstName, middleName, lastName].map((value) => value.trim()).filter(Boolean).join(" ");
-  }
-
   async function onSubmit() {
     setIsSubmitting(true);
     setError(null);
@@ -101,12 +113,8 @@ export function AuthSignupPage({
         setError("Password must be at least 6 characters");
         return;
       }
-      const submittedFullName = isTutorFlow ? tutorFullName() : fullName.trim();
-      if (!submittedFullName) {
-        setError(isTutorFlow ? "First name and last name are required" : "Full Name is required");
-        return;
-      }
-      if (isTutorFlow && (!firstName.trim() || !lastName.trim())) {
+      const submittedFullName = composeFullName(firstName, middleName, lastName);
+      if (!firstName.trim() || !lastName.trim()) {
         setError("First name and last name are required");
         return;
       }
@@ -123,12 +131,10 @@ export function AuthSignupPage({
         password,
         role,
         fullName: submittedFullName,
+        firstName: firstName.trim(),
+        middleName: middleName.trim(),
+        lastName: lastName.trim(),
       };
-      if (isTutorFlow) {
-        payload.firstName = firstName.trim();
-        payload.middleName = middleName.trim();
-        payload.lastName = lastName.trim();
-      }
 
       const res = await api.post<SignupResponse>("/api/auth/signup", payload);
 
@@ -176,19 +182,15 @@ export function AuthSignupPage({
   }
 
   async function resendSignupOtp(): Promise<boolean> {
-    const submittedFullName = isTutorFlow ? tutorFullName() : fullName.trim();
+    const submittedFullName = composeFullName(firstName, middleName, lastName);
     const res = await api.post<SignupResponse>("/api/auth/signup", {
       email: pendingEmail || email.trim(),
       password,
       role,
       fullName: submittedFullName,
-      ...(isTutorFlow
-        ? {
-          firstName: firstName.trim(),
-          middleName: middleName.trim(),
-          lastName: lastName.trim(),
-        }
-        : {}),
+      firstName: firstName.trim(),
+      middleName: middleName.trim(),
+      lastName: lastName.trim(),
     });
     if (!res.ok) {
       setError(res.error || "Could not resend the verification code");
@@ -274,8 +276,11 @@ export function AuthSignupPage({
       <div className="brand-page min-h-screen">
         <AppHeader hideMenu={hideHeaderMenu} hideActions={hideHeaderActions} />
         <main className="mx-auto w-full max-w-[1400px] px-4 pb-12 pt-6 md:px-8">
+          {/* <div className="flex justify-center mb-4">
+            <BrandLogo className="mt-6 h-48 w-48 w-auto" />
+          </div> */}
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <section className="mt-10 brand-hero relative overflow-hidden rounded-[36px] p-6 text-white md:p-10">
+            <section className="mt-12 brand-hero relative overflow-hidden rounded-[36px] p-6 text-white md:p-10">
               <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-surface/22 blur-3xl" />
               <div className="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
               <div className="relative">
@@ -409,12 +414,29 @@ export function AuthSignupPage({
           subtitle="Enter your details, verify the OTP, then sign in to start booking lessons."
           className="max-w-[540px] rounded-[30px] p-6 shadow-[0_24px_54px_rgba(15,23,42,0.08)] sm:p-8"
         >
-          <Input
-            label="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Firstname Lastname"
-          />
+          <div className="flex justify-center mb-4">
+            <BrandLogo className="h-20 w-auto" />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Input
+              label="First name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First name"
+            />
+            <Input
+              label="Middle name"
+              value={middleName}
+              onChange={(e) => setMiddleName(e.target.value)}
+              placeholder="Middle name (optional)"
+            />
+            <Input
+              label="Last name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last name"
+            />
+          </div>
           <Input
             label="Email"
             value={email}
@@ -436,7 +458,7 @@ export function AuthSignupPage({
             placeholder="••••••••"
           />
           <Button
-            disabled={isSubmitting || !email.trim() || !password || !fullName.trim() || !confirmPassword}
+            disabled={isSubmitting || !firstName.trim() || !lastName.trim() || !email.trim() || !password || !confirmPassword}
             onClick={() => void onSubmit()}
           >
             {isSubmitting ? "Sending..." : "Send verification code"}

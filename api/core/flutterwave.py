@@ -5,8 +5,10 @@ import hashlib
 import hmac
 import json
 import logging
+import threading
+import time
+import uuid
 from decimal import Decimal
-from functools import lru_cache
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -15,6 +17,9 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+_oauth_lock = threading.Lock()
+_oauth_access_token = ""
+_oauth_expires_at = 0.0
 
 
 class FlutterwaveError(Exception):
@@ -61,51 +66,146 @@ def resolve_nigerian_payout_bank_code(bank_name: str, bank_code: str = "") -> st
 
 
 def _base_url() -> str:
-    version = str(getattr(settings, "FLUTTERWAVE_API_VERSION", "v3") or "v3").strip().lower()
-    if version not in {"3", "v3"}:
-        raise FlutterwaveError(
-            "This checkout flow requires Flutterwave v3 credentials and endpoints."
+    version = str(getattr(settings, "FLUTTERWAVE_API_VERSION", "v4") or "v4").strip().lower()
+    if version not in {"4", "v4"}:
+        raise FlutterwaveError("PrepVilla requires Flutterwave v4 credentials and endpoints.")
+    base_url = str(
+        getattr(settings, "FLUTTERWAVE_API_BASE_URL", "")
+        or "https://developersandbox-api.flutterwave.com"
+    ).strip().rstrip("/")
+    if "/v3" in base_url.lower() or base_url.lower() == "https://api.flutterwave.com":
+        raise FlutterwaveError("FLUTTERWAVE_API_BASE_URL must point to a Flutterwave v4 environment.")
+    return base_url
+
+
+def _clear_access_token() -> None:
+    global _oauth_access_token, _oauth_expires_at
+    with _oauth_lock:
+        _oauth_access_token = ""
+        _oauth_expires_at = 0.0
+
+
+def _access_token() -> str:
+    global _oauth_access_token, _oauth_expires_at
+    now = time.monotonic()
+    if _oauth_access_token and now < _oauth_expires_at:
+        return _oauth_access_token
+
+    with _oauth_lock:
+        now = time.monotonic()
+        if _oauth_access_token and now < _oauth_expires_at:
+            return _oauth_access_token
+
+        client_id = str(getattr(settings, "FLUTTERWAVE_CLIENT_ID", "") or "").strip()
+        client_secret = str(getattr(settings, "FLUTTERWAVE_CLIENT_SECRET", "") or "").strip()
+        if not client_id or not client_secret:
+            raise FlutterwaveError("Flutterwave v4 client ID and client secret are not configured.")
+
+        token_url = str(
+            getattr(settings, "FLUTTERWAVE_TOKEN_URL", "")
+            or "https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token"
+        ).strip()
+        token_request = Request(
+            token_url,
+            data=urlencode({
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "grant_type": "client_credentials",
+            }).encode("utf-8"),
+            headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+            method="POST",
         )
-    return str(
-        getattr(settings, "FLUTTERWAVE_V3_API_BASE_URL", "")
-        or getattr(settings, "FLUTTERWAVE_API_BASE_URL", "")
-        or "https://api.flutterwave.com/v3"
-    ).rstrip("/")
-
-
-def _request(path: str, *, method: str = "GET", body: dict[str, Any] | None = None) -> dict[str, Any]:
-    secret_key = str(getattr(settings, "FLUTTERWAVE_SECRET_KEY", "") or "").strip()
-    if not secret_key:
-        raise FlutterwaveError("Flutterwave secret key is not configured.")
-    request = Request(
-        f"{_base_url()}/{path.lstrip('/')}",
-        data=json.dumps(body).encode("utf-8") if body is not None else None,
-        headers={
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {secret_key}",
-        },
-        method=method,
-    )
-    try:
-        with urlopen(request, timeout=int(getattr(settings, "FLUTTERWAVE_TIMEOUT_SECONDS", 20))) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except HTTPError as exc:
         try:
-            error_payload = json.loads(exc.read().decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError, OSError):
-            error_payload = {}
-        message = error_payload.get("message") if isinstance(error_payload, dict) else None
-        logger.warning("Flutterwave request failed: %s", message or exc)
-        raise FlutterwaveError(str(message or "Flutterwave request failed.")) from exc
-    except (URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
-        logger.warning("Flutterwave request failed: %s", exc)
-        raise FlutterwaveError("Flutterwave request failed.") from exc
+            with urlopen(
+                token_request,
+                timeout=int(getattr(settings, "FLUTTERWAVE_TIMEOUT_SECONDS", 20)),
+            ) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except HTTPError as exc:
+            logger.warning("Flutterwave OAuth request failed: %s", exc)
+            raise FlutterwaveError("Flutterwave v4 authentication failed.") from exc
+        except (URLError, TimeoutError, OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            logger.warning("Flutterwave OAuth request failed: %s", exc)
+            raise FlutterwaveError("Flutterwave v4 authentication failed.") from exc
+
+        access_token = str(payload.get("access_token") or "").strip() if isinstance(payload, dict) else ""
+        if not access_token:
+            raise FlutterwaveError("Flutterwave v4 authentication returned no access token.")
+        try:
+            expires_in = max(int(payload.get("expires_in") or 600), 60)
+        except (TypeError, ValueError):
+            expires_in = 600
+        _oauth_access_token = access_token
+        _oauth_expires_at = time.monotonic() + max(expires_in - 60, 30)
+        return _oauth_access_token
+
+
+def _error_message(payload: Any) -> str:
+    if not isinstance(payload, dict):
+        return "Flutterwave request failed."
+    error = payload.get("error")
+    if isinstance(error, dict):
+        message = error.get("message")
+        validation_errors = error.get("validation_errors")
+        if isinstance(validation_errors, list):
+            details = [
+                str(item.get("message") or "").strip()
+                for item in validation_errors
+                if isinstance(item, dict) and str(item.get("message") or "").strip()
+            ]
+            if details:
+                return f"{message or 'Flutterwave rejected the request'}: {', '.join(details)}"
+        if message:
+            return str(message)
+    return str(payload.get("message") or "Flutterwave request failed.")
+
+
+def _request(
+    path: str,
+    *,
+    method: str = "GET",
+    body: dict[str, Any] | None = None,
+    idempotency_key: str = "",
+) -> dict[str, Any]:
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-Trace-Id": str(uuid.uuid4()),
+    }
+    if method.upper() in {"POST", "PUT", "PATCH"}:
+        headers["X-Idempotency-Key"] = idempotency_key or str(uuid.uuid4())
+
+    payload: Any = None
+    for attempt in range(2):
+        headers["Authorization"] = f"Bearer {_access_token()}"
+        request = Request(
+            f"{_base_url()}/{path.lstrip('/')}",
+            data=json.dumps(body).encode("utf-8") if body is not None else None,
+            headers=headers,
+            method=method,
+        )
+        try:
+            with urlopen(request, timeout=int(getattr(settings, "FLUTTERWAVE_TIMEOUT_SECONDS", 20))) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            break
+        except HTTPError as exc:
+            try:
+                error_payload = json.loads(exc.read().decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError, OSError):
+                error_payload = {}
+            if exc.code == 401 and attempt == 0:
+                _clear_access_token()
+                continue
+            message = _error_message(error_payload)
+            logger.warning("Flutterwave request failed: %s", message)
+            raise FlutterwaveError(message) from exc
+        except (URLError, TimeoutError, OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            logger.warning("Flutterwave request failed: %s", exc)
+            raise FlutterwaveError("Flutterwave request failed.") from exc
     if not isinstance(payload, dict):
         raise FlutterwaveError("Flutterwave returned an invalid response.")
     if str(payload.get("status", "")).lower() not in {"success", "successful", "ok", ""}:
-        message = payload.get("message") or "Flutterwave rejected the request."
-        raise FlutterwaveError(str(message))
+        raise FlutterwaveError(_error_message(payload))
     return payload
 
 
@@ -120,122 +220,104 @@ def initialize_payment(
     subaccount_id: str = "",
     subaccounts: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    customer_id = get_or_create_customer_id(email=email, name=name, phone=phone)
     body: dict[str, Any] = {
-        "tx_ref": tx_ref,
+        "reference": tx_ref,
         "amount": float(amount),
         "currency": "NGN",
         "redirect_url": getattr(settings, "FLUTTERWAVE_REDIRECT_URL", ""),
-        "customer": {"email": email, "name": name, "phonenumber": phone},
-        "meta": meta or {},
+        "customer_id": customer_id,
+        "max_retry_attempts": 3,
+        "session_duration": 30,
     }
-    resolved_subaccounts = list(subaccounts or [])
-    if subaccount_id and not resolved_subaccounts:
-        resolved_subaccounts = [{"id": str(subaccount_id).strip(), "transaction_charge_type": "flat", "transaction_charge": 0}]
-    if resolved_subaccounts:
-        body["subaccounts"] = resolved_subaccounts
-    # Booking checkouts intentionally do not provide subaccounts. The payment
-    # therefore remains in Flutterwave's Collection Balance until the payout
-    # worker releases it after the lesson confirmations are complete.
-    return _request("payments", method="POST", body=body)
+    return _request(
+        "checkout/sessions",
+        method="POST",
+        body=body,
+        idempotency_key=f"checkout-{tx_ref}",
+    )
 
 
-def _extract_subaccount_id(payload: dict[str, Any] | None) -> str:
-    payload = payload if isinstance(payload, dict) else {}
-    data = payload.get("data") if isinstance(payload.get("data"), dict) else payload
-    for key in ("subaccount_id", "subAccountId", "account_id", "id"):
-        value = str(data.get(key) or "").strip()
-        if value and (key != "id" or value.startswith("RS_")):
-            return value
-    return ""
+def _customer_id(payload: dict[str, Any] | None) -> str:
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if isinstance(data, list):
+        data = data[0] if data else None
+    return str(data.get("id") or "").strip() if isinstance(data, dict) else ""
 
 
-def create_collection_subaccount(
-    *,
-    bank_code: str,
-    account_number: str,
-    business_name: str,
-    business_email: str = "",
-    business_mobile: str = "",
-    country: str = "NG",
-    split_type: str = "flat",
-    split_value: str | Decimal = "0",
-) -> dict[str, Any]:
-    try:
-        normalized_split_value = Decimal(str(split_value or "0"))
-    except (ArithmeticError, ValueError) as exc:
-        raise FlutterwaveError("Flutterwave subaccount split value is invalid.") from exc
-
-    body: dict[str, Any] = {
-        "account_bank": str(bank_code or "").strip(),
-        "account_number": str(account_number or "").strip(),
-        "business_name": str(business_name or "").strip(),
-        "business_mobile": str(business_mobile or "").strip(),
-        "country": str(country or "NG").strip() or "NG",
-        "split_type": str(split_type or "flat").strip() or "flat",
-        "split_value": float(normalized_split_value),
-    }
-    missing = [key for key in ("account_bank", "account_number", "business_name", "business_mobile") if not body[key]]
-    if missing:
-        raise FlutterwaveError(f"Flutterwave subaccount requires: {', '.join(missing)}.")
-    if business_email:
-        body["business_email"] = str(business_email).strip()
-    return _request("subaccounts", method="POST", body=body)
+def _customer_name(name: str) -> dict[str, str]:
+    parts = [part for part in str(name or "").strip().split() if part]
+    if not parts:
+        return {}
+    if len(parts) == 1:
+        return {"first": parts[0], "last": parts[0]}
+    result = {"first": parts[0], "last": parts[-1]}
+    if len(parts) > 2:
+        result["middle"] = " ".join(parts[1:-1])
+    return result
 
 
-def _collection_subaccounts(account_number: str) -> list[dict[str, Any]]:
-    payload = _request(f"subaccounts?account_number={str(account_number).strip()}")
-    data = payload.get("data")
-    if isinstance(data, dict):
-        data = data.get("data") if isinstance(data.get("data"), list) else [data]
-    return [item for item in (data or []) if isinstance(item, dict)] if isinstance(data, list) else []
+def _customer_phone(phone: str) -> dict[str, str]:
+    digits = "".join(character for character in str(phone or "") if character.isdigit())
+    if digits.startswith("234") and len(digits[3:]) == 10:
+        return {"country_code": "234", "number": digits[3:]}
+    if 7 <= len(digits) <= 10:
+        return {"country_code": "234", "number": digits}
+    return {}
 
 
-@lru_cache(maxsize=8)
-def get_or_create_collection_subaccount_id(
-    *,
-    bank_code: str,
-    account_number: str,
-    business_name: str,
-    business_email: str = "",
-    business_mobile: str = "",
-    country: str = "NG",
-    split_type: str = "flat",
-    split_value: str = "0",
-) -> str:
-    try:
-        payload = create_collection_subaccount(
-            bank_code=bank_code,
-            account_number=account_number,
-            business_name=business_name,
-            business_email=business_email,
-            business_mobile=business_mobile,
-            country=country,
-            split_type=split_type,
-            split_value=split_value,
-        )
-        subaccount_id = _extract_subaccount_id(payload)
-        if subaccount_id:
-            return subaccount_id
-    except FlutterwaveError as exc:
-        if "already exists" not in str(exc).lower():
-            raise
+def get_or_create_customer_id(*, email: str, name: str = "", phone: str = "") -> str:
+    normalized_email = str(email or "").strip().lower()
+    if not normalized_email:
+        raise FlutterwaveError("A customer email is required for Flutterwave checkout.")
 
-    for subaccount in _collection_subaccounts(account_number):
-        candidate_bank = str(subaccount.get("account_bank") or subaccount.get("bank_code") or "").strip()
-        candidate_account = str(subaccount.get("account_number") or "").strip()
-        if candidate_account == str(account_number).strip() and (not bank_code or not candidate_bank or candidate_bank == str(bank_code).strip()):
-            subaccount_id = _extract_subaccount_id(subaccount)
-            if subaccount_id:
-                return subaccount_id
-    raise FlutterwaveError("Flutterwave did not return a subscription subaccount id.")
+    search_payload = _request(
+        "customers/search?page=1&size=10",
+        method="POST",
+        body={"email": normalized_email},
+        idempotency_key=f"customer-search-{hashlib.sha256(normalized_email.encode()).hexdigest()[:24]}",
+    )
+    customer_id = _customer_id(search_payload)
+    if customer_id:
+        return customer_id
+
+    body: dict[str, Any] = {"email": normalized_email}
+    customer_name = _customer_name(name)
+    customer_phone = _customer_phone(phone)
+    if customer_name:
+        body["name"] = customer_name
+    if customer_phone:
+        body["phone"] = customer_phone
+    create_payload = _request(
+        "customers",
+        method="POST",
+        body=body,
+        idempotency_key=f"customer-create-{hashlib.sha256(normalized_email.encode()).hexdigest()[:24]}",
+    )
+    customer_id = _customer_id(create_payload)
+    if not customer_id:
+        raise FlutterwaveError("Flutterwave did not return a customer ID.")
+    return customer_id
 
 
 def verify_transaction(transaction_id: str) -> dict[str, Any]:
-    return _request(f"transactions/{str(transaction_id).strip()}/verify")
+    return _request(f"charges/{str(transaction_id).strip()}")
+
+
+def retrieve_checkout_session(session_id: str) -> dict[str, Any]:
+    return _request(f"checkout/sessions/{str(session_id).strip()}")
 
 
 def verify_transaction_by_reference(tx_ref: str) -> dict[str, Any]:
-    return _request(f"transactions/verify_by_reference?{urlencode({'tx_ref': str(tx_ref).strip()})}")
+    payload = _request(f"charges?{urlencode({'reference': str(tx_ref).strip(), 'page': 1, 'size': 10})}")
+    data = payload.get("data")
+    if isinstance(data, list):
+        matching = next(
+            (item for item in data if isinstance(item, dict) and str(item.get("reference") or "") == str(tx_ref).strip()),
+            None,
+        )
+        return {**payload, "data": matching or {}}
+    return payload
 
 
 def retrieve_transfer(transfer_id: str) -> dict[str, Any]:
@@ -254,20 +336,28 @@ def create_transfer(
 ) -> dict[str, Any]:
     resolved_bank_code = resolve_nigerian_payout_bank_code(bank_name, account_bank)
     body = {
-        "account_bank": resolved_bank_code,
-        "account_number": account_number,
-        "amount": float(amount),
-        "currency": "NGN",
-        "debit_currency": "NGN",
+        "type": "bank",
+        "action": "instant",
         "reference": reference,
-        "beneficiary_name": account_name,
         "narration": narration,
+        "payment_instruction": {
+            "source_currency": "NGN",
+            "destination_currency": "NGN",
+            "amount": float(amount),
+            "recipient": {
+                "bank": {
+                    "account_number": account_number,
+                    "code": resolved_bank_code,
+                },
+            },
+        },
     }
-    transfer_pin = str(getattr(settings, "FLUTTERWAVE_TRANSFER_PIN", "") or "").strip()
-    if transfer_pin:
-        body["debit_currency"] = "NGN"
-        body["pin"] = transfer_pin
-    return _request("transfers", method="POST", body=body)
+    return _request(
+        "direct-transfers",
+        method="POST",
+        body=body,
+        idempotency_key=f"transfer-{reference}",
+    )
 
 
 def verify_webhook_signature(signature: str, raw_body: bytes | None = None, *, hmac_signature: str = "") -> bool:

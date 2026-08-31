@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../shared/Button";
 import { Input } from "../shared/Input";
@@ -10,7 +11,7 @@ import { api } from "../shared/api";
 import { useAuthStore } from "../shared/authStore";
 import { useFormDraft } from "../shared/useFormDraft";
 import { NIGERIAN_SCHOOL_SUBJECTS, NIGERIA_STATE_CITIES, NIGERIA_STATES, WORLD_LANGUAGES } from "../shared/nigeriaData";
-import { getMobileNumberError, getBvnNumberError, getNinNumberError, sanitizeMobileNumberInput, sanitizeNinInput, sanitizeBvnInput } from "../shared/profileValidation";
+import { getBvnNumberError, getNinNumberError, sanitizeMobileNumberInput, sanitizeNinInput, sanitizeBvnInput } from "../shared/profileValidation";
 import type { UserRole } from "@prepvilla/types";
 
 type MeResponse = {
@@ -20,18 +21,28 @@ type MeResponse = {
   displayName: string;
   timezone: string;
   fullName: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
   mobileNumber: string;
   dateOfBirth: string | null;
+  gender?: string;
+  isStudentProfileComplete?: boolean;
+  levelOfEducation?: string;
   profilePhotoUrl: string;
   city?: string;
   location?: string;
   state: string;
   address: string;
+  defaultDashboardPath?: string;
 };
 
 type TutorData = {
   status?: string;
   fullName?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
   mobileNumber?: string;
   dateOfBirth?: string | null;
   countryOfBirth?: string;
@@ -84,11 +95,68 @@ type Notification = {
   message: string;
 };
 
-function buildSelectOptions(items: string[], placeholder: string) {
+type ProfileSubmissionStatus = "unsubmitted" | "submitted" | "approved";
+
+const STUDENT_EDUCATION_LEVELS = [
+  "Primary",
+  "Secondary",
+  "Polytechnic",
+  "University (Undergraduate)",
+  "University (Postgraduate)",
+  "University (Doctorate)",
+];
+
+const PROFILE_STATUS_PRESENTATION: Record<
+  ProfileSubmissionStatus,
+  { label: string; className: string }
+> = {
+  unsubmitted: { label: "Unsubmitted", className: "text-red-600" },
+  submitted: { label: "Submitted", className: "text-blue-600" },
+  approved: { label: "Approved", className: "text-green-600" },
+};
+
+function buildSelectOptions(items: string[], placeholder: string, currentValue?: string) {
+  const normalizedItems = currentValue?.trim() && !items.includes(currentValue)
+    ? [currentValue, ...items]
+    : items;
   return [
     { value: "", label: placeholder },
-    ...items.map((item) => ({ value: item, label: item })),
+    ...normalizedItems.map((item) => ({ value: item, label: item })),
   ];
+}
+
+function splitFullName(value?: string | null) {
+  const parts = (value ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { firstName: "", middleName: "", lastName: "" };
+  if (parts.length === 1) return { firstName: parts[0], middleName: "", lastName: "" };
+  return {
+    firstName: parts[0],
+    middleName: parts.slice(1, -1).join(" "),
+    lastName: parts[parts.length - 1],
+  };
+}
+
+function resolveNameParts(data: {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  fullName?: string;
+}, fallbackFullName = "") {
+  if (data.firstName || data.middleName || data.lastName) {
+    return {
+      firstName: data.firstName || "",
+      middleName: data.middleName || "",
+      lastName: data.lastName || "",
+    };
+  }
+  return splitFullName(data.fullName || fallbackFullName);
+}
+
+function composeFullName(firstName: string, middleName: string, lastName: string) {
+  return [firstName, middleName, lastName]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(" ");
 }
 
 export function DashboardProfilePage() {
@@ -103,7 +171,9 @@ export function DashboardProfilePage() {
   const [tutorData, setTutorData] = useState<TutorData | null>(null);
   const [tutorProfile, setTutorProfile] = useState<TutorProfileResponse | null>(null);
 
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [dob, setDob] = useState("");
@@ -111,6 +181,7 @@ export function DashboardProfilePage() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [qualification, setQualification] = useState("");
+  const [levelOfEducation, setLevelOfEducation] = useState("");
   const [ninNumber, setNinNumber] = useState("");
   const [bvnNumber, setBvnNumber] = useState("");
   const [stateOfOrigin, setStateOfOrigin] = useState("");
@@ -132,6 +203,8 @@ export function DashboardProfilePage() {
   const [pendingPhotoUrl, setPendingPhotoUrl] = useState<string | null>(null);
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [profileSubmissionStatus, setProfileSubmissionStatus] =
+    useState<ProfileSubmissionStatus>("unsubmitted");
   const [pendingMobileRequests, setPendingMobileRequests] = useState<MobileChangeRequest[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -139,7 +212,9 @@ export function DashboardProfilePage() {
   const clearDraft = useFormDraft(
     userId ? `prepvilla.form-draft.${userId}.profile` : null,
     {
-      fullName,
+      firstName,
+      middleName,
+      lastName,
       displayName,
       mobileNumber,
       dob,
@@ -147,6 +222,7 @@ export function DashboardProfilePage() {
       city,
       address,
       qualification,
+      levelOfEducation,
       ninNumber,
       bvnNumber,
       stateOfOrigin,
@@ -166,10 +242,19 @@ export function DashboardProfilePage() {
     },
     (draft) => {
       const hasVerifiedTutorIdentity =
+        (me?.role === "tutor" &&
+          ["approved", "verified"].includes(tutorProfile?.verificationStatus?.toLowerCase() ?? "")) ||
+        (me?.role === "student" &&
+          ["approved", "verified"].includes(tutorData?.status?.toLowerCase() ?? ""));
+      const canRestoreTutorResidence =
         me?.role === "tutor" &&
-        ["approved", "verified"].includes(tutorProfile?.verificationStatus?.toLowerCase() ?? "");
+        ["approved", "verified"].includes(tutorProfile?.verificationStatus?.toLowerCase() ?? "") &&
+        !tutorProfile?.isListed;
+      const residenceFields = new Set(["state", "city", "address"]);
       const lockedVerifiedFields = new Set([
-        "fullName",
+        "firstName",
+        "middleName",
+        "lastName",
         "displayName",
         "mobileNumber",
         "dob",
@@ -181,10 +266,11 @@ export function DashboardProfilePage() {
         "bvnNumber",
         "stateOfOrigin",
         "lgaOfOrigin",
-        "pendingPhotoUrl",
       ]);
       const currentValues: Record<string, unknown> = {
-        fullName,
+        firstName,
+        middleName,
+        lastName,
         displayName,
         mobileNumber,
         dob,
@@ -192,6 +278,7 @@ export function DashboardProfilePage() {
         city,
         address,
         qualification,
+        levelOfEducation,
         ninNumber,
         bvnNumber,
         stateOfOrigin,
@@ -211,11 +298,17 @@ export function DashboardProfilePage() {
       };
       const hasDraftChanges = Object.entries(draft).some(
         ([field, draftValue]) =>
-          !(hasVerifiedTutorIdentity && lockedVerifiedFields.has(field)) &&
+          !(
+            hasVerifiedTutorIdentity &&
+            lockedVerifiedFields.has(field) &&
+            !(canRestoreTutorResidence && residenceFields.has(field))
+          ) &&
           JSON.stringify(draftValue) !== JSON.stringify(currentValues[field]),
       );
       if (!hasVerifiedTutorIdentity) {
-        if (typeof draft.fullName === "string") setFullName(draft.fullName);
+        if (typeof draft.firstName === "string") setFirstName(draft.firstName);
+        if (typeof draft.middleName === "string") setMiddleName(draft.middleName);
+        if (typeof draft.lastName === "string") setLastName(draft.lastName);
         if (typeof draft.displayName === "string") setDisplayName(draft.displayName);
         if (typeof draft.mobileNumber === "string") setMobileNumber(draft.mobileNumber);
         if (typeof draft.dob === "string") setDob(draft.dob);
@@ -227,8 +320,13 @@ export function DashboardProfilePage() {
         if (typeof draft.bvnNumber === "string") setBvnNumber(draft.bvnNumber);
         if (typeof draft.stateOfOrigin === "string") setStateOfOrigin(draft.stateOfOrigin);
         if (typeof draft.lgaOfOrigin === "string") setLgaOfOrigin(draft.lgaOfOrigin);
+      } else if (canRestoreTutorResidence) {
+        if (typeof draft.state === "string") setState(draft.state);
+        if (typeof draft.city === "string") setCity(draft.city);
+        if (typeof draft.address === "string") setAddress(draft.address);
       }
       if (typeof draft.headline === "string") setHeadline(draft.headline);
+      if (typeof draft.levelOfEducation === "string") setLevelOfEducation(draft.levelOfEducation);
       if (typeof draft.bio === "string") setBio(draft.bio);
       if (Array.isArray(draft.selectedSubjects)) {
         setSelectedSubjects(draft.selectedSubjects.filter((item): item is string => typeof item === "string"));
@@ -239,14 +337,14 @@ export function DashboardProfilePage() {
       }
       if (typeof draft.languageToAdd === "string") setLanguageToAdd(draft.languageToAdd);
       if (typeof draft.hourlyRate === "string") setHourlyRate(draft.hourlyRate);
-      if (typeof draft.gender === "string") setGender(draft.gender);
+      const hasStoredGender = me?.role === "tutor"
+        ? Boolean(tutorProfile?.gender?.trim())
+        : Boolean(me?.gender?.trim());
+      if (!hasStoredGender && typeof draft.gender === "string") setGender(draft.gender);
       if (typeof draft.firstLessonFree === "boolean") setFirstLessonFree(draft.firstLessonFree);
       if (typeof draft.offersFaceToFace === "boolean") setOffersFaceToFace(draft.offersFaceToFace);
       if (typeof draft.offersWebcam === "boolean") setOffersWebcam(draft.offersWebcam);
-      if (
-        !hasVerifiedTutorIdentity &&
-        (typeof draft.pendingPhotoUrl === "string" || draft.pendingPhotoUrl === null)
-      ) {
+      if (typeof draft.pendingPhotoUrl === "string" || draft.pendingPhotoUrl === null) {
         setPendingPhotoUrl(draft.pendingPhotoUrl);
       }
       setHasChanges(hasDraftChanges);
@@ -258,19 +356,39 @@ export function DashboardProfilePage() {
   const isApprovedTutorProfile =
     me?.role === "tutor" && (verificationStatus === "approved" || verificationStatus === "verified");
   const isTutor = me?.role === "tutor";
+  const isStudent = me?.role === "student";
+  const studentVerificationStatus = isStudent ? tutorData?.status?.toLowerCase() ?? "" : "";
+  const isApprovedStudentProfile =
+    isStudent && (studentVerificationStatus === "approved" || studentVerificationStatus === "verified");
+  const hasVerifiedIdentity = isApprovedTutorProfile || isApprovedStudentProfile;
   const hasCompletedTutorProfile = Boolean(tutorProfile?.isListed);
   const canTutorCompleteInitialProfile = isTutor && isApprovedTutorProfile && !hasCompletedTutorProfile;
   const isApprovedTutorEditMode =
     isTutor && isApprovedTutorProfile && hasCompletedTutorProfile && editMode;
-  const canEditVerificationBackedTutorFields = !isTutor || !isApprovedTutorProfile;
+  const canEditVerificationBackedTutorFields = !hasVerifiedIdentity;
   const canEditLockedTutorIdentityFields = canEditVerificationBackedTutorFields;
   const canEditTutorPublicProfileFields =
     !isTutor || canTutorCompleteInitialProfile || isApprovedTutorEditMode;
-  const hasSubmittedGender = isTutor && Boolean(tutorProfile?.gender?.trim());
+  const hasSubmittedGender = isTutor
+    ? Boolean(tutorProfile?.gender?.trim())
+    : Boolean(me?.gender?.trim());
+  const hasCompletedStudentProfile = Boolean(
+    isStudent &&
+    me?.isStudentProfileComplete &&
+    me?.gender?.trim() &&
+    me?.profilePhotoUrl?.trim() &&
+    STUDENT_EDUCATION_LEVELS.includes(tutorData?.qualification || ""),
+  );
+  const isApprovedStudentEditMode =
+    isStudent && isApprovedStudentProfile && hasCompletedStudentProfile && editMode;
   const canEditStateOfOrigin = canEditVerificationBackedTutorFields;
-  const canEditPhoto = !isTutor || !isApprovedTutorProfile;
-  const verifiedFieldHelperText = isTutor && isApprovedTutorProfile ? "Verified information is locked." : undefined;
-  const isStudent = me?.role === "student";
+  const canEditResidenceFields = isTutor
+    ? canTutorCompleteInitialProfile
+    : !isApprovedStudentProfile;
+  const canEditPhoto = isTutor
+    ? canTutorCompleteInitialProfile || isApprovedTutorEditMode
+    : isStudent && isApprovedStudentProfile && (!hasCompletedStudentProfile || isApprovedStudentEditMode);
+  const verifiedFieldHelperText = hasVerifiedIdentity ? "" : undefined;
   const availableCities = useMemo(() => (isStudent && state ? NIGERIA_STATE_CITIES[state] ?? [] : []), [isStudent, state]);
   const stateOptions = useMemo(
     () => buildSelectOptions(NIGERIA_STATES, "Select State"),
@@ -281,8 +399,8 @@ export function DashboardProfilePage() {
     []
   );
   const cityOptions = useMemo(
-    () => buildSelectOptions(availableCities, state ? "Select City" : "Select State first"),
-    [availableCities, state]
+    () => buildSelectOptions(availableCities, state ? "Select City" : "Select State first", city),
+    [availableCities, city, state]
   );
   const genderOptions = useMemo(
     () => [
@@ -292,11 +410,15 @@ export function DashboardProfilePage() {
     ],
     []
   );
+  const educationLevelOptions = useMemo(
+    () => buildSelectOptions(STUDENT_EDUCATION_LEVELS, "Select Level of Education", levelOfEducation),
+    [levelOfEducation],
+  );
   const languageOptions = useMemo(
     () =>
       buildSelectOptions(
         WORLD_LANGUAGES.filter((language) => !selectedLanguages.includes(language)),
-        selectedLanguages.length === WORLD_LANGUAGES.length ? "All listed languages selected" : "Select Language",
+        selectedLanguages.length === WORLD_LANGUAGES.length ? "All listed languages selected" : "Choose Language(s) of Communications",
       ),
     [selectedLanguages],
   );
@@ -373,10 +495,14 @@ export function DashboardProfilePage() {
       return;
     }
     setMe(res.data);
-    setFullName(res.data.fullName || "");
+    const meNames = resolveNameParts(res.data);
+    setFirstName(meNames.firstName);
+    setMiddleName(meNames.middleName);
+    setLastName(meNames.lastName);
     setDisplayName(res.data.displayName);
     setMobileNumber(res.data.mobileNumber || "");
     setDob(res.data.dateOfBirth || "");
+    setGender(res.data.gender || "");
     const rawState = res.data.state || "";
     const rawCity = res.data.city || res.data.location || "";
     if (res.data.role === "student") {
@@ -394,12 +520,34 @@ export function DashboardProfilePage() {
     setPreviewPhotoUrl(null);
     setHasChanges(false);
 
-    if (res.data.role === "tutor") {
+    if (res.data.role === "student") {
+      const resStudent = await api.get<TutorData>("/api/students/verification");
+      if (resStudent.ok) {
+        const studentNames = resolveNameParts(resStudent.data, res.data.fullName);
+        setTutorData(resStudent.data);
+        setFirstName(studentNames.firstName);
+        setMiddleName(studentNames.middleName);
+        setLastName(studentNames.lastName);
+        setMobileNumber(resStudent.data.mobileNumber || res.data.mobileNumber || "");
+        setDob(resStudent.data.dateOfBirth || res.data.dateOfBirth || "");
+        setLevelOfEducation(resStudent.data.qualification || "");
+        setNinNumber(resStudent.data.ninNumber || "");
+        setBvnNumber(resStudent.data.bvnNumber || "");
+        setStateOfOrigin(resStudent.data.stateOfOrigin || "");
+        setLgaOfOrigin(resStudent.data.lgaOfOrigin || "");
+        setState(resStudent.data.homeState || res.data.state || "");
+        setCity(resStudent.data.homeCity || res.data.city || res.data.location || "");
+        setAddress(resStudent.data.homeAddress || res.data.address || "");
+      }
+    } else if (res.data.role === "tutor") {
       const resTutor = await api.get<TutorData>("/api/tutors/me/verification");
       const verificationData = resTutor.ok ? resTutor.data : null;
       if (resTutor.ok) {
+        const tutorNames = resolveNameParts(resTutor.data, res.data.fullName);
         setTutorData(resTutor.data);
-        setFullName(resTutor.data.fullName || res.data.fullName || "");
+        setFirstName(tutorNames.firstName);
+        setMiddleName(tutorNames.middleName);
+        setLastName(tutorNames.lastName);
         setMobileNumber(resTutor.data.mobileNumber || res.data.mobileNumber || "");
         setDob(resTutor.data.dateOfBirth || res.data.dateOfBirth || "");
         setQualification(resTutor.data.qualification || "");
@@ -418,6 +566,7 @@ export function DashboardProfilePage() {
           ? tutorState
           : "";
         setTutorProfile(resTutorProfile.data);
+        setProfileSubmissionStatus(resTutorProfile.data.isListed ? "approved" : "unsubmitted");
         setHeadline(resTutorProfile.data.headline || "");
         setBio(resTutorProfile.data.bio || "");
         setSelectedSubjects(resTutorProfile.data.subjects || []);
@@ -446,6 +595,11 @@ export function DashboardProfilePage() {
     if (!isTutor || !tutorProfile || isApprovedTutorProfile) return;
     router.replace("/dashboard/verification");
   }, [isApprovedTutorProfile, isTutor, router, tutorProfile]);
+
+  useEffect(() => {
+    if (!isStudent || !tutorData || isApprovedStudentProfile) return;
+    router.replace("/dashboard/student-verification");
+  }, [isApprovedStudentProfile, isStudent, router, tutorData]);
 
   useEffect(() => {
     if (me?.role === "student" || me?.role === "tutor") {
@@ -531,75 +685,56 @@ export function DashboardProfilePage() {
 
     setIsLoading(true);
     setNotification(null);
+    const fullName = composeFullName(firstName, middleName, lastName);
 
-    // Validate mandatory fields for students
+    // Validate the remaining student profile fields. Identity fields were locked
+    // when verification succeeded and are intentionally not resubmitted here.
     if (me.role === "student") {
-      if (!me.profilePhotoUrl && !pendingPhotoUrl) {
+      if (!isApprovedStudentProfile) {
+        router.replace("/dashboard/student-verification");
+        setIsLoading(false);
+        return;
+      }
+      if (!gender.trim()) {
+        showNotification("error", "Gender is required");
+        setIsLoading(false);
+        return;
+      }
+      if (!levelOfEducation.trim()) {
+        showNotification("error", "Level of Education is required");
+        setIsLoading(false);
+        return;
+      }
+      const profilePhotoUrl = pendingPhotoUrl || currentPhotoUrl || "";
+      if (!profilePhotoUrl) {
         showNotification("error", "Profile photo is required");
         setIsLoading(false);
         return;
       }
-      if (!dob.trim()) {
-        showNotification("error", "Date of birth is required");
+      const profileRes = await api.put<MeResponse>("/api/me", {
+        displayName,
+        gender,
+        levelOfEducation,
+        profilePhotoUrl,
+        completeProfile: true,
+      });
+      if (!profileRes.ok) {
+        showNotification("error", profileRes.error || "Failed to complete profile");
         setIsLoading(false);
         return;
       }
-      if (!mobileNumber.trim()) {
-        showNotification("error", "Mobile number is required");
-        setIsLoading(false);
-        return;
-      }
-      const studentMobileNumberError = getMobileNumberError(mobileNumber);
-      if (studentMobileNumberError) {
-        showNotification("error", studentMobileNumberError);
-        setIsLoading(false);
-        return;
-      }
-      if (!state.trim()) {
-        showNotification("error", "State is required");
-        setIsLoading(false);
-        return;
-      }
-      if (!city.trim()) {
-        showNotification("error", "City is required");
-        setIsLoading(false);
-        return;
-      }
-      if (!address.trim()) {
-        showNotification("error", "Address is required");
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    // For students, use verification workflow
-    if (me.role === "student") {
-      const verificationData = {
-        profilePhotoUrl: pendingPhotoUrl || me.profilePhotoUrl,
-        dateOfBirth: dob,
-        mobileNumber: sanitizeMobileNumberInput(mobileNumber),
-        state: state,
-        city: city,
-        address: address,
-      };
-
-      const verificationRes = await api.post("/api/students/verification", verificationData);
-      if (!verificationRes.ok) {
-        showNotification("error", verificationRes.error || "Failed to submit verification request");
-        setIsLoading(false);
-        return;
-      }
-
-      // Clear pending changes
+      setMe(profileRes.data);
+      setTutorData((current) => ({
+        ...(current || {}),
+        qualification: levelOfEducation,
+        profilePhotoUrl,
+      }));
+      updateProfile({ displayName: profileRes.data.displayName });
       setPendingPhotoUrl(null);
       setHasChanges(false);
       setIsLoading(false);
-
-      showNotification("success", "Changes saved successfully!");
-
-      // Reload profile to get updated data
-      await load();
       clearDraft();
+      router.replace(isApprovedStudentEditMode ? "/dashboard/profile" : profileRes.data.defaultDashboardPath || "/search");
       return;
     }
 
@@ -615,6 +750,9 @@ export function DashboardProfilePage() {
         return;
       }
       const verificationRes = await api.post<TutorData>("/api/tutors/me/verification", {
+        firstName,
+        middleName,
+        lastName,
         fullName,
         mobileNumber,
         dateOfBirth: dob,
@@ -665,6 +803,11 @@ export function DashboardProfilePage() {
 
     // 3. Save tutor profile (includes photo if changed)
     if (me.role === "tutor") {
+      if (canTutorCompleteInitialProfile && (!state.trim() || !city.trim() || !address.trim())) {
+        showNotification("error", "Country, state, city, and address are required");
+        setIsLoading(false);
+        return;
+      }
       if (!offersFaceToFace && !offersWebcam) {
         showNotification("error", "Select at least one teaching method");
         setIsLoading(false);
@@ -683,6 +826,12 @@ export function DashboardProfilePage() {
         offersWebcam,
       };
 
+      if (canTutorCompleteInitialProfile) {
+        tutorSaveData.homeState = state;
+        tutorSaveData.homeCity = city;
+        tutorSaveData.homeAddress = address;
+      }
+
       if (canEditTutorPublicProfileFields && !hasSubmittedGender) {
         tutorSaveData.gender = gender;
       }
@@ -692,10 +841,11 @@ export function DashboardProfilePage() {
       }
 
       // Include photo URL if there's a pending change
-      if (pendingPhotoUrl && canEditPhoto && !isApprovedTutorEditMode) {
+      if (pendingPhotoUrl && canEditPhoto) {
         tutorSaveData.profilePhotoUrl = pendingPhotoUrl;
       }
 
+      setProfileSubmissionStatus("submitted");
       const tutorRes = await api.put<TutorProfileResponse>("/api/tutors/me/profile", tutorSaveData);
       if (!tutorRes.ok) {
         showNotification("error", tutorRes.error || "Failed to save tutor profile");
@@ -703,6 +853,7 @@ export function DashboardProfilePage() {
         return;
       }
       setTutorProfile(tutorRes.data);
+      setProfileSubmissionStatus(tutorRes.data.isListed ? "approved" : "submitted");
     }
 
     // Clear pending changes and reload
@@ -722,6 +873,7 @@ export function DashboardProfilePage() {
       const resTutorProfile = await api.get<TutorProfileResponse>("/api/tutors/me/profile");
       if (resTutorProfile.ok && resTutorProfile.data) {
         setTutorProfile(resTutorProfile.data);
+        setProfileSubmissionStatus(resTutorProfile.data.isListed ? "approved" : "unsubmitted");
       }
     }
 
@@ -739,7 +891,7 @@ export function DashboardProfilePage() {
   const currentPhotoUrl = previewPhotoUrl || pendingPhotoUrl || (
     isTutor
       ? tutorData?.profilePhotoUrl || tutorProfile?.profilePhotoUrl || me?.profilePhotoUrl
-      : me?.profilePhotoUrl
+      : tutorData?.profilePhotoUrl || me?.profilePhotoUrl
   );
 
   return (
@@ -772,11 +924,20 @@ export function DashboardProfilePage() {
                 (isTutor && (!isApprovedTutorProfile || (hasCompletedTutorProfile && !isApprovedTutorEditMode)))
               }
             >
-              {isLoading ? "Saving..." : "Save Changes"}
+              {isLoading ? "Saving..." : isStudent && !hasCompletedStudentProfile ? "Complete Profile" : "Save Changes"}
             </Button>
           </div>
         </div>
       </div>
+
+      {/* {isTutor ? (
+        <div className="form-panel rounded-2xl px-4 py-3 text-[16px] leading-[24px]">
+          <span className="font-medium text-black/65">Profile Status: </span>
+          <span className={`font-semibold ${PROFILE_STATUS_PRESENTATION[profileSubmissionStatus].className}`}>
+            {PROFILE_STATUS_PRESENTATION[profileSubmissionStatus].label}
+          </span>
+        </div>
+      ) : null} */}
 
       {isTutor && !isApprovedTutorProfile ? (
         <div className="rounded-2xl border border-info-border bg-info-soft p-4 text-[14px] leading-[22px] text-info-foreground">
@@ -784,15 +945,27 @@ export function DashboardProfilePage() {
         </div>
       ) : null}
 
+      {isStudent && isApprovedStudentProfile && !hasCompletedStudentProfile ? (
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-[14px] leading-[22px] text-green-900">
+          Verification Successful, complete your profile.
+        </div>
+      ) : null}
+
       {isTutor && isApprovedTutorProfile && !hasCompletedTutorProfile ? (
         <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-[14px] leading-[22px] text-green-900">
-          Your verification has been approved. Complete your tutor profile once to publish it to students.
+          <span className="text-[18px] font-semibold text-black">Profile Status: </span>
+          <span className={`text-[18px] font-semibold ${PROFILE_STATUS_PRESENTATION[profileSubmissionStatus].className}`}>
+            {PROFILE_STATUS_PRESENTATION[profileSubmissionStatus].label}
+          </span><br />Verification Successful. Complete your tutor profile once to publish it to students.
         </div>
       ) : null}
 
       {isTutor && isApprovedTutorProfile && hasCompletedTutorProfile && !isApprovedTutorEditMode ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[14px] leading-[22px] text-amber-900">
-          To update profile → Go to settings and make the neccessary changes.
+          <span className="text-[18px] font-semibold text-black">Profile Status: </span>
+          <span className={`text-[18px] font-semibold ${PROFILE_STATUS_PRESENTATION[profileSubmissionStatus].className}`}>
+            {PROFILE_STATUS_PRESENTATION[profileSubmissionStatus].label}
+          </span><br />To update profile → Go to settings and make the neccessary changes.
         </div>
       ) : null}
 
@@ -813,11 +986,14 @@ export function DashboardProfilePage() {
           <div className="flex items-center gap-6">
             <div className="relative">
               {currentPhotoUrl ? (
-                <img
+                <Image
                   key={currentPhotoUrl}
                   className="h-32 w-32 rounded-full border-4 border-white shadow-lg object-cover"
                   src={resolveMediaUrl(currentPhotoUrl)}
                   alt="Profile photo"
+                  width={128}
+                  height={128}
+                  unoptimized
                 />
               ) : (
                 <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-gray-200 to-gray-300 text-4xl font-medium text-gray-500 border-4 border-white shadow-lg">
@@ -836,9 +1012,9 @@ export function DashboardProfilePage() {
               )}
             </div>
             <div className="flex-1">
-              <p className="mb-3 text-[14px] text-black/65">
+              {/* <p className="mb-3 text-[14px] text-black/65">
                 Upload photo.
-              </p>
+              </p> */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -847,32 +1023,138 @@ export function DashboardProfilePage() {
                 className="hidden"
                 disabled={!canEditPhoto}
               />
-              <Button
-                variant="secondary"
-                onClick={triggerFileInput}
-                disabled={uploadingImage || !canEditPhoto}
-              >
-                {!canEditPhoto ? "Verified photo locked" : uploadingImage ? "uploading..." : "Change Photo"}
-              </Button>
+              {canEditPhoto &&
+                <Button
+                  variant="secondary"
+                  onClick={triggerFileInput}
+                  disabled={uploadingImage || !canEditPhoto}
+                >
+                  {uploadingImage ? "Uploading..." : currentPhotoUrl ? "Change Photo" : "Upload Photo"}
+                </Button>
+              }
+
             </div>
           </div>
         </div>
       )}
 
       <div className="form-panel rounded-2xl p-4">
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
+        <div className="mb-4 grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <h2 className="mb-3 text-[18px] font-semibold">Basic Information</h2>
           </div>
+          <div className="grid gap-4 md:col-span-2 md:grid-cols-3">
+            <Input
+              label="First name"
+              value={firstName}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                setHasChanges(true);
+              }}
+              disabled={hasVerifiedIdentity}
+              helperText={verifiedFieldHelperText}
+            />
+            <Input
+              label="Middle name"
+              value={middleName}
+              onChange={(e) => {
+                setMiddleName(e.target.value);
+                setHasChanges(true);
+              }}
+              disabled={hasVerifiedIdentity}
+              helperText={verifiedFieldHelperText}
+            />
+            <Input
+              label="Last name"
+              value={lastName}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                setHasChanges(true);
+              }}
+              disabled={hasVerifiedIdentity}
+              helperText={verifiedFieldHelperText}
+            />
+          </div>
+          <div className="grid gap-4 md:col-span-2 md:grid-cols-3">
+            {isStudent ? (
+              <Select
+                label="Home State"
+                labelClassName="mb-1 text-sm !leading-5"
+                className="h-11"
+                value={state}
+                onChange={(e) => handleStudentStateChange(e.target.value)}
+                options={stateOptions}
+                disabled={!canEditVerificationBackedTutorFields}
+              />
+            ) : null}
+
+            {isStudent ? (
+              <Select
+                label="Home City"
+                labelClassName="mb-1 text-sm !leading-5"
+                className="h-11"
+                value={city}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setHasChanges(true);
+                }}
+                options={cityOptions}
+                disabled={!canEditVerificationBackedTutorFields || !state}
+              />
+            ) : null}
+            {isStudent ? (
+              <Input
+                label="Home Address"
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setHasChanges(true);
+                }}
+                disabled={!canEditVerificationBackedTutorFields}
+                placeholder="Full address"
+              />
+            ) : null}
+          </div>
+
+          {isStudent ? (
+            <Select
+              label="Level of Education *"
+              labelClassName="mb-1 text-sm !leading-5"
+              className="h-11"
+              value={levelOfEducation}
+              onChange={(e) => {
+                setLevelOfEducation(e.target.value);
+                setHasChanges(true);
+              }}
+              options={educationLevelOptions}
+              disabled={!canEditPhoto}
+              required
+            />
+          ) : null}
+
+
+        </div>
+
+        <div className="mb-4 grid gap-4 md:grid-cols-3">
+
+
           <Input
-            label="Full Name"
-            value={fullName}
+            label="Email Address"
+            value={me?.email || ""}
+            disabled
+          // helperText="Change securely in Settings with an email OTP."
+          />
+
+          <Input
+            label="Mobile Number"
+            value={mobileNumber}
             onChange={(e) => {
-              setFullName(e.target.value);
+              setMobileNumber(sanitizeMobileNumberInput(e.target.value));
               setHasChanges(true);
             }}
-            disabled={isTutor ? !canEditLockedTutorIdentityFields : false}
-            helperText={verifiedFieldHelperText}
+            disabled
+            placeholder="+2348012345678"
+          // helperText="Change securely in Settings with an email OTP."
           />
 
           <Input
@@ -882,84 +1164,68 @@ export function DashboardProfilePage() {
               setDisplayName(e.target.value);
               setHasChanges(true);
             }}
-            disabled={!canEditVerificationBackedTutorFields}
-            helperText={verifiedFieldHelperText}
-          />
-
-          {isStudent ? (
-            <Select
-              label="State"
-              labelClassName="text-sm"
-              value={state}
-              onChange={(e) => handleStudentStateChange(e.target.value)}
-              options={stateOptions}
-              disabled={!canEditVerificationBackedTutorFields}
-            />
-          ) : (
-            <Select
-              label="Home State"
-              labelClassName="text-sm"
-              value={state}
-              onChange={(e) => {
-                setState(e.target.value);
-                setHasChanges(true);
-              }}
-              options={stateOptions}
-              disabled={!canEditVerificationBackedTutorFields}
-            />
-          )}
-
-          {isStudent ? (
-            <Select
-              label="City"
-              labelClassName="text-sm"
-              value={city}
-              onChange={(e) => {
-                setCity(e.target.value);
-                setHasChanges(true);
-              }}
-              options={cityOptions}
-              disabled={!canEditVerificationBackedTutorFields || !state}
-            />
-          ) : (
-            <Input
-              label="Home City"
-              value={city}
-              onChange={(e) => {
-                setCity(e.target.value);
-                setHasChanges(true);
-              }}
-              disabled={!canEditVerificationBackedTutorFields}
-              placeholder="e.g. Lagos"
-            />
-          )}
-        </div>
-
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
-          <Input
-            label={isTutor ? "Home Address" : "Address"}
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              setHasChanges(true);
-            }}
-            disabled={!canEditVerificationBackedTutorFields}
-            placeholder="Full address"
-          />
-
-          <Input
-            label="Email Address"
-            value={me?.email || ""}
-            disabled
-            helperText="Change securely in Settings with an email OTP."
+            disabled={isTutor && !canEditVerificationBackedTutorFields}
+          // helperText={isTutor ? verifiedFieldHelperText : "Choose the name tutors will see."}
           />
         </div>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
-          {isTutor ? (
+        {isTutor ? (
+          <div className="mb-4 border-t border-border pt-4">
+            <div className="mb-4">
+              <h2 className="text-[18px] font-semibold">Residence</h2>
+              <p className="mt-1 text-xs leading-[20px] text-black/55">
+                Provide your current residential details.
+              </p>
+            </div>
+            <div className="mb-4 grid gap-4 md:grid-cols-3">
+              <Input label="Country *" value="Nigeria" disabled />
+              <Select
+                label="State *"
+                labelClassName="mb-1 text-sm !leading-5"
+                className="h-11"
+                value={state}
+                onChange={(e) => {
+                  setState(e.target.value);
+                  setHasChanges(true);
+                }}
+                options={stateOptions}
+                disabled={!canEditResidenceFields}
+                required
+              />
+              <Input
+                label="City *"
+                value={city}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setHasChanges(true);
+                }}
+                disabled={!canEditResidenceFields}
+                placeholder="e.g. Lagos"
+                required
+              />
+            </div>
+            <div className="mb-4 grid gap-4 md:grid-cols-1">
+              <Input
+                label="Address *"
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setHasChanges(true);
+                }}
+                disabled={!canEditResidenceFields}
+                placeholder="Full residential address"
+                required
+              />
+            </div>
+          </div>
+        ) : null}
+
+        {isTutor ? (
+          <div className="mb-4 grid gap-4 md:grid-cols-2">
             <Select
               label="State of Origin"
-              labelClassName="text-sm"
+              labelClassName="mb-1 text-sm !leading-5"
+              className="h-11"
               value={stateOfOrigin}
               onChange={(e) => {
                 setStateOfOrigin(e.target.value);
@@ -968,9 +1234,6 @@ export function DashboardProfilePage() {
               options={stateOfOriginOptions}
               disabled={!canEditStateOfOrigin}
             />
-          ) : null}
-
-          {isTutor ? (
             <Input
               label="LGA of Origin"
               value={lgaOfOrigin}
@@ -981,24 +1244,11 @@ export function DashboardProfilePage() {
               disabled={!canEditStateOfOrigin}
               placeholder="e.g. Ikeja"
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
-          <Input
-            label="Mobile Number"
-            value={mobileNumber}
-            onChange={(e) => {
-              setMobileNumber(sanitizeMobileNumberInput(e.target.value));
-              setHasChanges(true);
-            }}
-            disabled
-            placeholder="+2348012345678"
-            helperText="Change securely in Settings with an email OTP."
-          />
-
+        <div className="mb-4 grid gap-4 md:grid-cols-3">
           {pendingMobileRequests.length > 0 && (
-            // <div className="md:col-span-2">
             <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
               <h4 className="text-[14px] font-semibold text-orange-800 mb-2">Pending Mobile Number Change</h4>
               {pendingMobileRequests.map((request) => (
@@ -1009,7 +1259,6 @@ export function DashboardProfilePage() {
                 </div>
               ))}
             </div>
-            // </div>
           )}
 
           <Input
@@ -1027,7 +1276,8 @@ export function DashboardProfilePage() {
           <div className="grid gap-1">
             <Select
               label="Gender"
-              labelClassName="text-sm"
+              labelClassName="mb-1 text-sm !leading-5"
+              className="h-11"
               value={gender}
               onChange={(e) => {
                 setGender(e.target.value);
@@ -1038,10 +1288,12 @@ export function DashboardProfilePage() {
             />
             <p className="text-[12px] leading-[18px] text-black/55">
               {hasSubmittedGender
-                ? "Gender is locked after submission. Request a correction through Support; only an administrator can change it."
-                : "Gender is locked after it is submitted."}
+                ? isTutor
+                  ? "Gender is locked after submission. Request a correction through Support; only an administrator can change it."
+                  : "Gender is locked after submission. Contact an administrator to request a correction."
+                : ""}
             </p>
-            {hasSubmittedGender ? (
+            {hasSubmittedGender && isTutor ? (
               <div className="mt-1">
                 <Button variant="ghost" onClick={() => router.push("/dashboard/support")}>
                   Request Gender Correction
@@ -1049,15 +1301,26 @@ export function DashboardProfilePage() {
               </div>
             ) : null}
           </div>
+
+          <Input
+            label="Qualification"
+            value={qualification}
+            onChange={(e) => {
+              setQualification(e.target.value);
+              setHasChanges(true);
+            }}
+            disabled
+          // helperText="Change securely in Settings with an email OTP."
+          />
         </div>
 
-        <div className="mb-6 grid gap-4">
+        <div className="mb-4 grid gap-4">
           {tutorData && (
             <div className="contents">
               <div className="md:col-span-2 mt-4 border-t border-border pt-4">
                 <h2 className="mb-3 text-[18px] font-semibold">Verification Details</h2>
               </div>
-              <div className="grid gap-4 md:col-span-2 md:grid-cols-3">
+              <div className="grid gap-4 md:col-span-2 md:grid-cols-2">
                 <Input
                   label="NIN Number"
                   value={ninNumber}
@@ -1087,16 +1350,14 @@ export function DashboardProfilePage() {
                   required
                 />
 
-                <Input
-                  label="Qualification"
-                  value={qualification}
-                  onChange={(e) => {
-                    setQualification(e.target.value);
-                    setHasChanges(true);
-                  }}
-                  disabled
-                  helperText="Change securely in Settings with an email OTP."
-                />
+                {isStudent ? (
+                  <>
+                    <Input label="Country of Birth" value={tutorData.countryOfBirth || ""} disabled helperText={verifiedFieldHelperText} />
+                    <Input label="Nationality" value={tutorData.nationality || ""} disabled helperText={verifiedFieldHelperText} />
+                    <Input label="State of Origin" value={tutorData.stateOfOrigin || ""} disabled helperText={verifiedFieldHelperText} />
+                    <Input label="LGA of Origin" value={tutorData.lgaOfOrigin || ""} disabled helperText={verifiedFieldHelperText} />
+                  </>
+                ) : null}
               </div>
             </div>
           )}
@@ -1138,7 +1399,7 @@ export function DashboardProfilePage() {
               <div className="md:col-span-2">
                 <Textarea
                   label="About"
-                  labelClassName="text-sm"
+                  labelClassName="mb-1 text-sm !leading-5"
                   value={bio}
                   onChange={(e) => {
                     setBio(e.target.value);
@@ -1148,171 +1409,145 @@ export function DashboardProfilePage() {
                   placeholder="Share your experience, teaching style, and what students can expect."
                 />
               </div>
-              <div className="relative" ref={subjectPickerRef}>
-                <label className="mb-2 block text-sm font-medium text-foreground">Subjects</label>
-                <div className={`rounded-xl border p-2 transition ${canEditTutorPublicProfileFields
-                  ? "border-black/12 bg-white focus-within:border-black focus-within:ring-4 focus-within:ring-black/8"
-                  : "border-slate-200 bg-slate-100"
-                  }`}>
-                  {selectedSubjects.length > 0 ? (
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {selectedSubjects.map((subject) => (
-                        <span
-                          key={subject}
-                          className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-2.5 py-1 text-xs font-medium text-white"
-                        >
-                          {subject}
-                          <button
-                            type="button"
-                            onClick={() => removeSubject(subject)}
-                            className="text-white/70 hover:text-white disabled:text-white/35"
-                            disabled={!canEditTutorPublicProfileFields}
-                            aria-label={`Remove ${subject}`}
+              <div className="grid gap-4 md:col-span-2 md:grid-cols-2">
+                <div className="relative" ref={subjectPickerRef}>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Subjects</label>
+                  <div className={`rounded-xl border p-[7px] transition ${canEditTutorPublicProfileFields
+                    ? "border-black/12 bg-white focus-within:border-black focus-within:ring-4 focus-within:ring-black/8"
+                    : "border-slate-200 bg-slate-100"
+                    }`}>
+                    {selectedSubjects.length > 0 ? (
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {selectedSubjects.map((subject) => (
+                          <span
+                            key={subject}
+                            className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-2.5 py-1 text-xs font-medium text-white"
                           >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                  <input
-                    value={subjectQuery}
-                    onFocus={() => {
-                      if (canEditTutorPublicProfileFields) {
-                        setShowSubjectSuggestions(true);
+                            {subject}
+                            <button
+                              type="button"
+                              onClick={() => removeSubject(subject)}
+                              className="text-white/70 hover:text-white disabled:text-white/35"
+                              disabled={!canEditTutorPublicProfileFields}
+                              aria-label={`Remove ${subject}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                    <input
+                      value={subjectQuery}
+                      onFocus={() => {
+                        if (canEditTutorPublicProfileFields) {
+                          setShowSubjectSuggestions(true);
+                        }
+                      }}
+                      onChange={(e) => {
+                        setSubjectQuery(e.target.value);
+                        if (canEditTutorPublicProfileFields) {
+                          setShowSubjectSuggestions(true);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (canEditTutorPublicProfileFields && e.key === "Enter" && filteredSubjectSuggestions.length > 0) {
+                          e.preventDefault();
+                          addSubject(filteredSubjectSuggestions[0]);
+                        }
+                      }}
+                      disabled={!canEditTutorPublicProfileFields}
+                      placeholder={
+                        canEditTutorPublicProfileFields
+                          ? "Start typing and matching subjects will appear in the dropdown."
+                          : "Subject editing is locked after approval"
                       }
-                    }}
-                    onChange={(e) => {
-                      setSubjectQuery(e.target.value);
-                      if (canEditTutorPublicProfileFields) {
-                        setShowSubjectSuggestions(true);
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (canEditTutorPublicProfileFields && e.key === "Enter" && filteredSubjectSuggestions.length > 0) {
-                        e.preventDefault();
-                        addSubject(filteredSubjectSuggestions[0]);
-                      }
-                    }}
-                    disabled={!canEditTutorPublicProfileFields}
-                    placeholder={
-                      canEditTutorPublicProfileFields
-                        ? "Start typing and matching subjects will appear in the dropdown."
-                        : "Subject editing is locked after approval"
-                    }
-                    className="h-7 w-full rounded-lg border border-transparent bg-transparent px-1 text-xs text-foreground outline-none placeholder:text-muted-foreground disabled:text-slate-500"
-                  />
-                  {/* {canEditApprovedTutorFields ? (
+                      className="h-7 w-full rounded-lg border border-transparent bg-transparent px-1 text-xs text-foreground outline-none placeholder:text-muted-foreground disabled:text-slate-500"
+                    />
+                    {/* {canEditApprovedTutorFields ? (
                   // <p className="px-2 pt-1 text-xs text-muted">
                   //   Start typing and matching subjects will appear in the dropdown below.
                   // </p>
                   null
                 ) : null} */}
-                </div>
-                {canEditTutorPublicProfileFields && showSubjectSuggestions && filteredSubjectSuggestions.length > 0 ? (
-                  <div className="absolute z-10 mt-2 max-h-56 w-full overflow-auto rounded-xl border border-black/12 bg-white p-1 shadow-[0_18px_36px_rgba(15,23,42,0.1)]">
-                    {filteredSubjectSuggestions.map((subject) => (
-                      <button
-                        key={subject}
-                        type="button"
-                        onClick={() => addSubject(subject)}
-                        className="w-full rounded-lg px-3 py-2 text-left text-sm text-black transition hover:bg-black hover:text-white"
-                      >
-                        {subject}
-                      </button>
-                    ))}
                   </div>
-                ) : null}
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium text-foreground">Languages</label>
-                <div className={`rounded-xl border p-2 transition ${canEditTutorPublicProfileFields
-                  ? "border-black/12 bg-white focus-within:border-black focus-within:ring-4 focus-within:ring-black/8"
-                  : "border-slate-200 bg-slate-100"
-                  }`}>
-                  {selectedLanguages.length > 0 ? (
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {selectedLanguages.map((language) => (
-                        <span
-                          key={language}
-                          className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-2.5 py-1 text-xs font-medium text-white"
+                  {canEditTutorPublicProfileFields && showSubjectSuggestions && filteredSubjectSuggestions.length > 0 ? (
+                    <div className="absolute z-10 mt-2 max-h-56 w-full overflow-auto rounded-xl border border-black/12 bg-white p-1 shadow-[0_18px_36px_rgba(15,23,42,0.1)]">
+                      {filteredSubjectSuggestions.map((subject) => (
+                        <button
+                          key={subject}
+                          type="button"
+                          onClick={() => addSubject(subject)}
+                          className="w-full rounded-lg px-3 py-2 text-left text-sm text-black transition hover:bg-black hover:text-white"
                         >
-                          {language}
-                          <button
-                            type="button"
-                            onClick={() => removeLanguage(language)}
-                            className="text-white/70 hover:text-white disabled:text-white/35"
-                            disabled={!canEditTutorPublicProfileFields}
-                            aria-label={`Remove ${language}`}
-                          >
-                            ×
-                          </button>
-                        </span>
+                          {subject}
+                        </button>
                       ))}
                     </div>
                   ) : null}
-                  <select
-                    value={languageToAdd}
-                    onChange={(e) => {
-                      const nextLanguage = e.target.value;
-                      setLanguageToAdd(nextLanguage);
-                      if (nextLanguage) {
-                        addLanguage(nextLanguage);
-                      }
-                    }}
-                    className={`h-7 w-full rounded-lg border border-transparent bg-transparent px-1 text-xs outline-none ${languageToAdd ? "text-foreground" : "text-slate-400"
-                      } disabled:cursor-not-allowed disabled:text-slate-500`}
-                    disabled={!canEditTutorPublicProfileFields || languageOptions.length <= 1}
-                  >
-                    {languageOptions.map((option) => (
-                      <option
-                        key={option.value || option.label}
-                        value={option.value}
-                        className={option.value ? "text-foreground" : "text-slate-400"}
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-foreground">Languages</label>
+                  <div className={`rounded-xl border p-[7px] transition ${canEditTutorPublicProfileFields
+                    ? "border-black/12 bg-white focus-within:border-black focus-within:ring-4 focus-within:ring-black/8"
+                    : "border-slate-200 bg-slate-100"
+                    }`}>
+                    {selectedLanguages.length > 0 ? (
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {selectedLanguages.map((language) => (
+                          <span
+                            key={language}
+                            className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-2.5 py-1 text-xs font-medium text-white"
+                          >
+                            {language}
+                            <button
+                              type="button"
+                              onClick={() => removeLanguage(language)}
+                              className="text-white/70 hover:text-white disabled:text-white/35"
+                              disabled={!canEditTutorPublicProfileFields}
+                              aria-label={`Remove ${language}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                    <select
+                      value={languageToAdd}
+                      onChange={(e) => {
+                        const nextLanguage = e.target.value;
+                        setLanguageToAdd(nextLanguage);
+                        if (nextLanguage) {
+                          addLanguage(nextLanguage);
+                        }
+                      }}
+                      className={`h-7 w-full rounded-lg border border-transparent bg-transparent px-1 text-xs outline-none ${languageToAdd ? "text-foreground" : "text-slate-400"
+                        } disabled:cursor-not-allowed disabled:text-slate-500`}
+                      disabled={!canEditTutorPublicProfileFields || languageOptions.length <= 1}
+                    >
+                      {languageOptions.map((option) => (
+                        <option
+                          key={option.value || option.label}
+                          value={option.value}
+                          className={option.value ? "text-foreground" : "text-slate-400"}
+                        >
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              {/* <Select
-              label="Gender"
-              value={gender}
-              onChange={(e) => {
-                setGender(e.target.value);
-                setHasChanges(true);
-              }}
-              options={genderOptions}
-              disabled={!canEditTutorPublicProfileFields}
-            /> */}
-              <label className={`md:col-span-2 inline-flex items-start gap-3 rounded-xl border px-3 py-3 text-[14px] leading-[22px] ${!canEditTutorPublicProfileFields ? "border-slate-200 bg-slate-100 text-slate-500" : "border-black/12 bg-white"
-                }`}>
-                <input
-                  type="checkbox"
-                  checked={firstLessonFree}
-                  onChange={(e) => {
-                    setFirstLessonFree(e.target.checked);
-                    setHasChanges(true);
-                  }}
-                  disabled={!canEditTutorPublicProfileFields}
-                  className="mt-1 h-4 w-4 rounded border-border text-accent focus:ring-accent"
-                />
-                <span>
-                  Offer first lesson for free
-                  <span className="mt-0.5 block text-[12px] text-black/55">
-                    If enabled, students will see a &quot;First lesson free&quot; label on your tutor card.
-                  </span>
-                </span>
-              </label>
-              <div className="md:col-span-2 rounded-xl border border-border bg-white p-4">
+
+              <div className="rounded-xl border border-border bg-white p-4 md:col-span-2">
                 <div className="text-[14px] font-semibold leading-[22px]">Teaching Methods</div>
                 <p className="mt-1 text-[12px] leading-[18px] text-black/55">
                   Choose how you can teach students. Face-to-face is enabled by default.
                 </p>
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <label className={`inline-flex items-start gap-3 rounded-xl border px-3 py-3 text-[14px] leading-[22px] ${!canEditTutorPublicProfileFields ? "border-slate-200 bg-slate-100 text-slate-500" : "border-black/12 bg-white"
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <label className={`inline-flex h-full items-start gap-3 rounded-xl border px-3 py-3 text-[14px] leading-[22px] ${!canEditTutorPublicProfileFields ? "border-slate-200 bg-slate-100 text-slate-500" : "border-black/12 bg-white"
                     }`}>
                     <input
                       type="checkbox"
@@ -1331,7 +1566,7 @@ export function DashboardProfilePage() {
                       </span>
                     </span>
                   </label>
-                  <label className={`inline-flex items-start gap-3 rounded-xl border px-3 py-3 text-[14px] leading-[22px] ${!canEditTutorPublicProfileFields ? "border-slate-200 bg-slate-100 text-slate-500" : "border-black/12 bg-white"
+                  <label className={`inline-flex h-full items-start gap-3 rounded-xl border px-3 py-3 text-[14px] leading-[22px] ${!canEditTutorPublicProfileFields ? "border-slate-200 bg-slate-100 text-slate-500" : "border-black/12 bg-white"
                     }`}>
                     <input
                       type="checkbox"
@@ -1347,6 +1582,25 @@ export function DashboardProfilePage() {
                       Webcam
                       <span className="mt-0.5 block text-[12px] text-black/55">
                         Enables online lessons and a video room for webcam bookings.
+                      </span>
+                    </span>
+                  </label>
+                  <label className={`inline-flex h-full items-start gap-3 rounded-xl border px-3 py-3 text-[14px] leading-[22px] ${!canEditTutorPublicProfileFields ? "border-slate-200 bg-slate-100 text-slate-500" : "border-black/12 bg-white"
+                    }`}>
+                    <input
+                      type="checkbox"
+                      checked={firstLessonFree}
+                      onChange={(e) => {
+                        setFirstLessonFree(e.target.checked);
+                        setHasChanges(true);
+                      }}
+                      disabled={!canEditTutorPublicProfileFields}
+                      className="mt-1 h-4 w-4 rounded border-border text-accent focus:ring-accent"
+                    />
+                    <span>
+                      Offer first lesson for free
+                      <span className="mt-0.5 block text-[12px] text-black/55">
+                        If enabled, students will see a &quot;First lesson free&quot; label on your tutor card.
                       </span>
                     </span>
                   </label>
@@ -1366,10 +1620,7 @@ export function DashboardProfilePage() {
               </div>
 
               <div className="md:col-span-2 mt-2 flex flex-wrap items-center justify-between gap-2">
-                <div className="text-[18px] leading-[18px] text-green-700">
-                  Status: {tutorProfile?.verificationStatus ? tutorProfile.verificationStatus : "—"}
-                </div>
-                <div className="text-[12px] leading-[18px] text-black/55">
+                <div className="text-[14px] leading-[18px] text-black/55">
                   {isTutor && isApprovedTutorProfile && hasCompletedTutorProfile && !isApprovedTutorEditMode
                     ? "Profile edit locked → Update via setting"
                     : hasChanges

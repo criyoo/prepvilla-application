@@ -16,7 +16,15 @@ import { GoogleAuthTransition } from "./GoogleAuthTransition";
 type LoginResponse = {
   accessToken: string;
   refreshToken: string;
-  user: { id: string; role: UserRole; displayName: string };
+  user: {
+    id: string;
+    role: UserRole;
+    displayName: string;
+    fullName?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  };
   defaultDashboardPath: string;
 };
 
@@ -140,6 +148,9 @@ export function AuthLoginPage() {
   return (
     <div className="brand-page min-h-screen">
       <AppHeader />
+      {/* <div className="mb-3 flex justify-center mb-4">
+        <BrandLogo className="h-40 w-auto" />
+      </div> */}
       <main className="mx-auto flex min-h-[calc(100vh-var(--app-header-height)-4rem)] w-full max-w-[560px] items-center justify-center px-4 py-6 sm:py-10">
         <section className="form-panel relative w-full rounded-[28px] p-6 backdrop-blur-sm sm:p-8">
           <h1 className="brand-heading mt-2 text-center text-3xl font-semibold tracking-tight">Log in</h1>
@@ -206,7 +217,7 @@ export function AuthLoginPage() {
               </Link>
               <span>•</span>
               <Link className="font-semibold text-black hover:text-[color:var(--palette-coral-deep)] hover:underline" href="/signup/tutor">
-                Become a tutor
+                Tutor sign up
               </Link>
             </div>
           </div>

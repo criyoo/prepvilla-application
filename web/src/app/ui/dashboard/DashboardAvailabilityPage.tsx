@@ -76,7 +76,7 @@ export function DashboardAvailabilityPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="brand-heading text-[24px] font-semibold leading-[32px]">Availability</h1>
-              <p className="mt-1 text-[14px] leading-[22px] text-black/65">Create and edit availability slots.</p>
+              <p className="mt-1 text-[14px] leading-[22px] text-black/65">Create orange edit availability slots, and let students know when you can be booked.</p>
             </div>
             <Button variant="secondary" onClick={load}>
               Refresh

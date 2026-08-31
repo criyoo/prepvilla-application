@@ -62,15 +62,10 @@ class SubscriptionPlanTests(TestCase):
         self.assertEqual(repeated_response.status_code, 400)
 
     @patch("core.payments.initialize_payment")
-    @patch("core.payments.build_subscription_subaccount_payload")
-    def test_tutor_checkout_uses_the_catalog_price(self, build_subaccounts, initialize_payment):
-        build_subaccounts.return_value = (
-            [{"id": "RS_TEST", "transaction_charge_type": "flat", "transaction_charge": 0}],
-            {"subaccount_id": "RS_TEST"},
-        )
+    def test_tutor_checkout_uses_the_catalog_price(self, initialize_payment):
         initialize_payment.return_value = {
             "status": "success",
-            "data": {"id": "123", "link": "https://checkout.example.test/subscription"},
+            "data": {"id": "cks_123", "checkout_url": "https://checkout.example.test/subscription"},
         }
         self.client.force_authenticate(self.tutor)
 
@@ -87,8 +82,156 @@ class SubscriptionPlanTests(TestCase):
         payment = SubscriptionPayment.objects.get(user=self.tutor)
         self.assertEqual(payment.plan, "platinum")
         self.assertEqual(Decimal(payment.amount), plan[3]["price"])
+        self.assertEqual(payment.payment_link, "https://checkout.example.test/subscription")
         
         initialize_payment.assert_called_once()
+
+    @patch("core.payments.initialize_payment")
+    def test_existing_pending_payment_can_be_continued(self, initialize_payment):
+        initialize_payment.return_value = {
+            "status": "success",
+            "data": {"id": "cks_pending", "checkout_url": "https://checkout.example.test/pending"},
+        }
+        self.client.force_authenticate(self.student)
+
+        first_response = self.client.post(
+            "/api/payments/subscriptions/checkout",
+            {"plan": "silver"},
+            format="json",
+        )
+        payment_id = first_response.json()["id"]
+
+        continue_response = self.client.post(
+            f"/api/payments/subscriptions/{payment_id}/checkout",
+            {},
+            format="json",
+        )
+        repeated_plan_response = self.client.post(
+            "/api/payments/subscriptions/checkout",
+            {"plan": "silver"},
+            format="json",
+        )
+
+        self.assertEqual(first_response.status_code, 201)
+        self.assertEqual(continue_response.status_code, 200)
+        self.assertEqual(repeated_plan_response.status_code, 201)
+        self.assertEqual(continue_response.json()["paymentLink"], "https://checkout.example.test/pending")
+        self.assertEqual(repeated_plan_response.json()["id"], payment_id)
+        self.assertEqual(SubscriptionPayment.objects.filter(user=self.student).count(), 1)
+        initialize_payment.assert_called_once()
+
+    @patch("core.payments.initialize_payment")
+    def test_pending_payment_must_be_cancelled_before_choosing_another_package(self, initialize_payment):
+        initialize_payment.return_value = {
+            "status": "success",
+            "data": {"id": "cks_pending", "checkout_url": "https://checkout.example.test/pending"},
+        }
+        self.client.force_authenticate(self.student)
+        self.client.post(
+            "/api/payments/subscriptions/checkout",
+            {"plan": "silver"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/payments/subscriptions/checkout",
+            {"plan": "gold"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(SubscriptionPayment.objects.filter(user=self.student).count(), 1)
+
+    @patch("core.payments.initialize_payment")
+    def test_pending_payment_can_be_cancelled_then_retried_or_changed(self, initialize_payment):
+        initialize_payment.side_effect = [
+            {
+                "status": "success",
+                "data": {"id": "cks_pending", "checkout_url": "https://checkout.example.test/pending"},
+            },
+            {
+                "status": "success",
+                "data": {"id": "cks_changed", "checkout_url": "https://checkout.example.test/changed"},
+            },
+        ]
+        self.client.force_authenticate(self.student)
+        checkout_response = self.client.post(
+            "/api/payments/subscriptions/checkout",
+            {"plan": "silver"},
+            format="json",
+        )
+        payment_id = checkout_response.json()["id"]
+
+        cancel_response = self.client.post(
+            f"/api/payments/subscriptions/{payment_id}/cancel",
+            {},
+            format="json",
+        )
+        changed_plan_response = self.client.post(
+            "/api/payments/subscriptions/checkout",
+            {"plan": "gold"},
+            format="json",
+        )
+
+        self.assertEqual(cancel_response.status_code, 200)
+        self.assertEqual(cancel_response.json()["status"], "cancelled")
+        cancelled_payment = SubscriptionPayment.objects.get(id=payment_id)
+        self.assertEqual(cancelled_payment.payment_link, "")
+        self.assertEqual(cancelled_payment.provider_payload["cancellation"]["reason"], "cancelled_by_user")
+        self.assertEqual(changed_plan_response.status_code, 201)
+        self.assertEqual(changed_plan_response.json()["paymentLink"], "https://checkout.example.test/changed")
+        self.assertEqual(SubscriptionPayment.objects.filter(user=self.student).count(), 2)
+
+    def test_user_cannot_continue_or_cancel_another_users_payment(self):
+        payment = SubscriptionPayment.objects.create(
+            user=self.tutor,
+            plan="silver",
+            amount=plan[1]["price"],
+            transaction_id="another-users-pending-subscription",
+        )
+        self.client.force_authenticate(self.student)
+
+        continue_response = self.client.post(
+            f"/api/payments/subscriptions/{payment.id}/checkout",
+            {},
+            format="json",
+        )
+        cancel_response = self.client.post(
+            f"/api/payments/subscriptions/{payment.id}/cancel",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(continue_response.status_code, 400)
+        self.assertEqual(cancel_response.status_code, 400)
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, SubscriptionPayment.Status.PENDING)
+
+    def test_completed_payment_cannot_be_continued_or_cancelled(self):
+        payment = SubscriptionPayment.objects.create(
+            user=self.student,
+            plan="silver",
+            amount=plan[1]["price"],
+            transaction_id="completed-subscription-payment",
+            status=SubscriptionPayment.Status.COMPLETED,
+        )
+        self.client.force_authenticate(self.student)
+
+        continue_response = self.client.post(
+            f"/api/payments/subscriptions/{payment.id}/checkout",
+            {},
+            format="json",
+        )
+        cancel_response = self.client.post(
+            f"/api/payments/subscriptions/{payment.id}/cancel",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(continue_response.status_code, 400)
+        self.assertEqual(cancel_response.status_code, 400)
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, SubscriptionPayment.Status.COMPLETED)
 
     def test_subscription_history_is_scoped_to_the_authenticated_user(self):
         SubscriptionPayment.objects.create(

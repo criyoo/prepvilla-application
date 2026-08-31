@@ -71,23 +71,23 @@ class PaymentAccountingTests(TestCase):
         verify_transaction.return_value = {
             "status": "success",
             "data": {
-                "id": 10101,
-                "tx_ref": payment.transaction_id,
+                "id": "chg_10101",
+                "reference": payment.transaction_id,
                 "amount": 5000,
                 "currency": "NGN",
-                "status": "successful",
-                "payment_type": "bank_transfer",
+                "status": "succeeded",
+                "payment_method_details": {"type": "bank_transfer"},
             },
         }
         body = {
             "event": "charge.completed",
             "data": {
-                "id": 10101,
-                "tx_ref": payment.transaction_id,
+                "id": "chg_10101",
+                "reference": payment.transaction_id,
                 "amount": 5000,
                 "currency": "NGN",
-                "status": "successful",
-                "payment_type": "bank_transfer",
+                "status": "succeeded",
+                "payment_method_details": {"type": "bank_transfer"},
             },
         }
 
@@ -130,12 +130,12 @@ class PaymentAccountingTests(TestCase):
         verify_transaction.return_value = {
             "status": "success",
             "data": {
-                "id": 20202,
-                "tx_ref": payment.transaction_id,
+                "id": "chg_20202",
+                "reference": payment.transaction_id,
                 "amount": 10000,
                 "currency": "NGN",
-                "status": "successful",
-                "payment_type": "bank_transfer",
+                "status": "succeeded",
+                "payment_method_details": {"type": "bank_transfer"},
             },
         }
 
@@ -158,6 +158,45 @@ class PaymentAccountingTests(TestCase):
             PaymentLedgerEntry.objects.get(reference=f"booking:{payment.id}:tutor-payable").status,
             PaymentLedgerEntry.Status.HELD,
         )
+
+    @patch("core.payments.verify_transaction_by_reference")
+    @patch("core.payments.retrieve_checkout_session")
+    def test_v4_checkout_session_can_resolve_payment_reference(self, retrieve_session, verify_by_reference):
+        payment = SubscriptionPayment.objects.create(
+            user=self.student,
+            plan="silver",
+            amount=Decimal("5000.00"),
+            transaction_id="prepvilla-sub-session",
+            provider_transaction_id="cks_test",
+        )
+        retrieve_session.return_value = {
+            "status": "success",
+            "data": {"id": "cks_test", "reference": payment.transaction_id},
+        }
+        verify_by_reference.return_value = {
+            "status": "success",
+            "data": {
+                "id": "chg_session",
+                "reference": payment.transaction_id,
+                "amount": 5000,
+                "currency": "NGN",
+                "status": "succeeded",
+                "payment_method_details": {"type": "card"},
+            },
+        }
+
+        result = verify_customer_payment(
+            user=self.student,
+            transaction_id="",
+            checkout_session_id="cks_test",
+        )
+
+        self.assertEqual(result["status"], SubscriptionPayment.Status.COMPLETED)
+        payment.refresh_from_db()
+        self.assertEqual(payment.provider_transaction_id, "chg_session")
+        self.assertEqual(payment.payment_method, "card")
+        retrieve_session.assert_called_once_with("cks_test")
+        verify_by_reference.assert_called_once_with(payment.transaction_id)
 
     @patch("core.payments.enqueue_payment_task")
     def test_student_confirmation_alone_authorizes_tutor_payout(self, enqueue_payment_task):
@@ -244,4 +283,3 @@ class PaymentAccountingTests(TestCase):
         self.assertEqual(webhook_result["status"], TutorPayout.Status.COMPLETED)
         self.assertEqual(payout.status, TutorPayout.Status.COMPLETED)
         self.assertIsNotNone(payment.released_at)
-

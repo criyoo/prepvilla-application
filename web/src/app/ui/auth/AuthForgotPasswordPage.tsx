@@ -9,6 +9,7 @@ import { Input } from "../shared/Input";
 import { OtpResendButton } from "../shared/OtpResendButton";
 import { api } from "../shared/api";
 import { AuthCard } from "./AuthCard";
+import BrandLogo from "../shared/BrandLogo";
 
 type Step = "request" | "confirm" | "done";
 
@@ -71,11 +72,14 @@ export function AuthForgotPasswordPage() {
     }
   }
 
-  return (
+return (
     <div className="brand-page min-h-screen">
       <AppHeader />
       <main className="mx-auto w-full max-w-[1200px] px-4 pb-10 pt-10">
-        <AuthCard title="Reset password" subtitle="We’ll send a 6-character code to your email.">
+        <AuthCard title="Reset password" subtitle="We'll send a 6-character code to your email.">
+          <div className="flex justify-center mb-4">
+            <BrandLogo className="h-20 w-auto" />
+          </div>
           {step === "request" ? (
             <>
               <Input

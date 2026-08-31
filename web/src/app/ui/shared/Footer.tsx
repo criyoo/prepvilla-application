@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   UsersRound,
 } from "lucide-react";
+import BrandLogo from "./BrandLogo";
 
 const browseLinks = [
   { label: "Home", href: "/" },
@@ -67,11 +68,8 @@ export function Footer() {
         <div className="mx-auto max-w-[1480px] px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
           <div className="grid gap-12 border-b border-white/10 pb-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.35fr)]">
             <div className="flex h-full flex-col gap-6">
-              <Link href="/" aria-label="PrepVilla home" className="inline-flex w-fit items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent text-white shadow-lg shadow-black/20">
-                  <GraduationCap className="h-6 w-6" />
-                </span>
-                <span className="text-2xl font-extrabold tracking-tight">PrepVilla</span>
+              <Link href="/" aria-label="PrepVilla home" className="inline-flex w-fit items-center gap-3 text-white">
+                <BrandLogo className="h-24 w-24 w-auto" />
               </Link>
 
               <div className="space-y-3">

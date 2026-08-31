@@ -79,6 +79,8 @@ urlpatterns = [
   path("bookings/<str:booking_id>/video-room", views.booking_video_room),
   path("bookings/<str:booking_id>/review", views.submit_review),
   path("payments/subscriptions/checkout", views.subscription_payment_checkout),
+  path("payments/subscriptions/<uuid:payment_id>/checkout", views.subscription_payment_continue),
+  path("payments/subscriptions/<uuid:payment_id>/cancel", views.subscription_payment_cancel),
   path("payments/subscriptions/plans", views.subscription_plans),
   path("payments/subscriptions", views.subscription_payments),
   path("payments/bookings/<str:booking_id>/checkout", views.booking_payment_checkout),

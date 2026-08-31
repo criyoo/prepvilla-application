@@ -21,21 +21,34 @@ function CallbackContent() {
 
   useEffect(() => {
     const providerStatus = (searchParams.get("status") || "").toLowerCase();
-    const transactionId = searchParams.get("transaction_id") || "";
-    const transactionReference = searchParams.get("tx_ref") || "";
+    const transactionId =
+      searchParams.get("transaction_id") ||
+      searchParams.get("charge_id") ||
+      searchParams.get("id") ||
+      "";
+    const transactionReference =
+      searchParams.get("tx_ref") ||
+      searchParams.get("reference") ||
+      "";
+    const checkoutSessionId =
+      searchParams.get("checkout_session_id") ||
+      searchParams.get("session_id") ||
+      "";
 
     if (providerStatus === "cancelled") {
       router.replace("/dashboard/billing?checkout=cancelled");
       return;
     }
-    if (!transactionId) {
+    if (!transactionId && !transactionReference && !checkoutSessionId) {
       setFailed(true);
       setMessage("The payment provider did not return a transaction to verify.");
       return;
     }
 
-    const query = new URLSearchParams({ transaction_id: transactionId });
+    const query = new URLSearchParams();
+    if (transactionId) query.set("transaction_id", transactionId);
     if (transactionReference) query.set("tx_ref", transactionReference);
+    if (checkoutSessionId) query.set("checkout_session_id", checkoutSessionId);
 
     void api.get<VerificationResponse>(`/api/payments/flutterwave/verify?${query.toString()}`).then((result) => {
       if (!result.ok || result.data.status !== "completed") {

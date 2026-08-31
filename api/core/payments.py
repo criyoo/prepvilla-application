@@ -15,8 +15,8 @@ from rest_framework.exceptions import ValidationError
 from .flutterwave import (
     FlutterwaveError,
     create_transfer,
-    get_or_create_collection_subaccount_id,
     initialize_payment,
+    retrieve_checkout_session,
     retrieve_transfer,
     verify_transaction,
     verify_transaction_by_reference,
@@ -52,7 +52,8 @@ def _successful(payload: dict[str, Any]) -> bool:
 
 
 def _reference(prefix: str) -> str:
-    return f"{prefix}-{uuid.uuid4().hex}"
+    # Flutterwave v4 references are limited to 42 characters.
+    return f"{prefix}-{uuid.uuid4().hex}"[:42]
 
 
 def _money(value: Decimal | str | int | float) -> Decimal:
@@ -89,78 +90,24 @@ def _subscription_amount(user, plan: str) -> Decimal:
     return _money(selected_plan["price"])
 
 
-def _json_amount(value: Decimal) -> int | float:
-    return int(value) if value == value.to_integral_value() else float(value)
-
-
-def resolve_subscription_payment_account() -> dict[str, str]:
-    return {
-        "bank_code": str(getattr(settings, "PREPVILLA_OPERATIONAL_BANK_CODE", "") or "").strip(),
-        "bank_name": str(getattr(settings, "PREPVILLA_OPERATIONAL_BANK_NAME", "") or "").strip(),
-        "account_number": str(getattr(settings, "PREPVILLA_OPERATIONAL_ACCOUNT_NUMBER", "") or "").strip(),
-        "account_name": str(getattr(settings, "PREPVILLA_OPERATIONAL_ACCOUNT_NAME", "") or "").strip(),
-    }
-
-
-def subscription_direct_settlement_configured() -> bool:
-    if str(getattr(settings, "PREPVILLA_OPERATIONAL_SUBACCOUNT_ID", "") or "").strip():
-        return True
-    account = resolve_subscription_payment_account()
-    return bool(
-        account["bank_code"]
-        and account["account_number"]
-        and account["account_name"]
-        and str(getattr(settings, "PREPVILLA_OPERATIONAL_BUSINESS_MOBILE", "") or "").strip()
-    )
-
-
-def build_subscription_subaccount_payload() -> tuple[list[dict[str, Any]], dict[str, str]]:
-    account = resolve_subscription_payment_account()
-    subaccount_id = str(getattr(settings, "PREPVILLA_OPERATIONAL_SUBACCOUNT_ID", "") or "").strip()
-    if not subaccount_id:
-        if not subscription_direct_settlement_configured():
-            raise FlutterwaveError(
-                "PrepVilla operational subscription account is not configured. "
-                "Provide the operational bank account and business mobile, or PREPVILLA_OPERATIONAL_SUBACCOUNT_ID."
-            )
-        subaccount_id = get_or_create_collection_subaccount_id(
-            bank_code=account["bank_code"],
-            account_number=account["account_number"],
-            business_name=account["account_name"],
-            business_email=getattr(settings, "PREPVILLA_OPERATIONAL_BUSINESS_EMAIL", ""),
-            business_mobile=getattr(settings, "PREPVILLA_OPERATIONAL_BUSINESS_MOBILE", ""),
-            country=getattr(settings, "PREPVILLA_OPERATIONAL_SUBACCOUNT_COUNTRY", "NG"),
-            split_type=getattr(settings, "PREPVILLA_OPERATIONAL_SUBACCOUNT_SPLIT_TYPE", "flat"),
-            split_value=getattr(settings, "PREPVILLA_OPERATIONAL_SUBACCOUNT_SPLIT_VALUE", "0"),
-        )
-    try:
-        transaction_charge = Decimal(
-            str(getattr(settings, "PREPVILLA_SUBSCRIPTION_TRANSACTION_CHARGE", "0") or "0")
-        )
-    except (InvalidOperation, TypeError, ValueError) as exc:
-        raise FlutterwaveError("PrepVilla subscription transaction charge is invalid.") from exc
-    transaction_charge_type = str(
-        getattr(settings, "PREPVILLA_SUBSCRIPTION_TRANSACTION_CHARGE_TYPE", "flat") or "flat"
-    ).strip() or "flat"
-    subaccounts = [{
-        "id": subaccount_id,
-        "transaction_charge_type": transaction_charge_type,
-        "transaction_charge": _json_amount(transaction_charge),
-    }]
-    return subaccounts, {
-        **account,
-        "subaccount_id": subaccount_id,
-        "transaction_charge_type": transaction_charge_type,
-        "transaction_charge": str(transaction_charge),
-    }
-
-
 def _checkout_result(payment, provider_payload: dict[str, Any]) -> dict[str, Any]:
     data = _response_data(provider_payload)
     payment.provider_transaction_id = str(data.get("id") or "")
-    payment.payment_link = str(data.get("link") or data.get("payment_link") or "")
+    next_action = data.get("next_action") if isinstance(data.get("next_action"), dict) else {}
+    redirect_action = next_action.get("redirect_url") if isinstance(next_action.get("redirect_url"), dict) else {}
+    payment.payment_link = str(
+        data.get("checkout_url")
+        or data.get("link")
+        or data.get("payment_link")
+        or redirect_action.get("url")
+        or ""
+    )
     payment.provider_payload = provider_payload
     payment.save(update_fields=["provider_transaction_id", "payment_link", "provider_payload", "updated_at"])
+    return _payment_checkout_result(payment)
+
+
+def _payment_checkout_result(payment) -> dict[str, Any]:
     return {
         "id": str(payment.id),
         "transactionId": payment.transaction_id,
@@ -169,6 +116,21 @@ def _checkout_result(payment, provider_payload: dict[str, Any]) -> dict[str, Any
         "amount": str(payment.amount),
         "currency": payment.currency,
     }
+
+
+def _subscription_checkout_payload(payment: SubscriptionPayment) -> dict[str, Any]:
+    return initialize_payment(
+        tx_ref=payment.transaction_id,
+        amount=payment.amount,
+        email=payment.user.email,
+        name=payment.user.full_name or payment.user.display_name,
+        phone=payment.user.mobile_number,
+        meta={
+            "payment_type": "subscription",
+            "payment_id": str(payment.id),
+            "plan": payment.plan,
+        },
+    )
 
 
 def _ledger_entry(
@@ -258,6 +220,7 @@ def _record_booking_allocations(payment: BookingPayment) -> TutorPayout:
     return payout
 
 
+@transaction.atomic
 def create_subscription_checkout(*, user, plan: str) -> dict[str, Any]:
     amount = _subscription_amount(user, plan)
     normalized_plan = str(plan or "").strip().lower()
@@ -267,6 +230,19 @@ def create_subscription_checkout(*, user, plan: str) -> dict[str, Any]:
         status=SubscriptionPayment.Status.COMPLETED,
     ).exists():
         raise ValidationError({"plan": "The 14-day free package can only be activated once."})
+
+    pending_payments = list(
+        SubscriptionPayment.objects.select_for_update()
+        .filter(user=user, status=SubscriptionPayment.Status.PENDING)
+        .order_by("-updated_at")
+    )
+    pending_for_plan = next((payment for payment in pending_payments if payment.plan == normalized_plan), None)
+    if pending_for_plan is not None:
+        return continue_subscription_checkout(user=user, payment_id=pending_for_plan.id)
+    if pending_payments:
+        raise ValidationError(
+            {"plan": "Cancel your pending subscription payment before choosing a different package."}
+        )
 
     payment = SubscriptionPayment.objects.create(
         user=user,
@@ -284,36 +260,64 @@ def create_subscription_checkout(*, user, plan: str) -> dict[str, Any]:
         _record_subscription_collection(payment)
         return _checkout_result(payment, {})
 
-    subaccounts, destination = build_subscription_subaccount_payload()
     try:
-        payload = initialize_payment(
-            tx_ref=payment.transaction_id,
-            amount=amount,
-            email=user.email,
-            name=user.full_name or user.display_name,
-            phone=user.mobile_number,
-            meta={
-                "payment_type": "subscription",
-                "payment_id": str(payment.id),
-                "plan": normalized_plan,
-                "subscription_subaccount_id": subaccounts[0]["id"],
-            },
-            subaccounts=subaccounts,
-        )
+        payload = _subscription_checkout_payload(payment)
     except FlutterwaveError:
         payment.status = SubscriptionPayment.Status.FAILED
         payment.save(update_fields=["status", "updated_at"])
         raise
-    result = _checkout_result(payment, payload)
+    return _checkout_result(payment, payload)
+
+
+def continue_subscription_checkout(*, user, payment_id) -> dict[str, Any]:
+    payment = SubscriptionPayment.objects.select_related("user").filter(id=payment_id, user=user).first()
+    if payment is None:
+        raise ValidationError({"paymentId": "Subscription payment not found."})
+    if payment.status != SubscriptionPayment.Status.PENDING:
+        raise ValidationError({"paymentId": "Payment is no longer pending."})
+    if payment.payment_link:
+        return _payment_checkout_result(payment)
+
+    try:
+        payload = _subscription_checkout_payload(payment)
+    except FlutterwaveError:
+        payment.status = SubscriptionPayment.Status.FAILED
+        payment.save(update_fields=["status", "updated_at"])
+        raise
+    return _checkout_result(payment, payload)
+
+
+@transaction.atomic
+def cancel_subscription_payment(*, user, payment_id) -> dict[str, Any]:
+    payment = (
+        SubscriptionPayment.objects.select_for_update()
+        .filter(id=payment_id, user=user)
+        .first()
+    )
+    if payment is None:
+        raise ValidationError({"paymentId": "Subscription payment not found."})
+    if payment.status != SubscriptionPayment.Status.PENDING:
+        raise ValidationError({"paymentId": "Payment is no longer pending."})
+
+    provider_payload = payment.provider_payload if isinstance(payment.provider_payload, dict) else {}
+    payment.status = SubscriptionPayment.Status.CANCELLED
+    payment.payment_link = ""
     payment.provider_payload = {
-        **(payment.provider_payload or {}),
-        "subscription_destination": {
-            "subaccount_id": destination["subaccount_id"],
-            "direct_settlement": True,
+        **provider_payload,
+        "cancellation": {
+            "cancelled_at": timezone.now().isoformat(),
+            "reason": "cancelled_by_user",
         },
     }
-    payment.save(update_fields=["provider_payload", "updated_at"])
-    return result
+    payment.save(update_fields=["status", "payment_link", "provider_payload", "updated_at"])
+    return {
+        "id": str(payment.id),
+        "transactionId": payment.transaction_id,
+        "status": payment.status,
+        "paymentLink": payment.payment_link,
+        "amount": str(payment.amount),
+        "currency": payment.currency,
+    }
 
 
 def create_booking_checkout(*, user, booking_id: str) -> dict[str, Any]:
@@ -364,7 +368,14 @@ def _mark_paid(payment, provider_payload: dict[str, Any], provider_transaction_i
     payment.status = payment.Status.COMPLETED
     payment.provider_payload = provider_payload
     payment.provider_transaction_id = provider_transaction_id or payment.provider_transaction_id
-    payment.payment_method = str(data.get("payment_type") or data.get("payment_method") or "")[:40]
+    payment_method_details = data.get("payment_method_details")
+    payment_method_details = payment_method_details if isinstance(payment_method_details, dict) else {}
+    payment.payment_method = str(
+        data.get("payment_type")
+        or data.get("payment_method")
+        or payment_method_details.get("type")
+        or ""
+    )[:40]
     payment.paid_at = payment.paid_at or timezone.now()
     payment.save(update_fields=["status", "provider_payload", "provider_transaction_id", "payment_method", "paid_at", "updated_at"])
     if isinstance(payment, SubscriptionPayment):
@@ -402,17 +413,33 @@ def _validate_verified_payment(payment, data: dict[str, Any], resolved_ref: str)
         raise ValidationError({"transactionId": "Payment currency does not match."})
 
 
-def verify_customer_payment(*, user, transaction_id: str, tx_ref: str = "") -> dict[str, Any]:
+def verify_customer_payment(
+    *,
+    user,
+    transaction_id: str,
+    tx_ref: str = "",
+    checkout_session_id: str = "",
+) -> dict[str, Any]:
+    if not tx_ref and checkout_session_id:
+        session_payload = retrieve_checkout_session(checkout_session_id)
+        session_data = _response_data(session_payload)
+        tx_ref = str(session_data.get("reference") or "").strip()
     payment = _find_payment(tx_ref) if tx_ref else None
     if payment is not None:
         owner_id = payment.user_id if isinstance(payment, SubscriptionPayment) else payment.student_user_id
         if owner_id != user.id:
             raise ValidationError({"transactionId": "Payment not found."})
-    payload = verify_transaction(transaction_id)
+    normalized_transaction_id = str(transaction_id or "").strip()
+    if normalized_transaction_id:
+        payload = verify_transaction(normalized_transaction_id)
+    elif tx_ref:
+        payload = verify_transaction_by_reference(tx_ref)
+    else:
+        raise ValidationError({"transactionId": "A payment ID or reference is required."})
     data = _response_data(payload)
     resolved_ref = str(data.get("tx_ref") or data.get("reference") or tx_ref).strip()
     payment = payment or _find_payment(resolved_ref)
-    payment = payment or _find_payment_by_provider_id(str(data.get("id") or transaction_id))
+    payment = payment or _find_payment_by_provider_id(str(data.get("id") or normalized_transaction_id))
     if payment is None:
         raise ValidationError({"transactionId": "Payment not found."})
     if not _successful(payload):
@@ -426,7 +453,7 @@ def verify_customer_payment(*, user, transaction_id: str, tx_ref: str = "") -> d
         payment.save(update_fields=["status", "provider_payload", "updated_at"])
         return {"id": str(payment.id), "transactionId": payment.transaction_id, "status": payment.status}
     _validate_verified_payment(payment, data, resolved_ref)
-    _mark_paid(payment, payload, str(data.get("id") or transaction_id))
+    _mark_paid(payment, payload, str(data.get("id") or normalized_transaction_id))
     if isinstance(payment, BookingPayment):
         payout = queue_tutor_payout(payment, enqueue=booking_payout_release_conditions_met(payment.booking))
         return {"id": str(payment.id), "transactionId": payment.transaction_id, "status": payment.status, "payoutStatus": payout.status}

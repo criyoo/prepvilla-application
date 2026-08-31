@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Clock3, CreditCard, Crown, History, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
+import { AlertTriangle, Check, Clock3, CreditCard, Crown, History, RefreshCw, RotateCcw, ShieldCheck, Sparkles, X } from "lucide-react";
 import { api } from "../shared/api";
 import { Button } from "../shared/Button";
 import { useAuthStore } from "../shared/authStore";
@@ -97,6 +97,7 @@ export default function DashboardBillingPage() {
   const [payments, setPayments] = useState<SubscriptionPayment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [paymentAction, setPaymentAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -139,9 +140,87 @@ export default function DashboardBillingPage() {
     () => payments.find((payment) => payment.status === "completed" && payment.expiresAt && new Date(payment.expiresAt).getTime() >= Date.now()) || null,
     [payments],
   );
+  const pendingPayments = useMemo(
+    () => payments.filter((payment) => payment.status === "pending"),
+    [payments],
+  );
   const hasUsedFreePackage = payments.some((payment) => payment.plan === "free" && payment.status === "completed");
 
+  async function handleCheckoutResult(result: CheckoutResponse, planName: string) {
+    if (result.status === "completed") {
+      setNotice(`${planName} is now active on your account.`);
+      await loadBilling();
+      return;
+    }
+    if (!result.paymentLink) {
+      setError("Checkout could not be started. Please try again.");
+      return;
+    }
+    window.location.assign(result.paymentLink);
+  }
+
+  async function continuePayment(payment: SubscriptionPayment) {
+    setPaymentAction(`${payment.id}:continue`);
+    setError(null);
+    setNotice(null);
+    const result = await api.post<CheckoutResponse>(`/api/payments/subscriptions/${payment.id}/checkout`);
+    if (!result.ok) {
+      setError(result.error);
+      setPaymentAction(null);
+      return;
+    }
+    await handleCheckoutResult(result.data, payment.planName);
+    setPaymentAction(null);
+  }
+
+  async function cancelPayment(payment: SubscriptionPayment) {
+    if (!window.confirm(`Cancel the pending ${payment.planName} payment? You can choose another package afterwards.`)) return;
+    setPaymentAction(`${payment.id}:cancel`);
+    setError(null);
+    setNotice(null);
+    const result = await api.post<CheckoutResponse>(`/api/payments/subscriptions/${payment.id}/cancel`);
+    if (!result.ok) {
+      setError(result.error);
+      setPaymentAction(null);
+      return;
+    }
+    setNotice(`${payment.planName} payment was cancelled. You can now choose another package.`);
+    await loadBilling();
+    setPaymentAction(null);
+  }
+
+  async function cancelAndRetryPayment(payment: SubscriptionPayment) {
+    if (!window.confirm(`Cancel this payment and start a new ${payment.planName} payment attempt?`)) return;
+    setPaymentAction(`${payment.id}:retry`);
+    setError(null);
+    setNotice(null);
+    const cancelled = await api.post<CheckoutResponse>(`/api/payments/subscriptions/${payment.id}/cancel`);
+    if (!cancelled.ok) {
+      setError(cancelled.error);
+      setPaymentAction(null);
+      return;
+    }
+    const result = await api.post<CheckoutResponse>("/api/payments/subscriptions/checkout", { plan: payment.plan });
+    if (!result.ok) {
+      setError(result.error);
+      await loadBilling();
+      setPaymentAction(null);
+      return;
+    }
+    await handleCheckoutResult(result.data, payment.planName);
+    setPaymentAction(null);
+  }
+
   async function choosePlan(plan: SubscriptionPlan) {
+    const pendingForPlan = pendingPayments.find((payment) => payment.plan === plan.code);
+    if (pendingForPlan) {
+      await continuePayment(pendingForPlan);
+      return;
+    }
+    if (pendingPayments.length > 0) {
+      setError("You already have a pending payment. Continue, retry, or cancel it before choosing another package.");
+      return;
+    }
     setSelectedPlan(plan.code);
     setError(null);
     setNotice(null);
@@ -152,20 +231,8 @@ export default function DashboardBillingPage() {
       return;
     }
 
-    if (result.data.status === "completed") {
-      setNotice(`${plan.name} is now active on your account.`);
-      setSelectedPlan(null);
-      await loadBilling();
-      return;
-    }
-
-    if (!result.data.paymentLink) {
-      setError("Checkout could not be started. Please try again.");
-      setSelectedPlan(null);
-      return;
-    }
-
-    window.location.assign(result.data.paymentLink);
+    await handleCheckoutResult(result.data, plan.name);
+    setSelectedPlan(null);
   }
 
   return (
@@ -196,6 +263,64 @@ export default function DashboardBillingPage() {
       {notice ? <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[14px] text-emerald-800">{notice}</div> : null}
       {error ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-700">{error}</div> : null}
 
+      {pendingPayments.length > 0 ? (
+        <section className="rounded-[24px] border border-amber-200 bg-amber-50 p-5 shadow-[0_16px_36px_rgba(15,23,40,0.06)] sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-[18px] font-bold text-primary-deep">Complete, retry, or cancel your pending payment</h2>
+              <p className="mt-1 text-[14px] leading-6 text-muted">Continue an interrupted checkout, start a fresh attempt, or cancel it before choosing another package.</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {pendingPayments.map((payment) => (
+              <div key={payment.id} className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-white p-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div className="text-[14px] font-bold text-primary-deep">{payment.planName}</div>
+                  <div className="mt-1 text-[13px] text-muted">
+                    {formatPrice(payment.amount, payment.currency)} · Started {formatDate(payment.createdAt)}
+                  </div>
+                  <div className="mt-1 text-[12px] text-muted">Reference: {payment.transactionId}</div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => void continuePayment(payment)}
+                    isLoading={paymentAction === `${payment.id}:continue`}
+                    disabled={Boolean(paymentAction || selectedPlan)}
+                    leftIcon={<CreditCard className="h-4 w-4" />}
+                  >
+                    Continue payment
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => void cancelAndRetryPayment(payment)}
+                    isLoading={paymentAction === `${payment.id}:retry`}
+                    disabled={Boolean(paymentAction || selectedPlan)}
+                    leftIcon={<RotateCcw className="h-4 w-4" />}
+                  >
+                    Cancel and retry
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => void cancelPayment(payment)}
+                    isLoading={paymentAction === `${payment.id}:cancel`}
+                    disabled={Boolean(paymentAction || selectedPlan)}
+                    leftIcon={<X className="h-4 w-4" />}
+                  >
+                    Cancel payment
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {isLoading || !catalog ? (
         <div className="rounded-2xl border border-border bg-white p-8 text-center text-[14px] text-muted">Loading subscription packages...</div>
       ) : (
@@ -216,6 +341,8 @@ export default function DashboardBillingPage() {
               const Icon = style.icon;
               const isCurrent = activeSubscription?.plan === plan.code;
               const freePackageUnavailable = plan.code === "free" && hasUsedFreePackage && !isCurrent;
+              const pendingForPlan = pendingPayments.find((payment) => payment.plan === plan.code);
+              const hasOtherPendingPayment = pendingPayments.length > 0 && !pendingForPlan;
               return (
                 <article
                   key={plan.code}
@@ -249,10 +376,20 @@ export default function DashboardBillingPage() {
                       fullWidth
                       variant={plan.code === "gold" ? "gradient" : "primary"}
                       onClick={() => void choosePlan(plan)}
-                      isLoading={selectedPlan === plan.code}
-                      disabled={Boolean(selectedPlan) || isCurrent || freePackageUnavailable}
+                      isLoading={selectedPlan === plan.code || Boolean(pendingForPlan && paymentAction === `${pendingForPlan.id}:continue`)}
+                      disabled={Boolean(selectedPlan || paymentAction) || isCurrent || freePackageUnavailable || hasOtherPendingPayment}
                     >
-                      {isCurrent ? "Current package" : freePackageUnavailable ? "Free package used" : plan.price === 0 ? "Start free" : "Choose package"}
+                      {isCurrent
+                        ? "Current package"
+                        : freePackageUnavailable
+                          ? "Free package used"
+                          : pendingForPlan
+                            ? "Continue payment"
+                            : hasOtherPendingPayment
+                              ? "Pending payment exists"
+                              : plan.price === 0
+                                ? "Start free"
+                                : "Choose package"}
                     </Button>
                   </div>
                 </article>

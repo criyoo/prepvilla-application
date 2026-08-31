@@ -12,20 +12,20 @@ import { useAuthStore } from "../shared/authStore";
 type NavItem = { href: string; label: string; icon: ReactNode; roles: ("student" | "tutor" | "admin")[] };
 
 const items: NavItem[] = [
+  { href: "/dashboard/billing", label: "Billing & Subscription", icon: <CreditCard className="h-4 w-4" />, roles: ["student", "tutor"] },
+  { href: "/dashboard/availability", label: "Availability", icon: <CalendarClock className="h-4 w-4" />, roles: ["tutor"] },
   { href: "/dashboard/bookings", label: "Bookings", icon: <CheckCircle2 className="h-4 w-4" />, roles: ["student", "tutor", "admin"] },
   { href: "/dashboard/messages", label: "Messages", icon: <MessagesSquare className="h-4 w-4" />, roles: ["student", "tutor", "admin"] },
   { href: "/dashboard/favorites", label: "Favorites", icon: <Heart className="h-4 w-4" />, roles: ["student"] },
-  { href: "/dashboard/profile", label: "Profile", icon: <UserRound className="h-4 w-4" />, roles: ["student", "tutor", "admin"] },
-  { href: "/dashboard/availability", label: "Availability", icon: <CalendarClock className="h-4 w-4" />, roles: ["tutor"] },
-  { href: "/dashboard/video-room", label: "Video Room", icon: <Video className="h-4 w-4" />, roles: ["tutor"] },
   { href: "/dashboard/verification", label: "Verification", icon: <FileBadge2 className="h-4 w-4" />, roles: ["tutor"] },
+  { href: "/dashboard/profile", label: "Profile", icon: <UserRound className="h-4 w-4" />, roles: ["student", "tutor", "admin"] },
+  { href: "/dashboard/video-room", label: "Video Room", icon: <Video className="h-4 w-4" />, roles: ["tutor"] },
   { href: "/dashboard/student-verification", label: "Verification", icon: <FileBadge2 className="h-4 w-4" />, roles: ["student"] },
   { href: "/dashboard/support", label: "Support", icon: <Headset className="h-4 w-4" />, roles: ["tutor"] },
   { href: "/dashboard/feedback", label: "Feedback", icon: <Lightbulb className="h-4 w-4" />, roles: ["student", "tutor"] },
-  { href: "/dashboard/complaint", label: "Complaint", icon: <CircleAlert className="h-4 w-4" />, roles: ["student", "tutor"] },
   { href: "/dashboard/issues", label: "Issues", icon: <Bug className="h-4 w-4" />, roles: ["student", "tutor"] },
+  { href: "/dashboard/complaint", label: "Complaint", icon: <CircleAlert className="h-4 w-4" />, roles: ["student", "tutor"] },
   { href: "/dashboard/faq", label: "FAQ", icon: <CircleHelp className="h-4 w-4" />, roles: ["student", "tutor"] },
-  { href: "/dashboard/billing", label: "Billing & Subscription", icon: <CreditCard className="h-4 w-4" />, roles: ["student", "tutor"] },
   { href: "/dashboard/settings", label: "Settings", icon: <Settings className="h-4 w-4" />, roles: ["student", "tutor"] },
   { href: "/admin/verification", label: "Admin", icon: <ShieldCheck className="h-4 w-4" />, roles: ["admin"] },
 ];

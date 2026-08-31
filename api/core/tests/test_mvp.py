@@ -159,6 +159,26 @@ class MvpFlowTests(TestCase):
       PendingSignupChallenge.objects.filter(email="pendingstudent@example.com", used_at__isnull=True).exists()
     )
 
+  def test_student_signup_accepts_split_name_fields(self):
+    res = self.client.post(
+      "/api/auth/signup",
+      {
+        "email": "splitstudent@example.com",
+        "password": "password123",
+        "role": "student",
+        "firstName": "Grace",
+        "middleName": "Brewster Murray",
+        "lastName": "Hopper",
+      },
+      format="json",
+    )
+    self.assertEqual(res.status_code, 200)
+    challenge = PendingSignupChallenge.objects.get(
+      email="splitstudent@example.com",
+      used_at__isnull=True,
+    )
+    self.assertEqual(challenge.full_name, "Grace Brewster Murray Hopper")
+
   def test_signup_accepts_trailing_slash(self):
     res = self.client.post(
       "/api/auth/signup/",
@@ -267,6 +287,38 @@ class MvpFlowTests(TestCase):
     )
     self.assertEqual(res.status_code, 200)
     self.assertEqual(res.json()["defaultDashboardPath"], "/dashboard/profile")
+
+  def test_unverified_student_login_redirects_to_student_verification(self):
+    student = AppUser.objects.create_user(
+      email="needs-verification@example.com",
+      password="student123",
+      role="student",
+      display_name="New Student",
+      timezone="UTC",
+      is_verified=True,
+    )
+
+    res = self.client.post(
+      "/api/auth/login",
+      {"email": student.email, "password": "student123"},
+      format="json",
+    )
+
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(res.json()["defaultDashboardPath"], "/dashboard/student-verification")
+
+  def test_completed_student_login_redirects_to_find_a_tutor(self):
+    self.student.gender = "female"
+    self.student.save(update_fields=["gender"])
+
+    res = self.client.post(
+      "/api/auth/login",
+      {"email": self.student.email, "password": "student123"},
+      format="json",
+    )
+
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(res.json()["defaultDashboardPath"], "/search")
 
   def test_unapproved_tutor_login_redirects_to_verification(self):
     pending_tutor = AppUser.objects.create_user(
@@ -568,6 +620,60 @@ class MvpFlowTests(TestCase):
     self.assertEqual(pending_profile.languages_csv, "English")
     self.assertTrue(pending_profile.offers_face_to_face)
     self.assertFalse(pending_profile.offers_webcam)
+
+  @override_settings(BYPASS_VERIFICATION=True)
+  def test_tutor_verification_allows_residence_to_be_completed_on_profile(self):
+    pending_tutor = AppUser.objects.create_user(
+      email="residence-on-profile@example.com",
+      password="verify123",
+      role="tutor",
+      display_name="Residence Tutor",
+      full_name="Residence Tutor",
+      timezone="UTC",
+      is_verified=True,
+      mobile_number="+2348011111111",
+    )
+    profile = TutorProfile.objects.create(
+      user=pending_tutor,
+      headline="",
+      bio="",
+      subjects_csv="",
+      hourly_rate_cents=0,
+      languages_csv="",
+      verification_status="not_submitted",
+      is_listed=False,
+    )
+    self.client.force_authenticate(user=pending_tutor)
+
+    response = self.client.post(
+      "/api/tutors/me/verification",
+      {
+        "qualification": "B.Ed",
+        "ninNumber": "12345678901",
+        "bvnNumber": "10987654321",
+        "dateOfBirth": "1990-01-01",
+        "profilePhotoUrl": "/media/images/tutors/photo.jpg",
+        "documentUrls": [
+          "/media/documents/tutors/id.pdf",
+          "/media/documents/tutors/qualification.pdf",
+        ],
+        "firstName": "Residence",
+        "lastName": "Tutor",
+        "mobileNumber": "+2348011111111",
+        "countryOfBirth": "Nigeria",
+        "nationality": "Nigerian",
+        "stateOfOrigin": "Lagos",
+        "lgaOfOrigin": "Ikeja",
+      },
+      format="json",
+    )
+
+    self.assertEqual(response.status_code, 200)
+    profile.refresh_from_db()
+    self.assertEqual(profile.verification_status, "approved")
+    self.assertEqual(profile.home_state, "")
+    self.assertEqual(profile.home_city, "")
+    self.assertEqual(profile.home_address, "")
 
   def test_tutor_verification_rejects_invalid_mobile_number(self):
     pending_tutor = AppUser.objects.create_user(

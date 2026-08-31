@@ -62,6 +62,14 @@ NIN_NUMBER_RE = re.compile(r"^\d{11}$")
 PREPVILLA_ROOM_PREFIX = "prepvilla-"
 BOOKING_ROOM_EARLY_ACCESS_MINUTES = 15
 BVN_NUMBER_RE = NIN_NUMBER_RE
+STUDENT_EDUCATION_LEVELS = {
+    "Primary",
+    "Secondary",
+    "Polytechnic",
+    "University (Undergraduate)",
+    "University (Postgraduate)",
+    "University (Doctorate)",
+}
 
 from .serializers import (
     BookingRowSerializer,
@@ -76,6 +84,8 @@ from .serializers import (
 from .flutterwave import FlutterwaveError, verify_webhook_signature
 from .payment_queue import TASK_FLUTTERWAVE_WEBHOOK, enqueue_payment_task
 from .payments import (
+    cancel_subscription_payment,
+    continue_subscription_checkout,
     create_booking_checkout,
     create_subscription_checkout,
     queue_tutor_payout,
@@ -569,7 +579,17 @@ def _find_tutor_lobby_for_room_name(room_name: str) -> TutorProfile | None:
 
 def _default_dashboard_path(user: AppUser) -> str:
     if user.role == "student":
-        return "/dashboard/profile"
+        verification = StudentVerificationRequest.objects.filter(user=user).first()
+        if not verification or verification.status != "approved":
+            return "/dashboard/student-verification"
+        if (
+            not user.student_profile_completed
+            or not user.gender.strip()
+            or not (user.profile_photo_url or "").strip()
+            or verification.qualification not in STUDENT_EDUCATION_LEVELS
+        ):
+            return "/dashboard/profile"
+        return "/search"
     if user.role == "tutor":
         _ensure_tutor_profile(user)
         tutor_profile = TutorProfile.objects.filter(user=user).first()
@@ -1263,7 +1283,7 @@ def signup(request):
         return _bad_request("Password must be at least 6 characters")
     if role not in {"student", "tutor"}:
         return _bad_request("Role must be student or tutor")
-    if role == "tutor" and any(value is not None for value in (first_name, middle_name, last_name)):
+    if any(value is not None for value in (first_name, middle_name, last_name)):
         if not isinstance(first_name, str) or not first_name.strip() or not isinstance(last_name, str) or not last_name.strip():
             return _bad_request("First name and last name are required")
         normalized_full_name = _compose_full_name(first_name, middle_name, last_name)
@@ -1685,12 +1705,20 @@ def favorite_tutor(request, tutor_id):
 def me(request):
     user: AppUser = request.user
     if request.method == "GET":
+        student_verification = (
+            StudentVerificationRequest.objects.filter(user=user).first()
+            if user.role == "student"
+            else None
+        )
         first_name, middle_name, last_name = _split_full_name(user.full_name or user.display_name)
         residential_address = _current_residential_address(user)
         return JsonResponse({
             "id": str(user.id), "email": user.email, "role": user.role, "displayName": user.display_name,
             "timezone": user.timezone, "fullName": user.full_name, "firstName": first_name, "middleName": middle_name, "lastName": last_name, "mobileNumber": user.mobile_number,
             "dateOfBirth": user.date_of_birth.isoformat() if user.date_of_birth else None,
+            "gender": user.gender,
+            "isStudentProfileComplete": user.student_profile_completed,
+            "levelOfEducation": student_verification.qualification if student_verification else "",
             "profilePhotoUrl": user.profile_photo_url, "location": user.location, "city": user.location, "state": user.state, "address": residential_address,
             "isVerified": user.is_verified, "isFrozen": user.is_frozen,
             "freezeUntil": user.frozen_until.isoformat() if user.frozen_until else None,
@@ -1707,6 +1735,27 @@ def me(request):
     address = request.data.get("address")
     location = request.data.get("location")
     city = request.data.get("city")
+    gender = request.data.get("gender")
+    level_of_education = request.data.get("levelOfEducation")
+    complete_profile = request.data.get("completeProfile", False)
+
+    student_verification = None
+    if user.role == "student":
+        student_verification = StudentVerificationRequest.objects.filter(user=user).first()
+        if complete_profile and (not student_verification or student_verification.status != "approved"):
+            return _bad_request("Complete student verification before updating your profile", status=403)
+        if student_verification and student_verification.status == "approved":
+            locked_student_fields = {
+                "fullName": full_name,
+                "mobileNumber": mobile_number,
+                "dateOfBirth": date_of_birth,
+                "state": state,
+                "address": address,
+                "location": location,
+                "city": city,
+            }
+            if any(value is not None for value in locked_student_fields.values()):
+                return _bad_request("Verified student information is locked", status=403)
 
     if user.role == "tutor":
         tutor_profile = TutorProfile.objects.filter(user=user).first()
@@ -1730,6 +1779,29 @@ def me(request):
     
     if not isinstance(display_name, str) or not display_name.strip():
         return _bad_request("Display name is required")
+
+    if gender is not None:
+        if not isinstance(gender, str) or gender.strip().lower() not in {"male", "female"}:
+            return _bad_request("Gender must be male or female")
+        normalized_gender = gender.strip().lower()
+        if user.gender.strip() and normalized_gender != user.gender.strip().lower():
+            return _bad_request("Submitted gender can only be changed by an administrator", status=403)
+        user.gender = normalized_gender
+    if user.role == "student" and complete_profile and not user.gender.strip():
+        return _bad_request("Gender is required to complete your profile")
+    normalized_level_of_education = None
+    if user.role == "student" and level_of_education is not None:
+        if not isinstance(level_of_education, str) or level_of_education.strip() not in STUDENT_EDUCATION_LEVELS:
+            return _bad_request("Select a valid Level of Education")
+        normalized_level_of_education = level_of_education.strip()
+    if user.role == "student" and complete_profile and normalized_level_of_education is None:
+        return _bad_request("Level of Education is required to complete your profile")
+    if (
+        user.role == "student"
+        and complete_profile
+        and not str(profile_photo_url if profile_photo_url is not None else user.profile_photo_url or "").strip()
+    ):
+        return _bad_request("Profile photo is required to complete your profile")
     
     # Timezone is now optional since we have separate location fields
     # if not isinstance(timezone_str, str) or not timezone_str.strip():
@@ -1744,6 +1816,8 @@ def me(request):
         user.timezone = timezone_str.strip()
     
     if profile_photo_url is not None:
+        if not isinstance(profile_photo_url, str):
+            return _bad_request("Profile photo URL must be a string")
         user.profile_photo_url = profile_photo_url.strip()
     
     if mobile_number is not None:
@@ -1774,14 +1848,24 @@ def me(request):
         user.location = location.strip()
     elif city is not None:
         user.location = city.strip()
+
+    if user.role == "student" and complete_profile:
+        user.student_profile_completed = True
     
-    user.save(update_fields=["display_name", "full_name", "timezone", "profile_photo_url", "mobile_number", "date_of_birth", "location", "state", "address"])
+    with transaction.atomic():
+        user.save(update_fields=["display_name", "full_name", "timezone", "profile_photo_url", "mobile_number", "date_of_birth", "location", "state", "address", "gender", "student_profile_completed"])
+        if user.role == "student" and student_verification and normalized_level_of_education is not None:
+            student_verification.qualification = normalized_level_of_education
+            student_verification.save(update_fields=["qualification"])
     
     first_name, middle_name, last_name = _split_full_name(user.full_name or user.display_name)
     return JsonResponse({
         "id": str(user.id), "email": user.email, "role": user.role, "displayName": user.display_name, 
         "timezone": user.timezone, "fullName": user.full_name, "firstName": first_name, "middleName": middle_name, "lastName": last_name, "mobileNumber": user.mobile_number, 
         "dateOfBirth": user.date_of_birth.isoformat() if user.date_of_birth else None,
+        "gender": user.gender,
+        "isStudentProfileComplete": user.student_profile_completed,
+        "levelOfEducation": student_verification.qualification if student_verification else "",
         "profilePhotoUrl": user.profile_photo_url, "location": user.location, "city": user.location, "state": user.state, "address": user.address,
         "isVerified": user.is_verified, "isFrozen": user.is_frozen,
         "freezeUntil": user.frozen_until.isoformat() if user.frozen_until else None,
@@ -2667,6 +2751,8 @@ def my_profile(request):
             missing_profile_fields.append("subjects")
         if not tp.languages_csv.strip():
             missing_profile_fields.append("languages")
+        if not _resolve_tutor_photo_url(tp):
+            missing_profile_fields.append("profile photo")
         if tp.hourly_rate_cents <= 0:
             missing_profile_fields.append("hourly rate")
         if not tp.home_city.strip():
@@ -3029,20 +3115,12 @@ def my_verification(request):
         return _bad_request("Residential address changes require OTP verification in Settings")
 
     missing_fields: list[str] = []
-    if not isinstance(homeState, str) or not homeState.strip():
-        missing_fields.append("homeState")
-    if not isinstance(homeCity, str) or not homeCity.strip():
-        missing_fields.append("homeCity")
-    if not isinstance(homeAddress, str) or not homeAddress.strip():
-        missing_fields.append("homeAddress")
     if not isinstance(qualification, str) or not qualification.strip():
         missing_fields.append("qualification")
     if not isinstance(ninNumber, str) or not ninNumber.strip():
         missing_fields.append("ninNumber")
     if not isinstance(bvnNumber, str) or not bvnNumber.strip():
         missing_fields.append("bvnNumber")
-    if not isinstance(profilePhotoUrl, str) or not profilePhotoUrl.strip():
-        missing_fields.append("profilePhotoUrl")
     if not isinstance(firstName, str) or not firstName.strip():
         missing_fields.append("firstName")
     if not isinstance(lastName, str) or not lastName.strip():
@@ -3076,7 +3154,7 @@ def my_verification(request):
         except ValueError:
             return _bad_request("Invalid date of birth")
 
-    normalized_profile_photo_url = profilePhotoUrl.strip()[:500]
+    normalized_profile_photo_url = str(profilePhotoUrl or "").strip()[:500]
 
     if not getattr(settings, "BYPASS_VERIFICATION", False):
         name_parts = str(fullName).strip().split()
@@ -3121,9 +3199,9 @@ def my_verification(request):
         verification = VerificationRequest(tutor_profile=tp)
 
     verification.status = "approved"
-    verification.home_state = homeState.strip()
-    verification.home_city = homeCity.strip()
-    verification.home_address = homeAddress.strip()
+    verification.home_state = str(homeState or "").strip()
+    verification.home_city = str(homeCity or "").strip()
+    verification.home_address = str(homeAddress or "").strip()
     verification.qualification = qualification
     verification.nin_number = normalized_nin_number
     verification.bvn_number = normalized_bvn_number
@@ -4069,13 +4147,11 @@ def student_verification(request):
 
     missing_fields: list[str] = []
     for name, value in (
-        ("profilePhotoUrl", profile_photo_url),
         ("dateOfBirth", parsed_date_of_birth),
         ("mobileNumber", normalized_mobile_number),
         ("homeCity", home_city),
         ("homeState", home_state),
         ("homeAddress", home_address),
-        ("qualification", qualification),
         ("firstName", first_name),
         ("lastName", last_name),
         ("countryOfBirth", country_of_birth),
@@ -4086,7 +4162,7 @@ def student_verification(request):
     ):
         if not str(value or "").strip():
             missing_fields.append(name)
-    if not isinstance(document_urls, list) or len(document_urls) < 2:
+    if not isinstance(document_urls, list) or len(document_urls) < 1:
         missing_fields.append("documentUrls")
     if missing_fields:
         return _bad_request(f"Missing required fields: {', '.join(missing_fields)}")
@@ -4139,7 +4215,7 @@ def student_verification(request):
     verification, _ = StudentVerificationRequest.objects.update_or_create(
         user=user,
         defaults={
-            "profile_photo_url": str(profile_photo_url).strip()[:500],
+            "profile_photo_url": str(profile_photo_url or "").strip()[:500],
             "date_of_birth": parsed_date_of_birth,
             "mobile_number": normalized_mobile_number,
             "nin_number": normalized_nin_number,
@@ -4173,12 +4249,12 @@ def student_verification(request):
     ])
 
     subject = "Profile Verification Confirmation"
-    message = f"Hello {user.display_name},\n\nYour profile has been submitted and verified successfully.\n\nProfile Details:\n- Date of Birth: {parsed_date_of_birth}\n- Mobile: {normalized_mobile_number}\n- City: {verification.city}\n- State: {verification.state}\n- Address: {verification.address}\n\nYou can now contact tutors.\n\nBest regards,\nPrepVilla Team"
+    message = f"Hello {user.display_name},\n\nYour identity has been verified successfully.\n\nVerified Details:\n- Date of Birth: {parsed_date_of_birth}\n- Mobile: {normalized_mobile_number}\n- City: {verification.city}\n- State: {verification.state}\n- Address: {verification.address}\n\nContinue to your profile to provide the remaining information.\n\nBest regards,\nPrepVilla Team"
     _send_email(subject, message, [user.email])
 
     return JsonResponse({
         "status": verification.status,
-        "message": "Profile submitted successfully and automatically verified. You can now contact tutors.",
+        "message": "Identity verified successfully. Continue to your profile to provide the remaining information.",
         "submittedAt": verification.submitted_at.isoformat(),
         "decidedAt": verification.reviewed_at.isoformat() if verification.reviewed_at else None,
         "fullName": user.full_name,
@@ -4250,6 +4326,27 @@ def subscription_payment_checkout(request):
     return JsonResponse(result, status=201)
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def subscription_payment_continue(request, payment_id):
+    try:
+        result = continue_subscription_checkout(user=request.user, payment_id=payment_id)
+    except (FlutterwaveError, ValidationError) as exc:
+        detail = getattr(exc, "detail", str(exc))
+        return _bad_request(str(detail), status=400 if isinstance(exc, ValidationError) else 503)
+    return JsonResponse(result)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def subscription_payment_cancel(request, payment_id):
+    try:
+        result = cancel_subscription_payment(user=request.user, payment_id=payment_id)
+    except ValidationError as exc:
+        return _bad_request(str(exc.detail))
+    return JsonResponse(result)
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def subscription_plans(request):
@@ -4296,15 +4393,34 @@ def booking_payment_checkout(request, booking_id):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def payment_verify(request):
-    transaction_id = request.GET.get("transaction_id") or request.GET.get("transactionId")
-    tx_ref = request.GET.get("tx_ref") or request.GET.get("txRef") or ""
-    if not transaction_id:
-        return _bad_request("transaction_id is required")
+    transaction_id = (
+        request.GET.get("transaction_id")
+        or request.GET.get("transactionId")
+        or request.GET.get("charge_id")
+        or request.GET.get("chargeId")
+        or ""
+    )
+    tx_ref = (
+        request.GET.get("tx_ref")
+        or request.GET.get("txRef")
+        or request.GET.get("reference")
+        or ""
+    )
+    checkout_session_id = (
+        request.GET.get("checkout_session_id")
+        or request.GET.get("checkoutSessionId")
+        or request.GET.get("session_id")
+        or request.GET.get("sessionId")
+        or ""
+    )
+    if not transaction_id and not tx_ref and not checkout_session_id:
+        return _bad_request("A Flutterwave charge ID, checkout session ID, or payment reference is required")
     try:
         result = verify_customer_payment(
             user=request.user,
             transaction_id=str(transaction_id),
             tx_ref=str(tx_ref),
+            checkout_session_id=str(checkout_session_id),
         )
     except (FlutterwaveError, ValidationError) as exc:
         detail = getattr(exc, "detail", str(exc))

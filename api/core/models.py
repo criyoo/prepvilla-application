@@ -39,6 +39,8 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     location = models.CharField(max_length=100, blank=True, default="", help_text="Student location/city")
     state = models.CharField(max_length=100, blank=True, default="", help_text="Student state/province")
     address = models.TextField(blank=True, default="", help_text="Student full address")
+    gender = models.CharField(max_length=20, blank=True, default="")
+    student_profile_completed = models.BooleanField(default=False)
     
     # Account Status Fields
     is_verified = models.BooleanField(default=False, help_text="Whether email is verified via OTP")

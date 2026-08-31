@@ -405,13 +405,15 @@ export default function DashboardSettingsPage() {
 
       {/* Security Settings */}
       <div className="space-y-6">
-        {role === "tutor" ? (
+        {role === "student" || role === "tutor" ? (
           <div className="form-panel rounded-2xl p-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-[18px] font-semibold mb-2">Edit Profile</h3>
                 <p className="text-[14px] text-black/65">
-                  {!isApprovedTutor
+                  {role === "student"
+                    ? "Update your profile information, including your profile photo."
+                    : !isApprovedTutor
                     ? "Your tutor profile unlocks after verification is approved."
                     : hasCompletedTutorProfile
                       ? "Update your public profile here. Use the secure fields below for email, mobile number, and qualification changes."
@@ -422,7 +424,9 @@ export default function DashboardSettingsPage() {
                 variant="secondary"
                 onClick={() =>
                   router.push(
-                    !isApprovedTutor
+                    role === "student"
+                      ? "/dashboard/profile?edit=profile"
+                      : !isApprovedTutor
                       ? "/dashboard/verification"
                       : hasCompletedTutorProfile
                         ? "/dashboard/profile?edit=profile"
@@ -430,7 +434,13 @@ export default function DashboardSettingsPage() {
                   )
                 }
               >
-                {!isApprovedTutor ? "Open Verification" : hasCompletedTutorProfile ? "Update Profile" : "Complete Profile"}
+                {role === "student"
+                  ? "Update Profile"
+                  : !isApprovedTutor
+                    ? "Open Verification"
+                    : hasCompletedTutorProfile
+                      ? "Update Profile"
+                      : "Complete Profile"}
               </Button>
             </div>
           </div>

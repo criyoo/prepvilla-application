@@ -203,9 +203,9 @@ export function HowItWorksPage() {
           <div className="pointer-events-none absolute -bottom-44 left-[18%] h-96 w-96 rounded-full bg-white/10 blur-3xl" />
           <div className="relative mx-auto grid w-full max-w-[1240px] gap-12 px-5 pb-16 pt-[calc(var(--app-header-height)+4rem)] sm:px-8 md:pb-24 md:pt-[calc(var(--app-header-height)+6rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-end lg:px-10">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent-light">How PrepVilla works</p>
-              <h1 className="brand-heading mt-5 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-                One clear journey. Two ways to take part.
+              <p className="text-[20px] font-bold uppercase tracking-[0.16em] text-accent-light">How PrepVilla works</p>
+              <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+                One clear journey. <p className="text-coral/75">Two ways to take part.</p>
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/75 md:text-lg">
                 Whether you are looking for support with learning or ready to share what you know, PrepVilla keeps discovery, communication, lessons, and payments connected.

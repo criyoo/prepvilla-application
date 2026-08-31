@@ -50,7 +50,9 @@ class StudentVerificationTests(TestCase):
     @patch("core.views.verify_nin_and_bvn")
     @patch("core.views.verify_nin_identity")
     def test_student_can_verify_without_bvn(self, verify_nin, verify_combined):
-        response = self.client.post("/api/students/verification", self.payload, format="json")
+        payload = {**self.payload, "documentUrls": [self.payload["documentUrls"][0]]}
+        payload.pop("qualification")
+        response = self.client.post("/api/students/verification", payload, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "approved")
@@ -59,7 +61,8 @@ class StudentVerificationTests(TestCase):
         verification = StudentVerificationRequest.objects.get(user=self.student)
         self.assertEqual(verification.bvn_number, "")
         self.assertEqual(verification.nin_number, "12345678901")
-        self.assertEqual(verification.qualification, "Bachelor's Degree")
+        self.assertEqual(verification.qualification, "")
+        self.assertEqual(verification.document_urls, '["/uploads/images/students/ada-id.pdf"]')
 
     @patch("core.views.verify_nin_and_bvn")
     @patch("core.views.verify_nin_identity")
@@ -89,6 +92,62 @@ class StudentVerificationTests(TestCase):
         self.assertIn("11 digits", response.json()["detail"])
         verify_nin.assert_not_called()
         verify_combined.assert_not_called()
+
+    @patch("core.views.verify_nin_identity")
+    def test_verified_student_completes_profile_and_verified_fields_stay_locked(self, verify_nin):
+        verification_payload = {**self.payload}
+        verification_payload.pop("profilePhotoUrl")
+        response = self.client.post("/api/students/verification", verification_payload, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["profilePhotoUrl"], "")
+
+        missing_photo = self.client.put(
+            "/api/me",
+            {
+                "displayName": "Ada",
+                "gender": "female",
+                "levelOfEducation": "University (Undergraduate)",
+                "completeProfile": True,
+            },
+            format="json",
+        )
+        self.assertEqual(missing_photo.status_code, 400)
+        self.assertIn("Profile photo", missing_photo.json()["detail"])
+        self.student.refresh_from_db()
+        self.assertFalse(self.student.student_profile_completed)
+
+        completion = self.client.put(
+            "/api/me",
+            {
+                "displayName": "Ada",
+                "gender": "female",
+                "levelOfEducation": "University (Undergraduate)",
+                "profilePhotoUrl": "/uploads/images/students/ada-profile.jpg",
+                "completeProfile": True,
+            },
+            format="json",
+        )
+        self.assertEqual(completion.status_code, 200)
+        self.assertEqual(completion.json()["gender"], "female")
+        self.assertEqual(completion.json()["profilePhotoUrl"], "/uploads/images/students/ada-profile.jpg")
+        self.assertEqual(completion.json()["levelOfEducation"], "University (Undergraduate)")
+        self.assertTrue(completion.json()["isStudentProfileComplete"])
+        self.assertEqual(completion.json()["defaultDashboardPath"], "/search")
+
+        locked_update = self.client.put(
+            "/api/me",
+            {"displayName": "Ada", "state": "Oyo"},
+            format="json",
+        )
+        self.assertEqual(locked_update.status_code, 403)
+        self.assertIn("locked", locked_update.json()["detail"].lower())
+
+        self.student.refresh_from_db()
+        verification = StudentVerificationRequest.objects.get(user=self.student)
+        self.assertEqual(self.student.gender, "female")
+        self.assertTrue(self.student.student_profile_completed)
+        self.assertEqual(self.student.state, "Lagos")
+        self.assertEqual(verification.qualification, "University (Undergraduate)")
 
     def test_tutor_bvn_requirement_is_unchanged(self):
         tutor = AppUser.objects.create_user(
@@ -150,7 +209,6 @@ class StudentVerificationTests(TestCase):
                 "ninNumber": "12345678901",
                 "bvnNumber": "10987654321",
                 "dateOfBirth": "1990-01-02",
-                "profilePhotoUrl": "/uploads/images/tutors/photo.jpg",
                 "documentUrls": [
                     "/uploads/images/tutors/id.pdf",
                     "/uploads/images/tutors/qualification.pdf",
@@ -168,6 +226,7 @@ class StudentVerificationTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "approved")
+        self.assertEqual(response.json()["profilePhotoUrl"], "")
         verify_combined.assert_called_once()
         profile.refresh_from_db()
         self.assertEqual(profile.verification_status, "approved")

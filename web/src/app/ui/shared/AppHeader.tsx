@@ -7,6 +7,7 @@ import { clsx } from "clsx";
 import { ArrowLeft, BookOpenCheck, Info, LogOut, Search, UserRound } from "lucide-react";
 import { Button } from "./Button";
 import { useAuthStore } from "./authStore";
+import BrandLogo from "./BrandLogo";
 
 type AppHeaderProps = {
   hideMenu?: boolean;
@@ -59,20 +60,16 @@ export function AppHeader({ hideMenu = false, hideActions = false, overlay = fal
     <>
       <header
         className={clsx(
-          "relative sticky top-0 z-10 bg-transparent",
+          "relative sticky top-0 z-10 backdrop-blur-xl bg-transparent",
           overlay
-            ? "shadow-[0_10px_10px_-34px_rgba(15,23,40,0.18)]"
-            : "shadow-[0_10px_10px_-34px_rgba(15,23,40,0.18)]",
+            ? "shadow-none"
+            : "shadow-none",
         )}
       >
-        <div className="mx-auto flex min-h-[var(--app-header-height)] w-full max-w-[1480px] items-center justify-between gap-4 px-4 py-3 md:px-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center">
-              <div
-                className="brand-logo text-[20px] font-extrabold leading-[24px] tracking-tight md:text-[24px] md:leading-[28px]"
-              >
-                PrepVilla
-              </div>
+        <div className="mx-auto flex h-[var(--app-header-height)] w-full max-w-[1480px] items-center justify-between gap-4 px-4 py-2 md:px-4">
+          <div className="flex shrink-0 items-center gap-3">
+            <Link href="/" aria-label="PrepVilla home" className="flex items-center">
+              <BrandLogo className="-mx-4 h-28 w-auto sm:-mx-5 sm:h-32 lg:-mx-6 lg:h-36" />
             </Link>
           </div>
 

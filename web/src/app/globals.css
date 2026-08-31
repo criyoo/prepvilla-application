@@ -101,11 +101,23 @@
   --form-border-strong: rgba(17, 17, 17, 0.2);
   --form-placeholder: #6b7280;
   --form-shadow: 0 24px 54px rgba(15, 23, 42, 0.08);
-  --app-header-height: 72px;
+  --app-header-height: 128px;
   --font-sans: "Buenos Aires", "OpenSans", "Open Sans", sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", Consolas, Monaco, monospace;
   --tutor-card-width: 340px;
   --tutor-card-image-height: 350px;
+}
+
+@media (width >= 640px) {
+  :root {
+    --app-header-height: 144px;
+  }
+}
+
+@media (width >= 1024px) {
+  :root {
+    --app-header-height: 160px;
+  }
 }
 
 @theme inline {
@@ -204,6 +216,7 @@ textarea {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -214,6 +227,7 @@ textarea {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -225,6 +239,7 @@ textarea {
     opacity: 0;
     transform: translateX(10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -232,9 +247,12 @@ textarea {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -244,6 +262,7 @@ textarea {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -254,10 +273,12 @@ textarea {
     box-shadow: 0 0 0 rgba(255, 111, 97, 0);
     transform: translateY(0);
   }
+
   50% {
     box-shadow: 0 18px 36px rgba(255, 111, 97, 0.24);
     transform: translateY(-1px);
   }
+
   100% {
     box-shadow: 0 22px 40px rgba(255, 111, 97, 0.18), 0 12px 28px rgba(152, 245, 225, 0.22);
     transform: translateY(-2px);
@@ -285,12 +306,10 @@ textarea {
 }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--surface-2) 25%,
-    var(--surface-3) 50%,
-    var(--surface-2) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--surface-2) 25%,
+      var(--surface-3) 50%,
+      var(--surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -392,12 +411,10 @@ textarea {
 
 /* Skeleton loading */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--surface-2) 25%,
-    var(--surface-3) 50%,
-    var(--surface-2) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--surface-2) 25%,
+      var(--surface-3) 50%,
+      var(--surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 0.5rem;
@@ -530,7 +547,7 @@ textarea {
   content: none;
 }
 
-.menu-link > * {
+.menu-link>* {
   position: relative;
   z-index: 1;
 }
@@ -666,28 +683,28 @@ textarea {
   }
 }
 
-@media (width >= 360px) {
+@media (width >=360px) {
   .tutor-card-grid {
     justify-content: start;
     grid-template-columns: repeat(auto-fit, minmax(var(--tutor-card-width), var(--tutor-card-width)));
   }
 }
 
-@media (width >= 360px) and (width < 900px) {
+@media (width >=360px) and (width < 900px) {
   .search-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(1, minmax(var(--tutor-card-width), var(--tutor-card-width)));
   }
 }
 
-@media (width >= 900px) and (width < 1200px) {
+@media (width >=900px) and (width < 1200px) {
   .search-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(2, minmax(var(--tutor-card-width), var(--tutor-card-width)));
   }
 }
 
-@media (width >= 1200px) {
+@media (width >=1200px) {
   .search-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(3, minmax(var(--tutor-card-width), var(--tutor-card-width)));
@@ -698,28 +715,28 @@ textarea {
   }
 }
 
-@media (width >= 360px) and (width < 768px) {
+@media (width >=360px) and (width < 768px) {
   .featured-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(1, minmax(var(--tutor-card-width), var(--tutor-card-width)));
   }
 }
 
-@media (width >= 768px) and (width < 1120px) {
+@media (width >=768px) and (width < 1120px) {
   .featured-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(2, minmax(var(--tutor-card-width), var(--tutor-card-width)));
   }
 }
 
-@media (width >= 1120px) and (width < 1460px) {
+@media (width >=1120px) and (width < 1460px) {
   .featured-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(3, minmax(var(--tutor-card-width), var(--tutor-card-width)));
   }
 }
 
-@media (width >= 1460px) {
+@media (width >=1460px) {
   .featured-tutor-grid {
     justify-content: center;
     grid-template-columns: repeat(4, minmax(var(--tutor-card-width), var(--tutor-card-width)));

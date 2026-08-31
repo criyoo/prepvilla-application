@@ -71,6 +71,7 @@ class RoleUserAdmin(UserAdmin):
           "state",
           "location",
           "address",
+          "gender",
           "profile_photo_url",
         )
       },

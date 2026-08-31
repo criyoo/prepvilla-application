@@ -326,22 +326,19 @@ PAYMENT_QUEUE_SQS_ENDPOINT_URL = os.environ.get("PAYMENT_QUEUE_SQS_ENDPOINT_URL"
 API_PUBLIC_URL = os.environ.get("API_PUBLIC_URL", "http://localhost:8500").rstrip("/")
 WEB_PUBLIC_URL = os.environ.get("WEB_PUBLIC_URL", "http://localhost:3500").rstrip("/")
 
-FLUTTERWAVE_API_VERSION = os.environ.get("FLUTTERWAVE_API_VERSION", "v3").strip()
-FLUTTERWAVE_PUBLIC_KEY = os.environ.get("FLUTTERWAVE_PUBLIC_KEY", "").strip()
-FLUTTERWAVE_SECRET_KEY = os.environ.get("FLUTTERWAVE_SECRET_KEY", "").strip()
+FLUTTERWAVE_API_VERSION = os.environ.get("FLUTTERWAVE_API_VERSION", "v4").strip()
 FLUTTERWAVE_CLIENT_ID = os.environ.get("FLUTTERWAVE_CLIENT_ID", "").strip()
 FLUTTERWAVE_CLIENT_SECRET = os.environ.get("FLUTTERWAVE_CLIENT_SECRET", "").strip()
 FLUTTERWAVE_ENCRYPTION_KEY = os.environ.get("FLUTTERWAVE_ENCRYPTION_KEY", "").strip()
-FLUTTERWAVE_TRANSFER_PIN = os.environ.get("FLUTTERWAVE_TRANSFER_PIN", "").strip()
 FLUTTERWAVE_WEBHOOK_SECRET_HASH = os.environ.get("FLUTTERWAVE_WEBHOOK_SECRET_HASH", "").strip()
 FLUTTERWAVE_API_BASE_URL = os.environ.get(
   "FLUTTERWAVE_API_BASE_URL",
-  "https://api.flutterwave.com/v3",
+  "https://developersandbox-api.flutterwave.com",
 ).strip().rstrip("/")
-FLUTTERWAVE_V3_API_BASE_URL = os.environ.get(
-  "FLUTTERWAVE_V3_API_BASE_URL",
-  FLUTTERWAVE_API_BASE_URL,
-).strip().rstrip("/")
+FLUTTERWAVE_TOKEN_URL = os.environ.get(
+  "FLUTTERWAVE_TOKEN_URL",
+  "https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token",
+).strip()
 FLUTTERWAVE_WEBHOOK_URL = os.environ.get("FLUTTERWAVE_WEBHOOK_URL", "").strip()
 FLUTTERWAVE_REDIRECT_URL = os.environ.get(
   "FLUTTERWAVE_REDIRECT_URL",
