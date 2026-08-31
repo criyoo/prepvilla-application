@@ -309,7 +309,12 @@ class MvpFlowTests(TestCase):
 
   def test_completed_student_login_redirects_to_find_a_tutor(self):
     self.student.gender = "female"
-    self.student.save(update_fields=["gender"])
+    self.student.profile_photo_url = "/media/images/students/student.jpg"
+    self.student.student_profile_completed = True
+    self.student.save(update_fields=["gender", "profile_photo_url", "student_profile_completed"])
+    verification = StudentVerificationRequest.objects.get(user=self.student)
+    verification.qualification = "University (Undergraduate)"
+    verification.save(update_fields=["qualification"])
 
     res = self.client.post(
       "/api/auth/login",
